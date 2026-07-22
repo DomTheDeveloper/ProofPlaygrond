@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   verify:
-    name: verify exact A263135 theorem with AXLE
+    name: verify exact repaired A263135 theorem with AXLE
     runs-on: ubuntu-slim
     timeout-minutes: 25
     steps:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 1a99472b0118d4fa9049e1e9dd528c93f0ede558
+          ref: 2ec5e1247a6337070eb21d70160da4849ea673fa
           path: formal-conjectures
 
       - name: Flatten and verify with AXLE Lean 4.27
