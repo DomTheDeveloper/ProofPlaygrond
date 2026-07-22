@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 02688846b7a0d44e208cef7581bbdbb3978813c6
+          ref: 024bf36395a5b19464c43c232450b1ae6230700b
 
       - name: Run AXLE and print only actionable diagnostics
         shell: bash
