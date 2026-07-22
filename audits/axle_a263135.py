@@ -12,7 +12,7 @@ import urllib.request
 from pathlib import Path
 
 AXLE_URL = "https://axle.axiommath.ai/api/v1/verify_proof"
-PROOF_SHA = "2ec5e1247a6337070eb21d70160da4849ea673fa"
+PROOF_SHA = "6ad03f2a0fa5de81c0ed08fd0fc38a42f12513b7"
 
 
 def strip_imports(source: str) -> str:
@@ -145,7 +145,7 @@ theorem conjecture (n : ℕ) (hn : 0 < n) :
     chunks.append(theorem + "  exact conjecture_solved n hn\n\nend OeisA263135\n")
     content = "".join(chunks)
 
-    code = re.sub(r"/-.*?-\/", "", content, flags=re.DOTALL)
+    code = re.sub(r"/-.*?-/", "", content, flags=re.DOTALL)
     code = re.sub(r"--.*", "", code)
     if re.search(r"\b(sorry|admit)\b", code):
         raise RuntimeError("flattened A263135 candidate contains a proof placeholder")
