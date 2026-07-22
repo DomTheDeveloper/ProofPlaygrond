@@ -1,0 +1,165 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Manual Lean audit
+
+# Deliberately manual-only. Development checks belong in AXLE/local Lean; this
+# workflow is the bounded, observable kernel-audit gate for an exact ref.
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: Repository containing the Lean proof
+        required: true
+        default: DomTheDeveloper/formal-conjectures
+        type: string
+      source_ref:
+        description: Exact commit SHA preferred; branch names are allowed during development
+        required: true
+        type: string
+      target_kind:
+        description: How to invoke Lean
+        required: true
+        default: file
+        type: choice
+        options:
+          - file
+          - module
+          - full
+      target:
+        description: Lean file or Lake module; ignored for a full build
+        required: false
+        type: string
+      axiom_file:
+        description: Optional Lean file containing #print axioms commands
+        required: false
+        type: string
+      scan_paths:
+        description: Optional newline-separated files/directories to scan for forbidden shortcuts
+        required: false
+        type: string
+      runner:
+        description: Use one runner unless there is a concrete platform-specific reason
+        required: true
+        default: ubuntu-latest
+        type: choice
+        options:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-15
+          - windows-2025
+
+permissions:
+  contents: read
+
+# At most one kernel audit runs and one waits. A newer pending dispatch replaces
+# an older pending dispatch, preventing a development backlog from forming.
+concurrency:
+  group: proof-playground-kernel-audit
+  queue: single
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: ${{ inputs.target_kind }} audit of ${{ inputs.source_repo }}@${{ inputs.source_ref }}
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.source_repo }}
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 1
+
+      - name: Record resolved commit
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+          printf 'Requested ref: %s\n' '${{ inputs.source_ref }}'
+          printf 'Resolved SHA: %s\n' "$(cat "$RUNNER_TEMP/resolved-sha.txt")"
+
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject placeholders and trust shortcuts
+        if: inputs.scan_paths != ''
+        env:
+          SCAN_PATHS: ${{ inputs.scan_paths }}
+        run: |
+          set -euo pipefail
+          paths=()
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            paths+=("$path")
+          done <<< "$SCAN_PATHS"
+          if (( ${#paths[@]} == 0 )); then
+            exit 0
+          fi
+          if grep -RInE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${paths[@]}"; then
+            echo 'Forbidden placeholder or trust shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Run pinned Lean audit
+        env:
+          TARGET_KIND: ${{ inputs.target_kind }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_KIND" in
+            file)
+              [[ -n "$TARGET" ]] || { echo 'target is required for file mode' >&2; exit 2; }
+              "$HOME/.elan/bin/lake" env lean "$TARGET" 2>&1 | tee "$RUNNER_TEMP/lean-audit.log"
+              ;;
+            module)
+              [[ -n "$TARGET" ]] || { echo 'target is required for module mode' >&2; exit 2; }
+              "$HOME/.elan/bin/lake" --wfail build "$TARGET" 2>&1 | tee "$RUNNER_TEMP/lean-audit.log"
+              ;;
+            full)
+              "$HOME/.elan/bin/lake" --wfail build 2>&1 | tee "$RUNNER_TEMP/lean-audit.log"
+              ;;
+            *)
+              echo "Unknown target kind: $TARGET_KIND" >&2
+              exit 2
+              ;;
+          esac
+
+      - name: Inspect theorem axioms
+        if: inputs.axiom_file != ''
+        env:
+          AXIOM_FILE: ${{ inputs.axiom_file }}
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" env lean "$AXIOM_FILE" 2>&1 | tee -a "$RUNNER_TEMP/lean-audit.log"
+
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/lean-audit.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload audit transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-lean-audit-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/lean-audit.log
+          if-no-files-found: warn
