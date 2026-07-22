@@ -6,13 +6,15 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/a261865-proof-audit.yml'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: a261865-independent-audit
+  group: a261865-independent-audit-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
