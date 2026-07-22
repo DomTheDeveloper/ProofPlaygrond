@@ -1,17 +1,15 @@
-# Triggered through a merged migration PR.
 name: One-time CRL proof migration
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/migrate-crl.yml
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
 
 jobs:
   mirror:
+    if: github.event.issue.pull_request && github.event.comment.body == '/migrate-crl'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
