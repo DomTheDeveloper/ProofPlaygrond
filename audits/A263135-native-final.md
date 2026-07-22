@@ -1,3 +1,3 @@
 # OEIS A263135 native final audit
 
-Verify `DomTheDeveloper/formal-conjectures@c101a43dab4119deb59eb047a19a1ec85e72439e`, where the canonical statement uses `FormalConjectures.Util.ProblemImports` and the complete 27-module proof stack is registered in the dedicated `A263135ScratchAudit` Lake library. Then execute `Scratch/A263135Audit.lean` and enforce a `#print axioms OeisA263135.conjecture_solved` result without `sorryAx` or compiler-trust axioms.
+Verify frozen commit `DomTheDeveloper/formal-conjectures@931e9d384a3cf2e1a15706251fb7d98a83242a4d`, where the canonical statement imports `FormalConjectures.Util.ProblemImports` and the complete 27-module proof stack is registered in `A263135ScratchAudit`. Then execute `Scratch/A263135Audit.lean` and enforce a `#print axioms OeisA263135.conjecture_solved` result without `sorryAx` or compiler-trust axioms.
