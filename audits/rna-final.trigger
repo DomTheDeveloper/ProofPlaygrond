@@ -1,4 +1,4 @@
 source_repo=DomTheDeveloper/formal-conjectures
-source_ref=fd5d4ce3433ad6f341df5eefa5de9b17c0370aea
+source_ref=8e31f76de12a3a3edcf5c9010735593d9b4c8a52
 toolchain=leanprover/lean4:v4.27.0
-attempt=4
+attempt=5
