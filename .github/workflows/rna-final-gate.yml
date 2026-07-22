@@ -60,8 +60,15 @@ jobs:
           set -euo pipefail
           lake --wfail build \
             RNAQuasiPowers \
-            FormalConjectures.Arxiv.2602.19255.RNAQuasiPowers \
+            FormalConjectures.Util.ProblemImports \
             2>&1 | tee rna-final-kernel.log
+          out_dir='.lake/build/lib/lean/FormalConjectures/Arxiv/2602.19255'
+          mkdir -p "$out_dir"
+          lake env lean -DwarningAsError=true \
+            -o "$out_dir/RNAQuasiPowers.olean" \
+            -i "$out_dir/RNAQuasiPowers.ilean" \
+            FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
+            2>&1 | tee -a rna-final-kernel.log
 
       - name: Run axiom audits
         working-directory: formal-conjectures
