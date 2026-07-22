@@ -1,0 +1,89 @@
+name: One-time CRL proof migration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/migrate-crl.yml
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Mirror every branch and tag, preserving old site without Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_REPOSITORY: DomTheDeveloper/crl
+          DESTINATION_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          git clone --mirror "https://github.com/${SOURCE_REPOSITORY}.git" source.git
+          cd source.git
+
+          # Rename the Pages ref in the mirrored repository. Never create gh-pages here.
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            pages_sha="$(git rev-parse refs/heads/gh-pages)"
+            git update-ref refs/heads/old-site "${pages_sha}"
+            git update-ref -d refs/heads/gh-pages
+          fi
+
+          {
+            echo "source=${SOURCE_REPOSITORY}"
+            echo "destination=${DESTINATION_REPOSITORY}"
+            echo "migrated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            git for-each-ref --format='%(objectname) %(refname)' refs/heads refs/tags | sort
+          } > ../source-refs.txt
+
+          git remote add destination "https://x-access-token:${GH_TOKEN}@github.com/${DESTINATION_REPOSITORY}.git"
+          git push destination --force --prune 'refs/heads/*:refs/heads/*'
+          git push destination --force --prune 'refs/tags/*:refs/tags/*'
+
+          cd ..
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${DESTINATION_REPOSITORY}.git" playground
+          cd playground
+          git checkout main
+          git config user.name "proof-playground-migrator"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          mkdir -p .migration
+          cp ../source-refs.txt .migration/crl-source-refs.txt
+          cat > .migration/README.md <<'EOF'
+          # CRL migration record
+
+          This repository contains the full branch and tag history migrated from `DomTheDeveloper/crl`.
+
+          The former `gh-pages` tip is stored as `old-site`; no `gh-pages` branch is created in this repository. The source reference manifest is recorded in `crl-source-refs.txt`.
+          EOF
+
+          # Defense in depth: the proof playground must not deploy GitHub Pages.
+          rm -f .github/workflows/pages.yml .github/workflows/sync-pages-branch.yml
+
+          cat > README.md <<'EOF'
+          # Proof Playground
+
+          This is the working repository for Lean proof development, kernel verification, experiments, scratch files, and temporary test branches.
+
+          ## Proof promotion pipeline
+
+          1. Develop, test, and verify in `DomTheDeveloper/ProofPlaygrond`.
+          2. Once the exact theorem statement is stable and the proof passes real Lean checks, port the focused proof to `DomTheDeveloper/formal-conjectures`.
+          3. Once the downstream repository is green, open a focused pull request to the official Google DeepMind Formal Conjectures repository.
+
+          `DomTheDeveloper/crl` is legacy. Do not put new proof work there.
+
+          ## Site archive
+
+          The former site is preserved on the `old-site` branch. There is intentionally no `gh-pages` branch and no Pages deployment workflow.
+          EOF
+
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Complete migration from crl into proof playground"
+            git push origin main
+          fi
