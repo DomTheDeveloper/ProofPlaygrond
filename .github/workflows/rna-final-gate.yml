@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: d727e089d18dd6525264f2d047a812336a168951
+          ref: 5ddd77b2d405816c868d73a933447615fd1594ba
           path: formal-conjectures
 
       - name: Confirm immutable inputs
@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           cd formal-conjectures
-          test "$(git rev-parse HEAD)" = "d727e089d18dd6525264f2d047a812336a168951"
+          test "$(git rev-parse HEAD)" = "5ddd77b2d405816c868d73a933447615fd1594ba"
           test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
           test -f lake-manifest.json
 
