@@ -41,6 +41,14 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
+      - name: Restore reusable Lean build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: a263135-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+
       - name: Restore pinned Mathlib cache
         run: |
           set -euo pipefail
@@ -57,8 +65,44 @@ jobs:
 
       - name: Build complete A263135 module chain
         run: |
-          set -o pipefail
-          "$HOME/.elan/bin/lake" build Scratch.A263135Audit 2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
+          set -euo pipefail
+          python3 - <<'PY' > "$RUNNER_TEMP/a263135-order.txt"
+          import re
+          from pathlib import Path
+
+          root = Path('.')
+          files = sorted((root / 'Scratch').glob('A263135*.lean'))
+          files = [p for p in files if p.name != 'A263135Audit.lean']
+          by_module = {'.'.join(p.with_suffix('').parts): p for p in files}
+          import_re = re.compile(r'^\s*(?:public\s+|public\s+meta\s+)?import\s+([A-Za-z0-9_.]+)', re.MULTILINE)
+          deps = {}
+          for name, path in by_module.items():
+              imports = import_re.findall(path.read_text(encoding='utf-8'))
+              deps[name] = {d for d in imports if d in by_module}
+          ordered, temporary, permanent = [], set(), set()
+          def visit(name):
+              if name in permanent:
+                  return
+              if name in temporary:
+                  raise RuntimeError(f'cyclic import at {name}')
+              temporary.add(name)
+              for dep in sorted(deps[name]):
+                  visit(dep)
+              temporary.remove(name)
+              permanent.add(name)
+              ordered.append(name)
+          for name in sorted(by_module):
+              visit(name)
+          print('\n'.join(ordered))
+          PY
+
+          : > "$RUNNER_TEMP/a263135-native.log"
+          while IFS= read -r module; do
+            echo "=== BUILD $module ===" | tee -a "$RUNNER_TEMP/a263135-native.log"
+            "$HOME/.elan/bin/lake" build "$module" 2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
+          done < "$RUNNER_TEMP/a263135-order.txt"
+          echo '=== BUILD Scratch.A263135Audit ===' | tee -a "$RUNNER_TEMP/a263135-native.log"
+          "$HOME/.elan/bin/lake" build Scratch.A263135Audit 2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
 
       - name: Run final theorem axiom audit
         run: |
@@ -80,5 +124,6 @@ jobs:
           name: a263135-native-final-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/a263135-order.txt
             ${{ runner.temp }}/a263135-native.log
           if-no-files-found: warn
