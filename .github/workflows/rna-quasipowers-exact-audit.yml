@@ -1,0 +1,83 @@
+name: RNA quasi-powers exact Lean audit
+
+on:
+  pull_request:
+    paths:
+      - 'audits/rna-quasipowers-ef541834.trigger'
+      - '.github/workflows/rna-quasipowers-exact-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rna-quasipowers-exact-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kernel-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Check out exact Formal Conjectures proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: ef541834089a3c8941f7bc311601d1b8a8dfc117
+          path: formal-conjectures
+
+      - name: Confirm immutable source and pinned toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd formal-conjectures
+          test "$(git rev-parse HEAD)" = "ef541834089a3c8941f7bc311601d1b8a8dfc117"
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+          test -f lake-manifest.json
+
+      - name: Install Lean 4.27.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch committed Mathlib cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd formal-conjectures
+          lake exe cache get
+
+      - name: Compile internal and public theorem layers
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd formal-conjectures
+          lake --wfail build RNAQuasiPowers 2>&1 | tee rna-kernel-audit.log
+          lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
+            2>&1 | tee -a rna-kernel-audit.log
+
+      - name: Kernel axiom audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd formal-conjectures
+          lake env lean RNAQuasiPowers/AxiomAudit.lean \
+            2>&1 | tee -a rna-kernel-audit.log
+          lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean \
+            2>&1 | tee -a rna-kernel-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
+              rna-kernel-audit.log; then
+            echo 'Forbidden axiom or compiler-trust shortcut detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload exact transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rna-quasipowers-ef541834-kernel-transcript
+          path: formal-conjectures/rna-kernel-audit.log
+          if-no-files-found: warn
