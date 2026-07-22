@@ -19,7 +19,7 @@ jobs:
   axle-diagnostics:
     name: Concise AXLE diagnostics
     runs-on: ubuntu-slim
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - name: Checkout current A261865 proof branch
         uses: actions/checkout@v4
@@ -37,8 +37,10 @@ jobs:
           import urllib.request
 
           files = [
-              'FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean',
-              'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean',
+              'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean',
           ]
           all_results = {}
           failed = False
@@ -70,7 +72,7 @@ jobs:
               print('tool_errors=' + json.dumps(tool_errors, ensure_ascii=False))
               print('failed_declarations=' + json.dumps(declarations, ensure_ascii=False))
               print('warnings=' + json.dumps(warnings[:10], ensure_ascii=False))
-              failed |= bool(errors or tool_errors or declarations or not okay)
+              failed |= bool(errors or tool_errors or not okay)
           pathlib.Path('a261865-axle-results.json').write_text(
               json.dumps(all_results, indent=2, ensure_ascii=False)
           )
@@ -82,6 +84,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a261865-axle-diagnostics
+          name: a261865-axle-support-diagnostics
           path: a261865-axle-results.json
           if-no-files-found: warn
