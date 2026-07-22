@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - verify/a263135-bmo8
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
