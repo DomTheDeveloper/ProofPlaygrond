@@ -53,15 +53,15 @@ jobs:
           set -euo pipefail
           lake exe cache get
 
-      - name: Compile theorem layers
+      - name: Compile internal and public theorem modules
         working-directory: formal-conjectures
         shell: bash
         run: |
           set -euo pipefail
-          lake --wfail build RNAQuasiPowers 2>&1 | tee rna-final-kernel.log
-          lake env lean -DwarningAsError=true \
-            FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
-            2>&1 | tee -a rna-final-kernel.log
+          lake --wfail build \
+            RNAQuasiPowers \
+            FormalConjectures.Arxiv.2602.19255.RNAQuasiPowers \
+            2>&1 | tee rna-final-kernel.log
 
       - name: Run axiom audits
         working-directory: formal-conjectures
