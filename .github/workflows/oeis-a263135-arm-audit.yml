@@ -1,20 +1,13 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
 
-name: OEIS A263135 ARM kernel audit
+name: OEIS A263135 Apple-silicon kernel audit
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: oeis-a263135-arm-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   verify:
@@ -27,6 +20,15 @@ jobs:
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
+
+      - name: Register scratch proof library
+        run: |
+          cat >> lakefile.toml <<'EOF'
+
+          [[lean_lib]]
+          name = "Scratch"
+          globs = ["Scratch.+"]
+          EOF
 
       - name: Install pinned Lean tooling
         run: |
