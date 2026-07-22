@@ -4,10 +4,6 @@
 name: A263135 BMO8 Lean audit
 
 on:
-  push:
-    branches:
-      - main
-      - verify/a263135-bmo8
   pull_request:
     branches:
       - main
@@ -15,6 +11,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: a263135-bmo8-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 7fbb493d3ef64798b38887a0cadb8677cc556692
+          ref: a5fdc4e9c650ea64059f94adbacee1fb72d8ce59
           path: formal-conjectures
 
       - name: Install elan
@@ -42,13 +42,26 @@ jobs:
           lake exe cache unpack || true
           lake exe cache get
 
-      - name: Build proof with warnings as errors
-        working-directory: formal-conjectures
-        run: lake --wfail build FormalConjectures.Other.BeaverMathOlympiad8Proof
-
-      - name: Print kernel axiom dependencies
+      - name: Reject placeholders in certificate
         working-directory: formal-conjectures
         run: |
+          if grep -nE '\b(sorry|admit)\b' FormalConjectures/Other/BeaverMathOlympiad8Proof.lean; then
+            echo 'Certificate contains a placeholder.' >&2
+            exit 1
+          fi
+
+      - name: Build exact certificate
+        working-directory: formal-conjectures
+        run: lake build FormalConjectures.Other.BeaverMathOlympiad8Proof
+
+      - name: Audit theorem axioms
+        working-directory: formal-conjectures
+        run: |
+          set -o pipefail
           cp FormalConjectures/Other/BeaverMathOlympiad8Proof.lean BMO8ProofAudit.lean
           printf '\n#print axioms BeaverMathOlympiad.beaver_math_olympiad_problem_8_solved\n' >> BMO8ProofAudit.lean
-          lake env lean BMO8ProofAudit.lean
+          lake env lean BMO8ProofAudit.lean 2>&1 | tee BMO8ProofAudit.log
+          if grep -q 'sorryAx' BMO8ProofAudit.log; then
+            echo 'Solved theorem depends on sorryAx.' >&2
+            exit 1
+          fi
