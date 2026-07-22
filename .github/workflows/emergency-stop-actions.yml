@@ -1,71 +1,16 @@
 name: Emergency stop all Actions runs
 
+# Disabled after the one-time queue cleanup. Keeping this workflow dispatch-only and
+# non-operative prevents it from cancelling proof-verification jobs that start later.
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/emergency-stop-actions.yml
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: read
 
-concurrency:
-  group: emergency-stop-all-actions
-  cancel-in-progress: true
-
 jobs:
-  stop:
-    name: Stop runs via ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-24.04-arm
-          - macos-15
-          - windows-2025
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 5
+  disabled:
+    name: Emergency stop disabled
+    runs-on: ubuntu-latest
     steps:
-      - name: Cancel and force-cancel all other workflow runs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const self = context.runId;
-            const active = new Set(['queued', 'in_progress', 'waiting', 'requested', 'pending']);
-
-            for (let round = 1; round <= 3; round++) {
-              const runs = await github.paginate(
-                github.rest.actions.listWorkflowRunsForRepo,
-                { owner, repo, per_page: 100 }
-              );
-              const targets = runs.filter(run => run.id !== self && active.has(run.status));
-              core.info(`Round ${round}: ${targets.length} active run(s) to stop.`);
-
-              for (const run of targets) {
-                core.info(`Stopping ${run.id}: ${run.name} [${run.status}]`);
-                try {
-                  await github.rest.actions.cancelWorkflowRun({ owner, repo, run_id: run.id });
-                } catch (error) {
-                  core.warning(`Normal cancel failed for ${run.id}: ${error.message}`);
-                }
-                try {
-                  await github.request(
-                    'POST /repos/{owner}/{repo}/actions/runs/{run_id}/force-cancel',
-                    {
-                      owner,
-                      repo,
-                      run_id: run.id,
-                      headers: { 'X-GitHub-Api-Version': '2022-11-28' }
-                    }
-                  );
-                } catch (error) {
-                  core.warning(`Force-cancel response for ${run.id}: ${error.message}`);
-                }
-              }
-
-              if (targets.length === 0) break;
-              await new Promise(resolve => setTimeout(resolve, 10000));
-            }
+      - run: echo 'Emergency cancellation is disabled. Use targeted cancellation instead.'
