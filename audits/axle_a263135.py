@@ -12,7 +12,7 @@ import urllib.request
 from pathlib import Path
 
 AXLE_URL = "https://axle.axiommath.ai/api/v1/verify_proof"
-PROOF_SHA = "7b4ef15d1a63473504da104c6759f05bf67fda5d"
+PROOF_SHA = "2ec5e1247a6337070eb21d70160da4849ea673fa"
 
 
 def strip_imports(source: str) -> str:
@@ -23,7 +23,7 @@ def strip_imports(source: str) -> str:
 
 
 def strip_project_attributes(source: str) -> str:
-    """Remove only Formal Conjectures metadata, preserving ordinary Lean attributes."""
+    """Remove Formal Conjectures metadata while preserving ordinary Lean attributes."""
     pattern = re.compile(r"@\[(.*?)\]", re.DOTALL)
 
     def replace(match: re.Match[str]) -> str:
@@ -75,7 +75,7 @@ def ordered_scratch_files(repo: Path) -> list[Path]:
     dependencies: dict[str, set[str]] = {}
     for name, path in by_module.items():
         imports = import_re.findall(path.read_text(encoding="utf-8"))
-        dependencies[name] = {dep for dep in imports if dep in by_module}
+        dependencies[name] = {dependency for dependency in imports if dependency in by_module}
 
     ordered: list[str] = []
     temporary: set[str] = set()
@@ -145,10 +145,16 @@ def main() -> int:
         "use_def_eq": True,
         "timeout_seconds": 900,
     }
+    headers = {
+        "Content-Type": "application/json",
+        "X-Request-Source": "proof-playgrond-oeis-a263135",
+    }
+    if api_key := os.environ.get("AXLE_API_KEY"):
+        headers["Authorization"] = f"Bearer {api_key}"
     request = urllib.request.Request(
         AXLE_URL,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST",
     )
     try:
@@ -164,11 +170,16 @@ def main() -> int:
 
     json_output.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
-    if not bool(result.get("okay")):
-        for section in ("lean_messages", "tool_messages"):
-            messages = result.get(section, {})
-            for error in messages.get("errors", []):
-                print(f"{section}: {error}", file=sys.stderr)
+    errors = result.get("lean_messages", {}).get("errors", [])
+    tool_errors = result.get("tool_messages", {}).get("errors", [])
+    failed = result.get("failed_declarations", [])
+    if not bool(result.get("okay")) or errors or tool_errors or failed:
+        for error in errors:
+            print(f"lean_messages: {error}", file=sys.stderr)
+        for error in tool_errors:
+            print(f"tool_messages: {error}", file=sys.stderr)
+        if failed:
+            print(f"failed_declarations: {failed}", file=sys.stderr)
         return 1
 
     print(f"AXLE verified OEIS A263135 with Lean 4.27.0 at proof SHA {PROOF_SHA}.")
