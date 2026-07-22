@@ -1,0 +1,115 @@
+name: A261865 comment-triggered verification
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: a261865-comment-audit
+  cancel-in-progress: true
+
+jobs:
+  axle:
+    if: github.event.issue.number == 5 && contains(github.event.comment.body, '/audit-a261865-f5d289e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
+      - name: Verify immutable source
+        run: test "$(git rev-parse HEAD)" = "f5d289e074dc692ab75eb6050128339ef95861c2"
+      - name: AXLE audit repaired modules
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys, urllib.request
+          files = [
+            'FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean',
+          ]
+          failed = False
+          for filename in files:
+            payload = json.dumps({
+              'content': pathlib.Path(filename).read_text(),
+              'environment': 'lean-4.27.0',
+              'ignore_imports': False,
+              'mathlib_options': False,
+              'timeout_seconds': 900,
+            }).encode()
+            req = urllib.request.Request(
+              'https://axle.axiommath.ai/api/v1/check', data=payload,
+              headers={'Content-Type': 'application/json'}, method='POST')
+            with urllib.request.urlopen(req, timeout=960) as response:
+              result = json.load(response)
+            errors = result.get('lean_messages', {}).get('errors', [])
+            tool_errors = result.get('tool_messages', {}).get('errors', [])
+            failed_decls = result.get('failed_declarations', [])
+            okay = bool(result.get('okay', False))
+            print(f'===== {filename} =====')
+            print('okay=', okay)
+            print('lean_errors=', json.dumps(errors, ensure_ascii=False))
+            print('tool_errors=', json.dumps(tool_errors, ensure_ascii=False))
+            print('failed_declarations=', json.dumps(failed_decls, ensure_ascii=False))
+            failed |= bool(errors or tool_errors or failed_decls or not okay)
+          if failed:
+            sys.exit(1)
+          PY
+
+  kernel:
+    if: github.event.issue.number == 5 && contains(github.event.comment.body, '/audit-a261865-f5d289e')
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
+      - name: Verify immutable source
+        run: test "$(git rev-parse HEAD)" = "f5d289e074dc692ab75eb6050128339ef95861c2"
+      - name: Install Lean 4.27
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          files=(
+            FormalConjectures/OEIS/A261865Base.lean
+            FormalConjectures/OEIS/261865.lean
+            FormalConjectures/OEIS/261865Solution.lean
+            FormalConjectures/OEIS/261865FinalAudit.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/TerminalBox.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean
+            FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean
+          )
+          ! grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "${files[@]}"
+      - name: Compile exact theorem and inspect axioms
+        run: |
+          set -euo pipefail
+          lake env lean FormalConjectures/OEIS/261865FinalAudit.lean 2>&1 | tee a261865-kernel-audit.log
+          ! grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' a261865-kernel-audit.log
+      - name: Upload kernel transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-f5d289e-kernel-transcript
+          path: a261865-kernel-audit.log
+          if-no-files-found: warn
