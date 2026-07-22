@@ -1,163 +1,62 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
 
-name: OEIS A263135 honeycomb Lean audit
+name: OEIS A263135 macOS Intel kernel audit
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'audits/results/**'
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: oeis-a263135-honeycomb-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  contents: read
 
 jobs:
   verify:
-    name: kernel verify OEIS A263135
+    name: verify A263135 on macOS Intel
     runs-on: macos-15-intel
     timeout-minutes: 90
     steps:
-      - name: Checkout proof playground
-        uses: actions/checkout@v6
-        with:
-          path: playground
-
       - name: Checkout exact proof source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
-          path: formal-conjectures
 
-      - name: Run complete pinned Lean audit
-        id: audit
-        continue-on-error: true
-        shell: bash
+      - name: Register scratch proof library
         run: |
-          set +e
-          LOG=/tmp/a263135-honeycomb-audit.log
-          STATUS=/tmp/a263135-honeycomb-status
-          PHASE=/tmp/a263135-honeycomb-phase
-          : > "$LOG"
-          echo setup > "$PHASE"
+          cat >> lakefile.toml <<'EOF'
 
-          {
-            echo "OEIS A263135 honeycomb contact audit"
-            echo "Proof commit: 7b4ef15d1a63473504da104c6759f05bf67fda5d"
-            echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          [[lean_lib]]
+          name = "Scratch"
+          globs = ["Scratch.+"]
+          EOF
 
-            curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-apple-darwin.tar.gz | tar xz
-            rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "elan download/install extraction failed with code $rc"
-              echo "$rc" > "$STATUS"
-              exit "$rc"
-            fi
-            ./elan-init -y --default-toolchain none
-            rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "elan-init failed with code $rc"
-              echo "$rc" > "$STATUS"
-              exit "$rc"
-            fi
-            export PATH="$HOME/.elan/bin:$PATH"
-
-            cd formal-conjectures || exit 90
-            echo cache > "$PHASE"
-            lake exe cache unpack || true
-            lake exe cache get
-            rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "mathlib cache setup failed with code $rc"
-              echo "$rc" > "$STATUS"
-              exit "$rc"
-            fi
-
-            echo placeholders > "$PHASE"
-            if grep -nE '(^|[^A-Za-z])(sorry|admit)([^A-Za-z]|$)' Scratch/A263135*.lean; then
-              echo "A263135 proof modules contain a placeholder"
-              echo 91 > "$STATUS"
-              exit 91
-            fi
-
-            echo build > "$PHASE"
-            lake build Scratch.A263135Audit
-            rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "Lean proof-chain build failed with code $rc"
-              echo "$rc" > "$STATUS"
-              exit "$rc"
-            fi
-
-            echo axioms > "$PHASE"
-            lake env lean Scratch/A263135Audit.lean 2>&1 | tee /tmp/a263135-honeycomb-axioms.log
-            rc=${PIPESTATUS[0]}
-            if [ "$rc" -ne 0 ]; then
-              echo "axiom audit compilation failed with code $rc"
-              echo "$rc" > "$STATUS"
-              exit "$rc"
-            fi
-            if grep -q 'sorryAx' /tmp/a263135-honeycomb-axioms.log; then
-              echo "A263135 theorem depends on sorryAx"
-              echo 92 > "$STATUS"
-              exit 92
-            fi
-
-            echo success > "$PHASE"
-            echo 0 > "$STATUS"
-            echo "Completed successfully: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          } 2>&1 | tee "$LOG"
-
-          rc=${PIPESTATUS[0]}
-          if [ ! -s "$STATUS" ]; then echo "$rc" > "$STATUS"; fi
-          exit "$rc"
-
-      - name: Publish audit report
-        if: always()
-        shell: bash
+      - name: Install pinned Lean tooling
         run: |
-          code=$(cat /tmp/a263135-honeycomb-status 2>/dev/null || echo 99)
-          phase=$(cat /tmp/a263135-honeycomb-phase 2>/dev/null || echo unknown)
-          mkdir -p playground/audits/results
-          {
-            echo '# OEIS A263135 honeycomb Lean audit result'
-            echo
-            echo '- Theorem: exact even-index maximum-contact formula on the honeycomb lattice'
-            echo '- Proof source: `DomTheDeveloper/formal-conjectures@7b4ef15d1a63473504da104c6759f05bf67fda5d`'
-            echo '- Audit module: `Scratch.A263135Audit`'
-            echo '- Lean toolchain: repository-pinned toolchain'
-            echo "- Exit code: \`$code\`"
-            echo "- Final phase: \`$phase\`"
-            echo "- Workflow run: \`$GITHUB_RUN_ID\`"
-            echo "- Recorded: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
-            echo
-            if [ "$code" = 0 ]; then
-              echo '**VERIFIED:** all 27 proof modules are placeholder-free, the complete proof chain builds, and the final theorem axiom report contains no `sorryAx`.'
-            else
-              echo '**NOT VERIFIED:** the audit failed. The exact diagnostic tail follows.'
-            fi
-            echo
-            echo '```text'
-            tail -n 300 /tmp/a263135-honeycomb-audit.log 2>/dev/null || true
-            echo '```'
-          } > playground/audits/results/OEIS-A263135-Honeycomb.md
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-apple-darwin.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-          if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
-            git -C playground config user.name github-actions
-            git -C playground config user.email github-actions@github.com
-            git -C playground add audits/results/OEIS-A263135-Honeycomb.md
-            git -C playground commit -m 'audit: record OEIS A263135 honeycomb result [skip ci]' || true
-            git -C playground push origin HEAD:main
+      - name: Restore pinned mathlib cache
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Reject proof placeholders
+        run: |
+          if grep -nE '(^|[^A-Za-z])(sorry|admit)([^A-Za-z]|$)' Scratch/A263135*.lean; then
+            echo 'A263135 proof modules contain a placeholder.' >&2
+            exit 1
           fi
 
-          test "$code" = 0
+      - name: Build complete proof chain
+        run: lake build Scratch.A263135Audit
+
+      - name: Kernel axiom audit
+        run: |
+          set -o pipefail
+          lake env lean Scratch/A263135Audit.lean 2>&1 | tee A263135-axioms.log
+          if grep -q 'sorryAx' A263135-axioms.log; then
+            echo 'A263135 theorem depends on sorryAx.' >&2
+            exit 1
+          fi
