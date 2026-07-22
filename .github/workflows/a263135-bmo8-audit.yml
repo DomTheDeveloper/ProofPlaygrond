@@ -1,7 +1,7 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
 
-name: A263135 BMO8 Lean audit
+name: OEIS A263135 honeycomb Lean audit
 
 on:
   push:
@@ -15,14 +15,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: a263135-bmo8-main
+  group: oeis-a263135-honeycomb-main
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: kernel verify A263135 / BMO8
+    name: kernel verify OEIS A263135
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Checkout proof playground
         uses: actions/checkout@v6
@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: a5fdc4e9c650ea64059f94adbacee1fb72d8ce59
+          ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
           path: formal-conjectures
 
       - name: Run complete pinned Lean audit
@@ -42,15 +42,15 @@ jobs:
         shell: bash
         run: |
           set +e
-          LOG=/tmp/a263135-bmo8-audit.log
-          STATUS=/tmp/a263135-bmo8-status
-          PHASE=/tmp/a263135-bmo8-phase
+          LOG=/tmp/a263135-honeycomb-audit.log
+          STATUS=/tmp/a263135-honeycomb-status
+          PHASE=/tmp/a263135-honeycomb-phase
           : > "$LOG"
           echo setup > "$PHASE"
 
           {
-            echo "A263135 / BMO8 audit"
-            echo "Proof commit: a5fdc4e9c650ea64059f94adbacee1fb72d8ce59"
+            echo "OEIS A263135 honeycomb contact audit"
+            echo "Proof commit: 7b4ef15d1a63473504da104c6759f05bf67fda5d"
             echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
             curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
@@ -81,33 +81,31 @@ jobs:
             fi
 
             echo placeholders > "$PHASE"
-            if grep -nE '\b(sorry|admit)\b' FormalConjectures/Other/BeaverMathOlympiad8Proof.lean; then
-              echo "certificate contains a placeholder"
+            if grep -nE '\b(sorry|admit)\b' Scratch/A263135*.lean; then
+              echo "A263135 proof modules contain a placeholder"
               echo 91 > "$STATUS"
               exit 91
             fi
 
             echo build > "$PHASE"
-            lake build FormalConjectures.Other.BeaverMathOlympiad8Proof
+            lake build Scratch.A263135Audit
             rc=$?
             if [ "$rc" -ne 0 ]; then
-              echo "Lean module build failed with code $rc"
+              echo "Lean proof-chain build failed with code $rc"
               echo "$rc" > "$STATUS"
               exit "$rc"
             fi
 
             echo axioms > "$PHASE"
-            cp FormalConjectures/Other/BeaverMathOlympiad8Proof.lean BMO8ProofAudit.lean
-            printf '\n#print axioms BeaverMathOlympiad.beaver_math_olympiad_problem_8_solved\n' >> BMO8ProofAudit.lean
-            lake env lean BMO8ProofAudit.lean 2>&1 | tee /tmp/a263135-bmo8-axioms.log
+            lake env lean Scratch/A263135Audit.lean 2>&1 | tee /tmp/a263135-honeycomb-axioms.log
             rc=${PIPESTATUS[0]}
             if [ "$rc" -ne 0 ]; then
               echo "axiom audit compilation failed with code $rc"
               echo "$rc" > "$STATUS"
               exit "$rc"
             fi
-            if grep -q 'sorryAx' /tmp/a263135-bmo8-axioms.log; then
-              echo "solved theorem depends on sorryAx"
+            if grep -q 'sorryAx' /tmp/a263135-honeycomb-axioms.log; then
+              echo "A263135 theorem depends on sorryAx"
               echo 92 > "$STATUS"
               exit 92
             fi
@@ -125,34 +123,36 @@ jobs:
         if: always()
         shell: bash
         run: |
-          code=$(cat /tmp/a263135-bmo8-status 2>/dev/null || echo 99)
-          phase=$(cat /tmp/a263135-bmo8-phase 2>/dev/null || echo unknown)
+          code=$(cat /tmp/a263135-honeycomb-status 2>/dev/null || echo 99)
+          phase=$(cat /tmp/a263135-honeycomb-phase 2>/dev/null || echo unknown)
           mkdir -p playground/audits/results
           {
-            echo '# A263135 / BMO 8 Lean audit result'
+            echo '# OEIS A263135 honeycomb Lean audit result'
             echo
-            echo "- Proof source: \`DomTheDeveloper/formal-conjectures@a5fdc4e9c650ea64059f94adbacee1fb72d8ce59\`"
-            echo "- Lean toolchain: \`leanprover/lean4:v4.27.0\`"
+            echo '- Theorem: exact even-index maximum-contact formula on the honeycomb lattice'
+            echo '- Proof source: `DomTheDeveloper/formal-conjectures@7b4ef15d1a63473504da104c6759f05bf67fda5d`'
+            echo '- Audit module: `Scratch.A263135Audit`'
+            echo '- Lean toolchain: repository-pinned toolchain'
             echo "- Exit code: \`$code\`"
             echo "- Final phase: \`$phase\`"
             echo "- Workflow run: \`$GITHUB_RUN_ID\`"
             echo "- Recorded: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
             echo
             if [ "$code" = 0 ]; then
-              echo '**VERIFIED:** the certificate contains no placeholders, the exact module builds, and the solved theorem axiom report contains no `sorryAx`.'
+              echo '**VERIFIED:** all 27 proof modules are placeholder-free, the complete proof chain builds, and the final theorem axiom report contains no `sorryAx`.'
             else
               echo '**NOT VERIFIED:** the audit failed. The exact diagnostic tail follows.'
             fi
             echo
             echo '```text'
-            tail -n 250 /tmp/a263135-bmo8-audit.log 2>/dev/null || true
+            tail -n 300 /tmp/a263135-honeycomb-audit.log 2>/dev/null || true
             echo '```'
-          } > playground/audits/results/A263135-BMO8.md
+          } > playground/audits/results/OEIS-A263135-Honeycomb.md
 
           git -C playground config user.name github-actions
           git -C playground config user.email github-actions@github.com
-          git -C playground add audits/results/A263135-BMO8.md
-          git -C playground commit -m 'audit: record A263135 BMO8 Lean result [skip ci]' || true
+          git -C playground add audits/results/OEIS-A263135-Honeycomb.md
+          git -C playground commit -m 'audit: record OEIS A263135 honeycomb result [skip ci]' || true
           git -C playground push origin HEAD:main
 
           test "$code" = 0
