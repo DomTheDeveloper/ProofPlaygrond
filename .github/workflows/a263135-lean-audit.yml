@@ -2,6 +2,8 @@ name: A263135 Lean audit
 
 on:
   push:
+    paths:
+      - '.github/workflows/a263135-lean-audit.yml'
   workflow_dispatch:
 
 permissions:
