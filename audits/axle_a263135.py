@@ -40,6 +40,31 @@ def strip_project_attributes(source: str) -> str:
     return pattern.sub(replace, source)
 
 
+def namespace_private_helpers(source: str, module_stem: str) -> str:
+    """Give named private declarations module-unique source names before flattening.
+
+    Native Lean compilation gives private declarations module-qualified internal names.
+    Concatenating many source modules into one AXLE request removes that boundary, so two
+    otherwise-valid modules could collide on a helper such as `foo`. Private declarations
+    cannot be referenced from another source module by their source name, making this
+    within-module alpha-renaming semantics-preserving.
+    """
+    declaration_re = re.compile(
+        r"(?m)^(\s*private\s+(?:theorem|lemma|def|abbrev|instance)\s+)([A-Za-z_][A-Za-z0-9_']*)"
+    )
+    names = list(dict.fromkeys(match.group(2) for match in declaration_re.finditer(source)))
+    renamed = source
+    safe_stem = re.sub(r"[^A-Za-z0-9_]", "_", module_stem)
+    for name in names:
+        unique = f"_flat_{safe_stem}_{name}"
+        renamed = re.sub(
+            rf"(?<![A-Za-z0-9_']){re.escape(name)}(?![A-Za-z0-9_'])",
+            unique,
+            renamed,
+        )
+    return renamed
+
+
 def canonical_prefix(repo: Path) -> str:
     path = repo / "FormalConjectures/OEIS/263135.lean"
     source = path.read_text(encoding="utf-8")
@@ -111,14 +136,16 @@ theorem conjecture (n : ℕ) (hn : 0 < n) :
 
     chunks = ["import Mathlib\n\n", prefix]
     for path in ordered_scratch_files(repo):
-        source = strip_project_attributes(strip_imports(path.read_text(encoding="utf-8")))
+        source = path.read_text(encoding="utf-8")
+        source = namespace_private_helpers(source, path.stem)
+        source = strip_project_attributes(strip_imports(source))
         chunks.append(
             f"\n-- BEGIN {path.relative_to(repo)}\n{source}\n-- END {path.relative_to(repo)}\n"
         )
     chunks.append(theorem + "  exact conjecture_solved n hn\n\nend OeisA263135\n")
     content = "".join(chunks)
 
-    code = re.sub(r"/-.*?-/", "", content, flags=re.DOTALL)
+    code = re.sub(r"/-.*?-\/", "", content, flags=re.DOTALL)
     code = re.sub(r"--.*", "", code)
     if re.search(r"\b(sorry|admit)\b", code):
         raise RuntimeError("flattened A263135 candidate contains a proof placeholder")
