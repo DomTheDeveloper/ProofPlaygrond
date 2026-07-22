@@ -49,7 +49,13 @@ def canonical_prefix(repo: Path) -> str:
     if marker not in source:
         raise RuntimeError(f"canonical theorem marker not found in {path}")
     prefix = source.split(marker, 1)[0]
-    # The theorem is the final declaration in the namespace.
+    # The theorem's documentation comment immediately precedes its metadata.
+    # Remove it together with the omitted placeholder theorem so no orphaned
+    # docstring remains before the namespace terminator.
+    doc_start = prefix.rfind("/--")
+    if doc_start == -1 or not prefix[doc_start:].strip().endswith("-/"):
+        raise RuntimeError("could not isolate the canonical theorem docstring")
+    prefix = prefix[:doc_start]
     prefix += "end OeisA263135\n"
     return strip_project_attributes(strip_imports(prefix))
 
@@ -61,7 +67,11 @@ def module_name(path: Path, repo: Path) -> str:
 def ordered_scratch_files(repo: Path) -> list[Path]:
     files = sorted((repo / "Scratch").glob("A263135*.lean"))
     files = [path for path in files if path.name != "A263135Audit.lean"]
+    if len(files) < 20:
+        raise RuntimeError(f"expected the complete A263135 module set, found only {len(files)} files")
     by_module = {module_name(path, repo): path for path in files}
+    if "Scratch.A263135Final" not in by_module:
+        raise RuntimeError("Scratch.A263135Final is missing")
     dependencies: dict[str, set[str]] = {name: set() for name in by_module}
     import_re = re.compile(r"^\s*(?:public\s+|public\s+meta\s+)?import\s+([A-Za-z0-9_.]+)", re.MULTILINE)
     for name, path in by_module.items():
