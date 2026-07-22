@@ -24,7 +24,7 @@ concurrency:
 jobs:
   verify:
     name: kernel verify OEIS A263135
-    runs-on: ubuntu-latest
+    runs-on: macos-15-intel
     timeout-minutes: 90
     steps:
       - name: Checkout proof playground
@@ -56,7 +56,7 @@ jobs:
             echo "Proof commit: 7b4ef15d1a63473504da104c6759f05bf67fda5d"
             echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-            curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+            curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-apple-darwin.tar.gz | tar xz
             rc=$?
             if [ "$rc" -ne 0 ]; then
               echo "elan download/install extraction failed with code $rc"
@@ -84,7 +84,7 @@ jobs:
             fi
 
             echo placeholders > "$PHASE"
-            if grep -nE '\b(sorry|admit)\b' Scratch/A263135*.lean; then
+            if grep -nE '(^|[^A-Za-z])(sorry|admit)([^A-Za-z]|$)' Scratch/A263135*.lean; then
               echo "A263135 proof modules contain a placeholder"
               echo 91 > "$STATUS"
               exit 91
