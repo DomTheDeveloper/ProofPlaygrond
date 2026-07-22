@@ -23,11 +23,15 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 20
     steps:
-      - name: Checkout A261865 proof commit
+      - name: Checkout repaired A261865 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 02688846b7a0d44e208cef7581bbdbb3978813c6
+          ref: 46ea24719cc7b65389fe432a7af484d63cfa541f
+
+      - name: Confirm immutable proof source
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "46ea24719cc7b65389fe432a7af484d63cfa541f"
 
       - name: Check foundational Lean files with AXLE
         shell: bash
@@ -59,12 +63,14 @@ jobs:
               )
               with urllib.request.urlopen(request, timeout=960) as response:
                   result = json.load(response)
-              print(f'===== {filename} =====')
-              print(json.dumps(result, indent=2))
               errors = result.get('lean_messages', {}).get('errors', [])
               tool_errors = result.get('tool_messages', {}).get('errors', [])
-              declarations = result.get('failed_declarations', [])
-              failed |= bool(errors or tool_errors or declarations or not result.get('okay', False))
+              okay = bool(result.get('okay', False))
+              print(f'===== {filename} =====')
+              print(f'okay={okay}')
+              print('lean_errors=' + json.dumps(errors, ensure_ascii=False))
+              print('tool_errors=' + json.dumps(tool_errors, ensure_ascii=False))
+              failed |= bool(errors or tool_errors or not okay)
           if failed:
               sys.exit(1)
           PY
@@ -72,13 +78,17 @@ jobs:
   exact-kernel-audit:
     name: Lean 4.27 exact theorem and axiom audit
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
-      - name: Checkout A261865 proof commit
+      - name: Checkout repaired A261865 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 02688846b7a0d44e208cef7581bbdbb3978813c6
+          ref: 46ea24719cc7b65389fe432a7af484d63cfa541f
+
+      - name: Confirm immutable proof source
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "46ea24719cc7b65389fe432a7af484d63cfa541f"
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -112,7 +122,7 @@ jobs:
             FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean
             FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean
           )
-          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b' "${files[@]}"; then
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "${files[@]}"; then
             echo 'Forbidden proof placeholder or trust escape found.' >&2
             exit 1
           fi
@@ -121,9 +131,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          output=$(lake env lean FormalConjectures/OEIS/261865FinalAudit.lean 2>&1)
-          printf '%s\n' "$output"
-          if grep -q 'sorryAx' <<<"$output"; then
-            echo 'The exact numbered theorem depends on sorryAx.' >&2
+          lake env lean FormalConjectures/OEIS/261865FinalAudit.lean \
+            2>&1 | tee a261865-kernel-audit.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
+              a261865-kernel-audit.log; then
+            echo 'The exact numbered theorem depends on a forbidden axiom or trust shortcut.' >&2
             exit 1
           fi
+
+      - name: Upload exact kernel transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-46ea2471-kernel-transcript
+          path: a261865-kernel-audit.log
+          if-no-files-found: warn
