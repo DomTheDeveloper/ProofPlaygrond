@@ -64,13 +64,12 @@ jobs:
             lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean
             lake env lean RNAQuasiPowers/AxiomAudit.lean
             lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean
-
-            if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$LOG"; then
-              echo 'Forbidden axiom or compiler-trust shortcut detected.'
-              exit 90
-            fi
           } 2>&1 | tee -a "$LOG"
           rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 0 ] && grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$LOG"; then
+            echo 'Forbidden axiom or compiler-trust shortcut detected.' | tee -a "$LOG"
+            rc=90
+          fi
           echo "$rc" > "$GITHUB_WORKSPACE/rna-kernel-audit.rc"
           exit 0
 
