@@ -1,0 +1,141 @@
+proof_sha=ef541834089a3c8941f7bc311601d1b8a8dfc117
+runner=macos-14
+workflow_sha=5fec047f577d32b0ec70f77ee0fdacb412a14133
+exit_code=1
+run_url=https://github.com/DomTheDeveloper/ProofPlaygrond/actions/runs/29954017923
+
+info: downloading installer
+info: default toolchain set to 'leanprover/lean4:v4.27.0'
+info: downloading https://releases.lean-lang.org/lean4/v4.27.0/lean-4.27.0-darwin_aarch64.tar.zst
+info: installing /Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0
+Lean (version 4.27.0, arm64-apple-darwin24.6.0, commit db93fe1608548721853390a10cd40580fe7d22ae, Release)
+Lake version 5.0.0-src+db93fe1 (Lean version 4.27.0)
+info: mathlib: cloning https://github.com/leanprover-community/mathlib4
+info: mathlib: checking out revision 'a3a10db0e9d66acbebf76c5e6a135066525ac900'
+info: plausible: cloning https://github.com/leanprover-community/plausible
+info: plausible: checking out revision '009dc1e6f2feb2c96c081537d80a0905b2c6498f'
+info: LeanSearchClient: cloning https://github.com/leanprover-community/LeanSearchClient
+info: LeanSearchClient: checking out revision '5ce7f0a355f522a952a3d678d696bd563bb4fd28'
+info: importGraph: cloning https://github.com/leanprover-community/import-graph
+info: importGraph: checking out revision '8f497d55985a189cea8020d9dc51260af1e41ad2'
+info: proofwidgets: cloning https://github.com/leanprover-community/ProofWidgets4
+info: proofwidgets: checking out revision 'c04225ee7c0585effbd933662b3151f01b600e40'
+info: aesop: cloning https://github.com/leanprover-community/aesop
+info: aesop: checking out revision 'cb837cc26236ada03c81837bebe0acd9c70ced7d'
+info: Qq: cloning https://github.com/leanprover-community/quote4
+info: Qq: checking out revision 'bd58c9efe2086d56ca361807014141a860ddbf8c'
+info: batteries: cloning https://github.com/leanprover-community/batteries
+info: batteries: checking out revision 'b25b36a7caf8e237e7d1e6121543078a06777c8a'
+info: Cli: cloning https://github.com/leanprover/lean4-cli
+info: Cli: checking out revision '55c37290ff6186e2e965d68cf853a57c0702db82'
+✔ [5/23] Built Batteries.Data.String.Basic (724ms)
+✔ [6/23] Built Cache.Init (591ms)
+✔ [7/23] Built Cache.Lean (518ms)
+✔ [8/23] Built Batteries.Data.Array.Match (1.2s)
+✔ [9/23] Built Batteries.Data.String.Basic:c.o (273ms)
+✔ [10/23] Built Cache.Lean:c.o (197ms)
+✔ [11/23] Built Cache.Init:c.o (746ms)
+✔ [12/23] Built Batteries.Data.Array.Match:c.o (281ms)
+✔ [13/23] Built Batteries.Data.String.Matcher (388ms)
+✔ [14/23] Built Batteries.Data.String.Matcher:c.o (224ms)
+✔ [15/23] Built Cache.IO (1.5s)
+✔ [16/23] Built Cache.Hashing (805ms)
+✔ [17/23] Built Cache.IO:c.o (1.2s)
+✔ [18/23] Built Cache.Hashing:c.o (451ms)
+✔ [19/23] Built Cache.Requests (1.3s)
+✔ [20/23] Built Cache.Main (745ms)
+✔ [21/23] Built Cache.Main:c.o (419ms)
+✔ [22/23] Built Cache.Requests:c.o (1.4s)
+✔ [23/23] Built cache:exe (3.2s)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100  884k  100  884k    0     0  3032k      0 --:--:-- --:--:-- --:--:-- 3032k
+
+installing leantar 0.1.16
+Fetching ProofWidgets cloud release... done!
+Current branch: HEAD
+Using cache (Azure) from origin: leanprover-community/mathlib4
+Attempting to download 7869 file(s) from leanprover-community/mathlib4 cache
+Downloaded: 1 file(s) [attempted 1/7869 = 0%, 89 KB/s]Downloaded: 74 file(s) [attempted 74/7869 = 0%, 530 KB/s]Downloaded: 150 file(s) [attempted 150/7869 = 1%, 1464 KB/s]Downloaded: 240 file(s) [attempted 240/7869 = 3%, 647 KB/s]Downloaded: 340 file(s) [attempted 340/7869 = 4%, 1163 KB/s]Downloaded: 440 file(s) [attempted 440/7869 = 5%, 787 KB/s]Downloaded: 540 file(s) [attempted 540/7869 = 6%, 353 KB/s]Downloaded: 640 file(s) [attempted 640/7869 = 8%, 211 KB/s]Downloaded: 710 file(s) [attempted 710/7869 = 9%, 675 KB/s]Downloaded: 820 file(s) [attempted 820/7869 = 10%, 357 KB/s]Downloaded: 920 file(s) [attempted 920/7869 = 11%, 585 KB/s]Downloaded: 1012 file(s) [attempted 1012/7869 = 12%, 1576 KB/s]Downloaded: 1070 file(s) [attempted 1070/7869 = 13%, 217 KB/s]Downloaded: 1130 file(s) [attempted 1130/7869 = 14%, 2884 KB/s]Downloaded: 1230 file(s) [attempted 1230/7869 = 15%, 583 KB/s]Downloaded: 1330 file(s) [attempted 1330/7869 = 16%, 711 KB/s]Downloaded: 1397 file(s) [attempted 1397/7869 = 17%, 750 KB/s]Downloaded: 1490 file(s) [attempted 1490/7869 = 18%, 1441 KB/s]Downloaded: 1550 file(s) [attempted 1550/7869 = 19%, 144 KB/s]Downloaded: 1650 file(s) [attempted 1650/7869 = 20%, 241 KB/s]Downloaded: 1750 file(s) [attempted 1750/7869 = 22%, 705 KB/s]Downloaded: 1830 file(s) [attempted 1830/7869 = 23%, 1258 KB/s]Downloaded: 1910 file(s) [attempted 1910/7869 = 24%, 2637 KB/s]Downloaded: 1985 file(s) [attempted 1985/7869 = 25%, 2097 KB/s]Downloaded: 2069 file(s) [attempted 2069/7869 = 26%, 630 KB/s]Downloaded: 2129 file(s) [attempted 2129/7869 = 27%, 511 KB/s]Downloaded: 2189 file(s) [attempted 2189/7869 = 27%, 762 KB/s]Downloaded: 2289 file(s) [attempted 2289/7869 = 29%, 513 KB/s]Downloaded: 2359 file(s) [attempted 2359/7869 = 29%, 141 KB/s]Downloaded: 2459 file(s) [attempted 2459/7869 = 31%, 1918 KB/s]Downloaded: 2559 file(s) [attempted 2559/7869 = 32%, 396 KB/s]Downloaded: 2619 file(s) [attempted 2619/7869 = 33%, 2518 KB/s]Downloaded: 2719 file(s) [attempted 2719/7869 = 34%, 944 KB/s]Downloaded: 2799 file(s) [attempted 2799/7869 = 35%, 407 KB/s]Downloaded: 2859 file(s) [attempted 2859/7869 = 36%, 520 KB/s]Downloaded: 2958 file(s) [attempted 2958/7869 = 37%, 472 KB/s]Downloaded: 3058 file(s) [attempted 3058/7869 = 38%, 1415 KB/s]Downloaded: 3118 file(s) [attempted 3118/7869 = 39%, 1509 KB/s]Downloaded: 3218 file(s) [attempted 3218/7869 = 40%, 104 KB/s]Downloaded: 3288 file(s) [attempted 3288/7869 = 41%, 2099 KB/s]Downloaded: 3372 file(s) [attempted 3372/7869 = 42%, 240 KB/s]Downloaded: 3448 file(s) [attempted 3448/7869 = 43%, 1277 KB/s]Downloaded: 3518 file(s) [attempted 3518/7869 = 44%, 701 KB/s]Downloaded: 3598 file(s) [attempted 3598/7869 = 45%, 268 KB/s]Downloaded: 3698 file(s) [attempted 3698/7869 = 46%, 793 KB/s]Downloaded: 3788 file(s) [attempted 3788/7869 = 48%, 253 KB/s]Downloaded: 3848 file(s) [attempted 3848/7869 = 48%, 1315 KB/s]Downloaded: 3898 file(s) [attempted 3898/7869 = 49%, 486 KB/s]Downloaded: 3967 file(s) [attempted 3967/7869 = 50%, 640 KB/s]Downloaded: 4057 file(s) [attempted 4057/7869 = 51%, 425 KB/s]Downloaded: 4117 file(s) [attempted 4117/7869 = 52%, 418 KB/s]Downloaded: 4207 file(s) [attempted 4207/7869 = 53%, 347 KB/s]Downloaded: 4257 file(s) [attempted 4257/7869 = 54%, 442 KB/s]Downloaded: 4273 file(s) [attempted 4273/7869 = 54%, 948 KB/s]Downloaded: 4287 file(s) [attempted 4287/7869 = 54%, 686 KB/s]Downloaded: 4307 file(s) [attempted 4307/7869 = 54%, 1136 KB/s]Downloaded: 4397 file(s) [attempted 4397/7869 = 55%, 1350 KB/s]Downloaded: 4407 file(s) [attempted 4407/7869 = 56%, 721 KB/s]Downloaded: 4507 file(s) [attempted 4507/7869 = 57%, 1112 KB/s]Downloaded: 4567 file(s) [attempted 4567/7869 = 58%, 811 KB/s]Downloaded: 4667 file(s) [attempted 4667/7869 = 59%, 599 KB/s]Downloaded: 4757 file(s) [attempted 4757/7869 = 60%, 119 KB/s]Downloaded: 4817 file(s) [attempted 4817/7869 = 61%, 199 KB/s]Downloaded: 4877 file(s) [attempted 4877/7869 = 61%, 249 KB/s]Downloaded: 4976 file(s) [attempted 4976/7869 = 63%, 1428 KB/s]Downloaded: 5060 file(s) [attempted 5060/7869 = 64%, 886 KB/s]Downloaded: 5126 file(s) [attempted 5126/7869 = 65%, 247 KB/s]Downloaded: 5186 file(s) [attempted 5186/7869 = 65%, 440 KB/s]Downloaded: 5260 file(s) [attempted 5260/7869 = 66%, 2810 KB/s]Downloaded: 5336 file(s) [attempted 5336/7869 = 67%, 1337 KB/s]Downloaded: 5406 file(s) [attempted 5406/7869 = 68%, 371 KB/s]Downloaded: 5506 file(s) [attempted 5506/7869 = 69%, 333 KB/s]Downloaded: 5601 file(s) [attempted 5601/7869 = 71%, 874 KB/s]Downloaded: 5666 file(s) [attempted 5666/7869 = 72%, 323 KB/s]Downloaded: 5716 file(s) [attempted 5716/7869 = 72%, 369 KB/s]Downloaded: 5776 file(s) [attempted 5776/7869 = 73%, 1216 KB/s]Downloaded: 5876 file(s) [attempted 5876/7869 = 74%, 645 KB/s]Downloaded: 5936 file(s) [attempted 5936/7869 = 75%, 478 KB/s]Downloaded: 6045 file(s) [attempted 6045/7869 = 76%, 503 KB/s]Downloaded: 6105 file(s) [attempted 6105/7869 = 77%, 1423 KB/s]Downloaded: 6195 file(s) [attempted 6195/7869 = 78%, 807 KB/s]Downloaded: 6265 file(s) [attempted 6265/7869 = 79%, 183 KB/s]Downloaded: 6367 file(s) [attempted 6367/7869 = 80%, 1564 KB/s]Downloaded: 6435 file(s) [attempted 6435/7869 = 81%, 617 KB/s]Downloaded: 6495 file(s) [attempted 6495/7869 = 82%, 1972 KB/s]Downloaded: 6585 file(s) [attempted 6585/7869 = 83%, 103 KB/s]Downloaded: 6645 file(s) [attempted 6645/7869 = 84%, 1088 KB/s]Downloaded: 6725 file(s) [attempted 6725/7869 = 85%, 2408 KB/s]Downloaded: 6805 file(s) [attempted 6805/7869 = 86%, 1444 KB/s]Downloaded: 6875 file(s) [attempted 6875/7869 = 87%, 751 KB/s]Downloaded: 6964 file(s) [attempted 6964/7869 = 88%, 484 KB/s]Downloaded: 7024 file(s) [attempted 7024/7869 = 89%, 654 KB/s]Downloaded: 7105 file(s) [attempted 7105/7869 = 90%, 1506 KB/s]Downloaded: 7180 file(s) [attempted 7180/7869 = 91%, 578 KB/s]Downloaded: 7234 file(s) [attempted 7234/7869 = 91%, 925 KB/s]Downloaded: 7304 file(s) [attempted 7304/7869 = 92%, 1915 KB/s]Downloaded: 7374 file(s) [attempted 7374/7869 = 93%, 401 KB/s]Downloaded: 7464 file(s) [attempted 7464/7869 = 94%, 99 KB/s]Downloaded: 7524 file(s) [attempted 7524/7869 = 95%, 2730 KB/s]Downloaded: 7624 file(s) [attempted 7624/7869 = 96%, 343 KB/s]Downloaded: 7694 file(s) [attempted 7694/7869 = 97%, 209 KB/s]Downloaded: 7794 file(s) [attempted 7794/7869 = 99%, 195 KB/s]Downloaded: 7869 file(s) [attempted 7869/7869 = 100%, 195 KB/s]
+Decompressing 7869 file(s)
+Unpacked in 29867 ms
+Completed successfully!
+✔ [7885/7894] Built RNAQuasiPowers.Radicand (147s)
+✖ [7886/7894] Building RNAQuasiPowers.GeneratingFunction (139s)
+trace: .> LEAN_PATH=/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Cli/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/batteries/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Qq/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/aesop/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/importGraph/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/plausible/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/mathlib/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean /Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/RNAQuasiPowers/GeneratingFunction.lean -o /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean/RNAQuasiPowers/GeneratingFunction.olean -i /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean/RNAQuasiPowers/GeneratingFunction.ilean -c /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/ir/RNAQuasiPowers/GeneratingFunction.c --setup /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/ir/RNAQuasiPowers/GeneratingFunction.setup.json --json
+error: RNAQuasiPowers/GeneratingFunction.lean:41:4: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Real.instDivInvMonoid', which is 'noncomputable'
+error: Lean exited with code 1
+✖ [7887/7894] Building RNAQuasiPowers.GoldenRoot (139s)
+trace: .> LEAN_PATH=/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Cli/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/batteries/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Qq/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/aesop/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/proofwidgets/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/importGraph/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/plausible/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/mathlib/.lake/build/lib/lean:/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean /Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/RNAQuasiPowers/GoldenRoot.lean -o /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean/RNAQuasiPowers/GoldenRoot.olean -i /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean/RNAQuasiPowers/GoldenRoot.ilean -c /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/ir/RNAQuasiPowers/GoldenRoot.c --setup /Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/ir/RNAQuasiPowers/GoldenRoot.setup.json --json
+warning: RNAQuasiPowers/GoldenRoot.lean:38:2: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: RNAQuasiPowers/GoldenRoot.lean:38:53: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: RNAQuasiPowers/GoldenRoot.lean:38:53: 'norm_num' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: RNAQuasiPowers/GoldenRoot.lean:81:5: unused variable `ht0`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: RNAQuasiPowers/GoldenRoot.lean:108:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  sqrtFive ^ 2
+in the target expression
+  (fun y ↦ y ^ 2) sqrtFive = (fun y ↦ y ^ 2) (15 / 7)
+
+h : 30 - 14 * sqrtFive = 0
+hs : sqrtFive = 15 / 7
+hsq : (fun y ↦ y ^ 2) sqrtFive = (fun y ↦ y ^ 2) (15 / 7)
+⊢ False
+error: Lean exited with code 1
+Some required targets logged failures:
+- RNAQuasiPowers.GeneratingFunction
+- RNAQuasiPowers.GoldenRoot
+error: build failed
+FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean:17:0: error: unknown module prefix 'FormalConjecturesUtil'
+
+No directory 'FormalConjecturesUtil' or file 'FormalConjecturesUtil.olean' in the search path entries:
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Cli/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/batteries/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Qq/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/aesop/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/proofwidgets/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/importGraph/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/LeanSearchClient/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/plausible/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/mathlib/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
+RNAQuasiPowers/AxiomAudit.lean:17:0: error: unknown module prefix 'FormalConjectures'
+
+No directory 'FormalConjectures' or file 'FormalConjectures.olean' in the search path entries:
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Cli/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/batteries/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Qq/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/aesop/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/proofwidgets/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/importGraph/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/LeanSearchClient/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/plausible/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/mathlib/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
+FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean:17:0: error: unknown module prefix 'FormalConjectures'
+
+No directory 'FormalConjectures' or file 'FormalConjectures.olean' in the search path entries:
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Cli/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/batteries/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/Qq/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/aesop/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/proofwidgets/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/importGraph/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/LeanSearchClient/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/plausible/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/packages/mathlib/.lake/build/lib/lean
+/Users/runner/work/ProofPlaygrond/ProofPlaygrond/formal-conjectures/.lake/build/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
+/Users/runner/.elan/toolchains/leanprover--lean4---v4.27.0/lib/lean
