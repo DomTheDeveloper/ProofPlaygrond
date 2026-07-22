@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 25
     steps:
-      - name: Checkout pinned A261865 proof commit
+      - name: Checkout current A261865 proof branch
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 7a073b94596edcdf6a3c4c56079e0a75ae404474
+          ref: a261865-research
 
       - name: Run AXLE and print only actionable diagnostics
         shell: bash
