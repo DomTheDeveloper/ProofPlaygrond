@@ -30,11 +30,11 @@ jobs:
         with:
           path: playground
 
-      - name: Checkout exact A263135 proof source
+      - name: Checkout exact repaired A263135 proof source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
+          ref: 1a99472b0118d4fa9049e1e9dd528c93f0ede558
           path: formal-conjectures
 
       - name: Flatten and verify with AXLE Lean 4.27
