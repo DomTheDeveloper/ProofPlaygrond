@@ -4,17 +4,10 @@
 name: OEIS A263135 Linux ARM kernel audit
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: oeis-a263135-linux-arm-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   verify:
@@ -27,6 +20,15 @@ jobs:
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
+
+      - name: Register scratch proof library
+        run: |
+          cat >> lakefile.toml <<'EOF'
+
+          [[lean_lib]]
+          name = "Scratch"
+          globs = ["Scratch.+"]
+          EOF
 
       - name: Install pinned Lean tooling
         run: |
