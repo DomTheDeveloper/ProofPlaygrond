@@ -1,0 +1,50 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: A263135 BMO8 Lean audit
+
+on:
+  push:
+    branches:
+      - verify/a263135-bmo8
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: kernel verify A263135 / BMO8
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout proof source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 7fbb493d3ef64798b38887a0cadb8677cc556692
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Get pinned mathlib cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Build proof with warnings as errors
+        working-directory: formal-conjectures
+        run: lake --wfail build FormalConjectures.Other.BeaverMathOlympiad8Proof
+
+      - name: Print kernel axiom dependencies
+        working-directory: formal-conjectures
+        run: |
+          cp FormalConjectures/Other/BeaverMathOlympiad8Proof.lean BMO8ProofAudit.lean
+          printf '\n#print axioms BeaverMathOlympiad.beaver_math_olympiad_problem_8_solved\n' >> BMO8ProofAudit.lean
+          lake env lean BMO8ProofAudit.lean
