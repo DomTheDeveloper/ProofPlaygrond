@@ -1,0 +1,59 @@
+name: A263135 Lean audit
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout A263135 proof workbench
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: dtd/oeis-a263135-scd-scratch
+          path: formal-conjectures
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch Mathlib cache
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake exe cache get
+      - name: Reject trust shortcuts
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=$(find Scratch -maxdepth 1 -type f -name 'A263135*.lean' -print)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom)\b|Lean\.(trustCompiler|ofReduce|ofReduceBool)' $files; then
+            echo 'Forbidden proof shortcut found.' >&2
+            exit 1
+          fi
+      - name: Compile final theorem and audit axioms
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean Scratch/A263135Audit.lean 2>&1 | tee "$RUNNER_TEMP/a263135-audit.log"
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a263135-audit.log"; then
+            echo 'Unacceptable axiom dependency found.' >&2
+            exit 1
+          fi
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a263135-lean-audit
+          path: ${{ runner.temp }}/a263135-audit.log
+          if-no-files-found: warn
