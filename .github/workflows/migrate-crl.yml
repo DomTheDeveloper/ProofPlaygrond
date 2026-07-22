@@ -1,4 +1,4 @@
-# Triggered after workflow registration.
+# Triggered through a merged migration PR.
 name: One-time CRL proof migration
 
 on:
