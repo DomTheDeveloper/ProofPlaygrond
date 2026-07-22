@@ -1,3 +1,6 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
 name: A263135 AXLE audit
 
 on:
@@ -5,9 +8,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/a263135-axle-audit.yml'
-      - 'audits/A263135.md'
-      - 'audits/patch_a263135_ordered.py'
       - 'audits/axle_a263135.py'
+      - 'audits/A263135.md'
   workflow_dispatch:
 
 permissions:
@@ -19,26 +21,28 @@ concurrency:
 
 jobs:
   verify:
+    name: verify exact A263135 theorem with AXLE
     runs-on: ubuntu-slim
-    timeout-minutes: 30
+    timeout-minutes: 25
     steps:
       - name: Checkout Proof Playground harness
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: playground
-      - name: Checkout A263135 workbench
-        uses: actions/checkout@v4
+
+      - name: Checkout exact A263135 proof source
+        uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: dtd/oeis-a263135-scd-scratch
+          ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
           path: formal-conjectures
-      - name: Apply ordered-side repair
-        run: python3 playground/audits/patch_a263135_ordered.py formal-conjectures
-      - name: Flatten and check with AXLE
+
+      - name: Flatten and verify with AXLE Lean 4.27
         env:
           A263135_FLAT_OUTPUT: ${{ runner.temp }}/A263135Flat.lean
           A263135_AXLE_OUTPUT: ${{ runner.temp }}/a263135-axle.json
         run: python3 playground/audits/axle_a263135.py formal-conjectures
+
       - name: Upload AXLE transcript
         if: always()
         uses: actions/upload-artifact@v4
