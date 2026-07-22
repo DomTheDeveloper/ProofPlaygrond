@@ -1,0 +1,133 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>OEIS A263135 AXLE audit bridge</title>
+<pre id="status">starting</pre>
+<script>
+(async () => {
+  const PROOF_SHA = "2ec5e1247a6337070eb21d70160da4849ea673fa";
+  const REPO = "DomTheDeveloper/formal-conjectures";
+  const AXLE = "https://axle.axiommath.ai/api/v1/verify_proof";
+  const status = document.getElementById("status");
+  const setStatus = value => { status.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2); };
+  const fail = error => {
+    setStatus({ okay: false, bridge_error: String(error && (error.stack || error.message || error)) });
+    const done = document.createElement("div"); done.id = "done"; document.body.appendChild(done);
+  };
+
+  const stripImports = source => source.split("\n")
+    .filter(line => !/^\s*(?:public\s+meta\s+|public\s+)?import\s+/.test(line))
+    .join("\n") + "\n";
+
+  const stripProjectAttributes = source => source.replace(/@\[(.*?)\]/gs, (_all, body) => {
+    const kept = body.split(",").map(x => x.trim()).filter(part => part &&
+      !part.startsWith("category ") &&
+      !part.startsWith("AMS ") &&
+      !part.startsWith("formal_proof "));
+    return kept.length ? `@[${kept.join(", ")}]` : "";
+  });
+
+  const fetchText = async url => {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error(`GET ${url} -> ${response.status}`);
+    return response.text();
+  };
+
+  try {
+    setStatus("fetching proof tree");
+    const treeResponse = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${PROOF_SHA}?recursive=1`, { cache: "no-store" });
+    if (!treeResponse.ok) throw new Error(`GitHub tree -> ${treeResponse.status}`);
+    const tree = await treeResponse.json();
+    const paths = tree.tree.map(item => item.path);
+    const scratchPaths = paths.filter(path => /^Scratch\/A263135.*\.lean$/.test(path) && path !== "Scratch/A263135Audit.lean").sort();
+    if (scratchPaths.length < 20 || !scratchPaths.includes("Scratch/A263135Final.lean")) {
+      throw new Error(`incomplete proof module set: ${scratchPaths.length}`);
+    }
+
+    const raw = path => `https://raw.githubusercontent.com/${REPO}/${PROOF_SHA}/${path}`;
+    const canonicalSource = await fetchText(raw("FormalConjectures/OEIS/263135.lean"));
+    const marker = "@[category research open, AMS 05]";
+    const markerIndex = canonicalSource.indexOf(marker);
+    if (markerIndex < 0) throw new Error("canonical theorem marker not found");
+    let prefix = canonicalSource.slice(0, markerIndex);
+    const docStart = prefix.lastIndexOf("/--");
+    if (docStart < 0 || !prefix.slice(docStart).trim().endsWith("-/")) {
+      throw new Error("canonical theorem docstring could not be isolated");
+    }
+    prefix = prefix.slice(0, docStart) + "end OeisA263135\n";
+    prefix = stripProjectAttributes(stripImports(prefix));
+
+    setStatus(`fetching ${scratchPaths.length} proof modules`);
+    const sourcePairs = await Promise.all(scratchPaths.map(async path => [path, await fetchText(raw(path))]));
+    const byModule = new Map(sourcePairs.map(([path, source]) => [path.replace(/\.lean$/, "").replaceAll("/", "."), { path, source }]));
+    const importPattern = /^\s*(?:public\s+meta\s+|public\s+)?import\s+([A-Za-z0-9_.]+)/gm;
+    const dependencies = new Map();
+    for (const [name, entry] of byModule) {
+      const deps = new Set();
+      for (const match of entry.source.matchAll(importPattern)) if (byModule.has(match[1])) deps.add(match[1]);
+      dependencies.set(name, deps);
+    }
+
+    const ordered = [];
+    const temporary = new Set();
+    const permanent = new Set();
+    const visit = name => {
+      if (permanent.has(name)) return;
+      if (temporary.has(name)) throw new Error(`cyclic Scratch import at ${name}`);
+      temporary.add(name);
+      [...dependencies.get(name)].sort().forEach(visit);
+      temporary.delete(name);
+      permanent.add(name);
+      ordered.push(name);
+    };
+    [...byModule.keys()].sort().forEach(visit);
+
+    const privateOwners = new Map();
+    for (const name of ordered) {
+      const source = byModule.get(name).source;
+      for (const match of source.matchAll(/^\s*private\s+(?:theorem|lemma|def|instance)\s+([A-Za-z0-9_']+)/gm)) {
+        const declaration = match[1];
+        if (privateOwners.has(declaration)) throw new Error(`duplicate private declaration ${declaration}: ${privateOwners.get(declaration)} and ${name}`);
+        privateOwners.set(declaration, name);
+      }
+    }
+
+    const theorem = `\nnamespace OeisA263135\n\ntheorem conjecture (n : ℕ) (hn : 0 < n) :\n    ∃ r : ℕ, IsNatCeilSqrt (3 * n) r ∧\n      IsMaximumContact (2 * n) (3 * n - r) := by\n`;
+    const formalStatement = "import Mathlib\n\n" + prefix + theorem + "  sorry\n\nend OeisA263135\n";
+    const chunks = ["import Mathlib\n\n", prefix];
+    for (const name of ordered) {
+      const { path, source } = byModule.get(name);
+      chunks.push(`\n-- BEGIN ${path}\n${stripProjectAttributes(stripImports(source))}\n-- END ${path}\n`);
+    }
+    chunks.push(theorem + "  exact conjecture_solved n hn\n\nend OeisA263135\n");
+    const content = chunks.join("");
+    const code = content.replace(/\/-[\s\S]*?-\//g, "").replace(/--.*$/gm, "");
+    if (/\b(?:sorry|admit)\b/.test(code)) throw new Error("flattened candidate contains a placeholder");
+
+    setStatus(`submitting ${content.length} bytes to AXLE`);
+    const axleResponse = await fetch(AXLE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Request-Source": "proof-playgrond-browser-a263135" },
+      body: JSON.stringify({
+        formal_statement: formalStatement,
+        content,
+        environment: "lean-4.27.0",
+        mathlib_options: true,
+        ignore_imports: true,
+        use_def_eq: true,
+        timeout_seconds: 900
+      })
+    });
+    const text = await axleResponse.text();
+    let result;
+    try { result = JSON.parse(text); } catch { result = { okay: false, http_status: axleResponse.status, raw: text }; }
+    result.proof_sha = PROOF_SHA;
+    result.module_count = scratchPaths.length;
+    result.candidate_bytes = content.length;
+    result.bridge_http_status = axleResponse.status;
+    setStatus(result);
+    const done = document.createElement("div"); done.id = "done"; document.body.appendChild(done);
+  } catch (error) {
+    fail(error);
+  }
+})();
+</script>
