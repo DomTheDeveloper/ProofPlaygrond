@@ -65,64 +65,16 @@ jobs:
 
       - name: Build complete A263135 module chain
         run: |
-          set -euo pipefail
-          python3 - <<'PY' > "$RUNNER_TEMP/a263135-order.txt"
-          import re
-          from pathlib import Path
-
-          files = sorted(Path('Scratch').glob('A263135*.lean'))
-          files = [p for p in files if p.name != 'A263135Audit.lean']
-          by_module = {'.'.join(p.with_suffix('').parts): p for p in files}
-          import_re = re.compile(r'^\s*(?:public\s+|public\s+meta\s+)?import\s+([A-Za-z0-9_.]+)', re.MULTILINE)
-          deps = {}
-          for name, path in by_module.items():
-              imports = import_re.findall(path.read_text(encoding='utf-8'))
-              deps[name] = {d for d in imports if d in by_module}
-          ordered, temporary, permanent = [], set(), set()
-          def visit(name):
-              if name in permanent:
-                  return
-              if name in temporary:
-                  raise RuntimeError(f'cyclic import at {name}')
-              temporary.add(name)
-              for dep in sorted(deps[name]):
-                  visit(dep)
-              temporary.remove(name)
-              permanent.add(name)
-              ordered.append(name)
-          for name in sorted(by_module):
-              visit(name)
-          print('\n'.join(ordered))
-          PY
-
+          set -o pipefail
           : > "$RUNNER_TEMP/a263135-native.log"
-          echo '=== BUILD FormalConjecturesUtil ===' | tee -a "$RUNNER_TEMP/a263135-native.log"
-          "$HOME/.elan/bin/lake" build FormalConjecturesUtil 2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
-
-          mkdir -p .lake/build/lib/lean/FormalConjectures/OEIS .lake/build/lib/lean/Scratch
-          echo '=== COMPILE FormalConjectures.OEIS.263135 ===' | tee -a "$RUNNER_TEMP/a263135-native.log"
-          "$HOME/.elan/bin/lake" env lean FormalConjectures/OEIS/263135.lean \
-            -o .lake/build/lib/lean/FormalConjectures/OEIS/263135.olean \
-            2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
-
-          while IFS= read -r module; do
-            source_path="${module//.//}.lean"
-            output_path=".lake/build/lib/lean/${module//.//}.olean"
-            mkdir -p "$(dirname "$output_path")"
-            echo "=== COMPILE $module ===" | tee -a "$RUNNER_TEMP/a263135-native.log"
-            "$HOME/.elan/bin/lake" env lean "$source_path" -o "$output_path" \
-              2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
-          done < "$RUNNER_TEMP/a263135-order.txt"
-
-          echo '=== COMPILE Scratch.A263135Audit ===' | tee -a "$RUNNER_TEMP/a263135-native.log"
-          "$HOME/.elan/bin/lake" env lean Scratch/A263135Audit.lean \
-            -o .lake/build/lib/lean/Scratch/A263135Audit.olean \
-            2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
+          "$HOME/.elan/bin/lake" build A263135ScratchAudit \
+            2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
 
       - name: Run final theorem axiom audit
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Scratch/A263135Audit.lean 2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
+          "$HOME/.elan/bin/lake" env lean Scratch/A263135Audit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
 
       - name: Enforce final axiom policy
         run: |
@@ -139,6 +91,5 @@ jobs:
           name: a263135-native-final-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
-            ${{ runner.temp }}/a263135-order.txt
             ${{ runner.temp }}/a263135-native.log
           if-no-files-found: warn
