@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>AXLE_PENDING</title>
+<style>body{font:24px/1.35 monospace;white-space:pre-wrap;padding:24px}#done{display:none}</style>
+<body>AXLE_PENDING</body>
+<script>
+(async () => {
+  const payload = {
+    content: "import Mathlib\nexample : (1 : Nat) = 1 := rfl",
+    environment: "lean-4.27.0",
+    ignore_imports: true,
+    mathlib_options: false,
+    timeout_seconds: 120
+  };
+  try {
+    const response = await fetch("https://axle.axiommath.ai/api/v1/check", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    const text = await response.text();
+    let result;
+    try { result = JSON.parse(text); } catch { result = {httpStatus: response.status, raw: text}; }
+    const compact = {
+      httpStatus: response.status,
+      okay: result.okay,
+      failed_declarations: result.failed_declarations,
+      lean_errors: result.lean_messages?.errors,
+      tool_errors: result.tool_messages?.errors,
+      lean_warnings: result.lean_messages?.warnings,
+      tool_warnings: result.tool_messages?.warnings
+    };
+    document.title = "AXLE_RESULT " + JSON.stringify(compact);
+    document.body.textContent = JSON.stringify(compact, null, 2);
+  } catch (error) {
+    const compact = {bridgeError: String(error), stack: error?.stack};
+    document.title = "AXLE_ERROR " + JSON.stringify(compact);
+    document.body.textContent = JSON.stringify(compact, null, 2);
+  }
+  const marker = document.createElement('div');
+  marker.id = 'done'; marker.textContent = 'done'; marker.style.display = 'block';
+  document.body.appendChild(marker);
+})();
+</script>
