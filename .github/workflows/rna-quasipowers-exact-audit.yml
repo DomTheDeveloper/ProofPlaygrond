@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   kernel-audit:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     timeout-minutes: 180
     steps:
       - name: Check out exact Formal Conjectures proof commit
