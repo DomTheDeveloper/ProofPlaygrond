@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 9b08804ddd17dff14660f6b0cd5d01a9636a4b23
+          ref: efc1ea636f073ce2c90da7ab6b6620c10f8930e5
           fetch-depth: 1
 
       - name: Record exact commit
@@ -49,13 +49,14 @@ jobs:
             a263135-${{ runner.os }}-
 
       - name: Restore pinned Mathlib cache
+        if: steps.lean-cache.outputs.cache-matched-key == ''
         run: |
           set -euo pipefail
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
       - name: Save reusable Lean build cache
-        if: steps.lean-cache.outputs.cache-hit != 'true'
+        if: steps.lean-cache.outputs.cache-matched-key == ''
         uses: actions/cache/save@v4
         with:
           path: |
