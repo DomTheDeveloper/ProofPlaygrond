@@ -1,0 +1,68 @@
+name: A261865 focused module audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/a261865-module-audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/a261865-modules.trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a261865-module-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused-build:
+    name: Build A261865 support modules
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout active A261865 proof branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: a261865-research
+
+      - name: Record proof head
+        shell: bash
+        run: git rev-parse HEAD | tee a261865-module-head.txt
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+
+      - name: Build focused modules
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build \
+            FormalConjecturesForMathlib.MeasureTheory.Group.UnitAddCircleArc \
+            FormalConjecturesForMathlib.MeasureTheory.Probability.PiContinuitySet \
+            FormalConjecturesForMathlib.MeasureTheory.Probability.Empirical \
+            FormalConjecturesForMathlib.NumberTheory.SquarefreeRadicals \
+            2>&1 | tee a261865-module-audit.log
+
+      - name: Upload module transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-module-audit
+          path: |
+            a261865-module-head.txt
+            a261865-module-audit.log
+          if-no-files-found: warn
