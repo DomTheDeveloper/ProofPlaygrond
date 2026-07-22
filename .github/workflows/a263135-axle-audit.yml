@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 2ec5e1247a6337070eb21d70160da4849ea673fa
+          ref: 6ad03f2a0fa5de81c0ed08fd0fc38a42f12513b7
           path: formal-conjectures
 
       - name: Flatten and verify with AXLE Lean 4.27
