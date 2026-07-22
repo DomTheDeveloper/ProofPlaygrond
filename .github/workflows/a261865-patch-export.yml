@@ -1,0 +1,72 @@
+name: A261865 source patch exporter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/a261865-patch-export.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/a261865-patch-export.trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current A261865 branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: a261865-research
+
+      - name: Apply final two Base repairs without pushing
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('FormalConjectures/OEIS/A261865Base.lean')
+          text = path.read_text()
+
+          old = '''  have hright' : (m : ℝ) < (n : ℝ) + 1 := by simpa using hright
+  have hmn : m ≤ n := by
+    exact_mod_cast hright'
+  omega
+'''
+          new = '''  have hright' : (m : ℝ) < (n : ℝ) + 1 := by simpa using hright
+  have hmn : m < n + 1 := by
+    exact_mod_cast hright'
+  omega
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'first replacement count={text.count(old)}')
+          text = text.replace(old, new, 1)
+
+          old = '''          have hspos : 0 < s := by
+            apply Nat.pos_of_ne_zero
+            intro hs0
+            subst s
+            simp at hr
+'''
+          new = '''          have hspos : 0 < s := by
+            apply Nat.pos_of_ne_zero
+            intro hs0
+            have hr0 : r = 0 := by simpa [hs0] using hrs
+            omega
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'second replacement count={text.count(old)}')
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Upload complete patched source
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-base-patched-source
+          path: FormalConjectures/OEIS/A261865Base.lean
+          if-no-files-found: error
