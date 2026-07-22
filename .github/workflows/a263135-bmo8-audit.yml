@@ -73,6 +73,13 @@ jobs:
             export PATH="$HOME/.elan/bin:$PATH"
 
             cd formal-conjectures || exit 90
+            cat >> lakefile.toml <<'EOF'
+
+            [[lean_lib]]
+            name = "Scratch"
+            globs = ["Scratch.+"]
+            EOF
+
             echo cache > "$PHASE"
             lake exe cache unpack || true
             lake exe cache get
