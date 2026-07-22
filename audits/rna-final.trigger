@@ -1,0 +1,3 @@
+source_repo=DomTheDeveloper/formal-conjectures
+source_ref=ef541834089a3c8941f7bc311601d1b8a8dfc117
+toolchain=leanprover/lean4:v4.27.0
