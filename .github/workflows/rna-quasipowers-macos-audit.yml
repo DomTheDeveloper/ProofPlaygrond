@@ -1,0 +1,94 @@
+name: RNA quasi-powers macOS Lean audit
+
+on:
+  push:
+    branches:
+      - 'verify/rna-quasipowers-ef541834'
+    paths:
+      - '.github/workflows/rna-quasipowers-macos-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rna-quasipowers-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: macos-14
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: playground
+          ref: verify/rna-quasipowers-ef541834
+
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: ef541834089a3c8941f7bc311601d1b8a8dfc117
+          path: formal-conjectures
+
+      - name: Run exact Lean 4.27 audit
+        shell: bash
+        run: |
+          set +e
+          LOG="$GITHUB_WORKSPACE/rna-macos-audit.log"
+          : > "$LOG"
+          {
+            cd "$GITHUB_WORKSPACE/formal-conjectures"
+            test "$(git rev-parse HEAD)" = "ef541834089a3c8941f7bc311601d1b8a8dfc117"
+            test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+            test -f lake-manifest.json
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+              | sh -s -- -y --default-toolchain leanprover/lean4:v4.27.0
+            export PATH="$HOME/.elan/bin:$PATH"
+            lean --version
+            lake --version
+            lake exe cache get
+            lake --wfail build RNAQuasiPowers
+            lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean
+            lake env lean RNAQuasiPowers/AxiomAudit.lean
+            lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean
+          } 2>&1 | tee -a "$LOG"
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 0 ] && grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$LOG"; then
+            echo 'Forbidden axiom or compiler-trust shortcut detected.' | tee -a "$LOG"
+            rc=90
+          fi
+          echo "$rc" > "$GITHUB_WORKSPACE/rna-macos-audit.rc"
+          exit 0
+
+      - name: Commit transcript
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rc=125
+          [ ! -f "$GITHUB_WORKSPACE/rna-macos-audit.rc" ] || rc=$(cat "$GITHUB_WORKSPACE/rna-macos-audit.rc")
+          mkdir -p playground/audits
+          {
+            echo "proof_sha=ef541834089a3c8941f7bc311601d1b8a8dfc117"
+            echo "runner=macos-14"
+            echo "workflow_sha=${GITHUB_SHA}"
+            echo "exit_code=${rc}"
+            echo "run_url=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            [ ! -f "$GITHUB_WORKSPACE/rna-macos-audit.log" ] || cat "$GITHUB_WORKSPACE/rna-macos-audit.log"
+          } > playground/audits/rna-quasipowers-ef541834-macos-result.txt
+          cd playground
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add audits/rna-quasipowers-ef541834-macos-result.txt
+          git commit -m "audit: record RNA macOS Lean result" || exit 0
+          git pull --rebase origin verify/rna-quasipowers-ef541834
+          git push origin HEAD:verify/rna-quasipowers-ef541834
+
+      - name: Enforce result
+        if: always()
+        shell: bash
+        run: |
+          test -f "$GITHUB_WORKSPACE/rna-macos-audit.rc"
+          test "$(cat "$GITHUB_WORKSPACE/rna-macos-audit.rc")" = "0"
