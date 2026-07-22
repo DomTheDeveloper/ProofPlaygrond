@@ -1,0 +1,161 @@
+name: A261865 self-reporting verification
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: a261865-self-reporting-audit
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.event.issue.number == 5 && contains(github.event.comment.body, '/audit-a261865-report-f5d289e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.issue.number }}
+      PROOF_SHA: f5d289e074dc692ab75eb6050128339ef95861c2
+    steps:
+      - name: Report start
+        shell: bash
+        run: |
+          gh api --method POST "repos/$REPO/issues/$PR_NUMBER/comments" \
+            -f body="A261865 audit started for immutable proof commit \`$PROOF_SHA\`."
+
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
+
+      - name: Confirm immutable source
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$PROOF_SHA"
+
+      - name: Run AXLE audits
+        id: axle
+        shell: bash
+        run: |
+          set +e
+          python3 - <<'PY' > axle-summary.txt 2>&1
+          import json, pathlib, sys, urllib.request
+          files = [
+            'FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean',
+          ]
+          failed = False
+          for filename in files:
+            payload = json.dumps({
+              'content': pathlib.Path(filename).read_text(),
+              'environment': 'lean-4.27.0',
+              'ignore_imports': False,
+              'mathlib_options': False,
+              'timeout_seconds': 900,
+            }).encode()
+            req = urllib.request.Request(
+              'https://axle.axiommath.ai/api/v1/check', data=payload,
+              headers={'Content-Type': 'application/json'}, method='POST')
+            with urllib.request.urlopen(req, timeout=960) as response:
+              result = json.load(response)
+            errors = result.get('lean_messages', {}).get('errors', [])
+            tool_errors = result.get('tool_messages', {}).get('errors', [])
+            failed_decls = result.get('failed_declarations', [])
+            okay = bool(result.get('okay', False))
+            print(f'## {filename}')
+            print(f'okay={okay}')
+            for error in errors:
+              print(error)
+            for error in tool_errors:
+              print('TOOL:', error)
+            if failed_decls:
+              print('failed_declarations=' + json.dumps(failed_decls, ensure_ascii=False))
+            failed |= bool(errors or tool_errors or failed_decls or not okay)
+          sys.exit(1 if failed else 0)
+          PY
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Report AXLE result
+        shell: bash
+        run: |
+          if [[ "${{ steps.axle.outputs.status }}" == "0" ]]; then
+            body="A261865 AXLE audit passed for all six repaired modules at \`$PROOF_SHA\`."
+          else
+            summary=$(tail -c 50000 axle-summary.txt)
+            body=$(printf 'A261865 AXLE audit failed at `%s`.\n\n```text\n%s\n```' "$PROOF_SHA" "$summary")
+          fi
+          gh api --method POST "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$body"
+
+      - name: Stop after AXLE failure
+        if: steps.axle.outputs.status != '0'
+        run: exit 1
+
+      - name: Install Lean 4.27
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+
+      - name: Reject placeholders and trust escapes
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            FormalConjectures/OEIS/A261865Base.lean
+            FormalConjectures/OEIS/261865.lean
+            FormalConjectures/OEIS/261865Solution.lean
+            FormalConjectures/OEIS/261865FinalAudit.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/TerminalBox.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean
+            FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean
+          )
+          ! grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "${files[@]}"
+
+      - name: Compile exact theorem
+        id: kernel
+        shell: bash
+        run: |
+          set +e
+          lake env lean FormalConjectures/OEIS/261865FinalAudit.lean > a261865-kernel-audit.log 2>&1
+          status=$?
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' a261865-kernel-audit.log; then
+            status=1
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Report exact kernel result
+        shell: bash
+        run: |
+          if [[ "${{ steps.kernel.outputs.status }}" == "0" ]]; then
+            body="A261865 exact Lean 4.27 theorem and axiom audit passed at immutable commit \`$PROOF_SHA\`; no forbidden trust dependency was found."
+          else
+            summary=$(tail -c 50000 a261865-kernel-audit.log)
+            body=$(printf 'A261865 exact Lean 4.27 audit failed at `%s`.\n\n```text\n%s\n```' "$PROOF_SHA" "$summary")
+          fi
+          gh api --method POST "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$body"
+
+      - name: Enforce kernel result
+        if: steps.kernel.outputs.status != '0'
+        run: exit 1
