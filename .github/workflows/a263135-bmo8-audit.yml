@@ -9,13 +9,16 @@ on:
       - main
     paths-ignore:
       - 'audits/results/**'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: oeis-a263135-honeycomb-main
+  group: oeis-a263135-honeycomb-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -149,10 +152,12 @@ jobs:
             echo '```'
           } > playground/audits/results/OEIS-A263135-Honeycomb.md
 
-          git -C playground config user.name github-actions
-          git -C playground config user.email github-actions@github.com
-          git -C playground add audits/results/OEIS-A263135-Honeycomb.md
-          git -C playground commit -m 'audit: record OEIS A263135 honeycomb result [skip ci]' || true
-          git -C playground push origin HEAD:main
+          if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+            git -C playground config user.name github-actions
+            git -C playground config user.email github-actions@github.com
+            git -C playground add audits/results/OEIS-A263135-Honeycomb.md
+            git -C playground commit -m 'audit: record OEIS A263135 honeycomb result [skip ci]' || true
+            git -C playground push origin HEAD:main
+          fi
 
           test "$code" = 0
