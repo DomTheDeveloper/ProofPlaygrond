@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/a263135-axle-audit.yml'
       - 'audits/axle_a263135.py'
+      - 'audits/axle_a263135_v2.py'
       - 'audits/A263135.md'
   workflow_dispatch:
 
@@ -41,7 +42,7 @@ jobs:
         env:
           A263135_FLAT_OUTPUT: ${{ runner.temp }}/A263135Flat.lean
           A263135_AXLE_OUTPUT: ${{ runner.temp }}/a263135-axle.json
-        run: python3 playground/audits/axle_a263135.py formal-conjectures
+        run: python3 playground/audits/axle_a263135_v2.py formal-conjectures
 
       - name: Upload AXLE transcript
         if: always()
