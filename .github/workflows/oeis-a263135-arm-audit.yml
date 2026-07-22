@@ -28,6 +28,15 @@ jobs:
           repository: DomTheDeveloper/formal-conjectures
           ref: 7b4ef15d1a63473504da104c6759f05bf67fda5d
 
+      - name: Register scratch proof library
+        run: |
+          cat >> lakefile.toml <<'EOF'
+
+          [[lean_lib]]
+          name = "Scratch"
+          globs = ["Scratch.+"]
+          EOF
+
       - name: Install pinned Lean tooling
         run: |
           set -o pipefail
