@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 9ebc04439c3c6564f1a02c7ac4b7f0ebbc9e4b43
+          ref: 3ba32ab66e0a299d544c1fd4a33d2099b565f01c
       - name: Confirm immutable proof source
-        run: test "$(git rev-parse HEAD)" = "9ebc04439c3c6564f1a02c7ac4b7f0ebbc9e4b43"
+        run: test "$(git rev-parse HEAD)" = "3ba32ab66e0a299d544c1fd4a33d2099b565f01c"
       - name: Install Lean 4.27
         run: |
           set -euo pipefail
@@ -58,6 +58,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a261865-9ebc0443-linux-kernel-transcript
+          name: a261865-3ba32ab6-linux-kernel-transcript
           path: a261865-linux-kernel.log
           if-no-files-found: warn
