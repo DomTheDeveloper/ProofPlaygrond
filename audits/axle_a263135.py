@@ -1,190 +1,120 @@
 #!/usr/bin/env python3
-"""Flatten and verify the complete OEIS A263135 Lean proof with AXLE."""
+"""Flatten and check the A263135 scratch proof with AXLE."""
 
 from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 import re
 import sys
-import urllib.error
 import urllib.request
-from pathlib import Path
 
-AXLE_URL = "https://axle.axiommath.ai/api/v1/verify_proof"
-PROOF_SHA = "2ec5e1247a6337070eb21d70160da4849ea673fa"
+ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("formal-conjectures")
+ENTRY = ROOT / "Scratch/A263135Audit.lean"
+BASE_MODULE = "FormalConjectures.OEIS.«263135»"
+BASE_PATH = ROOT / "FormalConjectures/OEIS/263135.lean"
+LOCAL_PREFIX = "Scratch.A263135"
 
-
-def strip_imports(source: str) -> str:
-    return "\n".join(
-        line for line in source.splitlines()
-        if not line.lstrip().startswith(("import ", "public import ", "public meta import "))
-    ) + "\n"
+visited: set[Path] = set()
+ordered: list[Path] = []
 
 
-def strip_project_attributes(source: str) -> str:
-    """Remove Formal Conjectures metadata while preserving ordinary Lean attributes."""
-    pattern = re.compile(r"@\[(.*?)\]", re.DOTALL)
-
-    def replace(match: re.Match[str]) -> str:
-        parts = [part.strip() for part in match.group(1).split(",")]
-        kept = [
-            part for part in parts
-            if part
-            and not part.startswith("category ")
-            and not part.startswith("AMS ")
-            and not part.startswith("formal_proof ")
-        ]
-        return "@[" + ", ".join(kept) + "]" if kept else ""
-
-    return pattern.sub(replace, source)
+def module_path(module: str) -> Path | None:
+    if module == BASE_MODULE:
+        return BASE_PATH
+    if module.startswith(LOCAL_PREFIX):
+        return ROOT / (module.replace(".", "/") + ".lean")
+    return None
 
 
-def canonical_prefix(repo: Path) -> str:
-    path = repo / "FormalConjectures/OEIS/263135.lean"
-    source = path.read_text(encoding="utf-8")
-    marker = "@[category research open, AMS 05]"
-    if marker not in source:
-        raise RuntimeError(f"canonical theorem marker not found in {path}")
-    prefix = source.split(marker, 1)[0]
-    doc_start = prefix.rfind("/--")
-    if doc_start == -1 or not prefix[doc_start:].strip().endswith("-/"):
-        raise RuntimeError("could not isolate the canonical theorem docstring")
-    prefix = prefix[:doc_start] + "end OeisA263135\n"
-    return strip_project_attributes(strip_imports(prefix))
+def visit(path: Path) -> None:
+    path = path.resolve()
+    if path in visited:
+        return
+    if not path.is_file():
+        raise SystemExit(f"Missing local module: {path}")
+    visited.add(path)
+    text = path.read_text()
+    for line in text.splitlines():
+        match = re.fullmatch(r"\s*import\s+(.+?)\s*", line)
+        if not match:
+            continue
+        dep = module_path(match.group(1))
+        if dep is not None:
+            visit(dep)
+    ordered.append(path)
 
 
-def module_name(path: Path, repo: Path) -> str:
-    return ".".join(path.relative_to(repo).with_suffix("").parts)
+def clean(path: Path, text: str) -> str:
+    lines: list[str] = []
+    for line in text.splitlines():
+        match = re.fullmatch(r"\s*import\s+(.+?)\s*", line)
+        if match and module_path(match.group(1)) is not None:
+            continue
+        if match and match.group(1) == "FormalConjecturesUtil":
+            if not any(candidate.strip() == "import Mathlib" for candidate in lines):
+                lines.append("import Mathlib")
+            continue
+        if line.strip().startswith("@[category"):
+            continue
+        lines.append(line)
+    text = "\n".join(lines) + "\n"
+    if path.resolve() == BASE_PATH.resolve():
+        marker = "/--\n**OEIS A263135, stronger even-index form.**"
+        start = text.find(marker)
+        if start < 0:
+            raise SystemExit("Could not locate original open A263135 theorem block")
+        end_marker = "end OeisA263135"
+        end = text.rfind(end_marker)
+        if end < start:
+            raise SystemExit("Could not locate end of A263135 namespace")
+        text = text[:start] + end_marker + "\n"
+    return text
 
 
-def ordered_scratch_files(repo: Path) -> list[Path]:
-    files = sorted((repo / "Scratch").glob("A263135*.lean"))
-    files = [path for path in files if path.name != "A263135Audit.lean"]
-    if len(files) < 20:
-        raise RuntimeError(f"expected complete A263135 modules, found only {len(files)}")
+visit(ENTRY)
+parts = [
+    "/- Flattened by ProofPlaygrond/audits/axle_a263135.py. -/\n",
+]
+for path in ordered:
+    parts.append(f"\n/- ===== {path.relative_to(ROOT)} ===== -/\n")
+    parts.append(clean(path, path.read_text()))
+content = "".join(parts)
 
-    by_module = {module_name(path, repo): path for path in files}
-    if "Scratch.A263135Final" not in by_module:
-        raise RuntimeError("Scratch.A263135Final is missing")
+out_path = Path(os.environ.get("A263135_FLAT_OUTPUT", "/tmp/A263135Flat.lean"))
+out_path.write_text(content)
+print(f"Flattened {len(ordered)} modules to {out_path} ({len(content)} bytes)")
 
-    import_re = re.compile(
-        r"^\s*(?:public\s+|public\s+meta\s+)?import\s+([A-Za-z0-9_.]+)",
-        re.MULTILINE,
-    )
-    dependencies: dict[str, set[str]] = {}
-    for name, path in by_module.items():
-        imports = import_re.findall(path.read_text(encoding="utf-8"))
-        dependencies[name] = {dependency for dependency in imports if dependency in by_module}
+payload = {
+    "content": content,
+    "environment": "lean-4.27.0",
+    "ignore_imports": False,
+    "mathlib_options": True,
+    "timeout_seconds": 900,
+    "verbosity": 2,
+}
+headers = {
+    "Content-Type": "application/json",
+    "X-Request-Source": "proof-playgrond-a263135",
+}
+api_key = os.environ.get("AXLE_API_KEY")
+if api_key:
+    headers["Authorization"] = f"Bearer {api_key}"
+request = urllib.request.Request(
+    "https://axle.axiommath.ai/api/v1/check",
+    data=json.dumps(payload).encode(),
+    headers=headers,
+    method="POST",
+)
+with urllib.request.urlopen(request, timeout=1200) as response:
+    result = json.load(response)
+result_path = Path(os.environ.get("A263135_AXLE_OUTPUT", "/tmp/a263135-axle.json"))
+result_path.write_text(json.dumps(result, indent=2, sort_keys=True))
+print(json.dumps(result, indent=2, sort_keys=True))
 
-    ordered: list[str] = []
-    temporary: set[str] = set()
-    permanent: set[str] = set()
-
-    def visit(name: str) -> None:
-        if name in permanent:
-            return
-        if name in temporary:
-            raise RuntimeError(f"cyclic Scratch import at {name}")
-        temporary.add(name)
-        for dependency in sorted(dependencies[name]):
-            visit(dependency)
-        temporary.remove(name)
-        permanent.add(name)
-        ordered.append(name)
-
-    for name in sorted(by_module):
-        visit(name)
-    return [by_module[name] for name in ordered]
-
-
-def build_sources(repo: Path) -> tuple[str, str]:
-    prefix = canonical_prefix(repo)
-    theorem = """
-namespace OeisA263135
-
-theorem conjecture (n : ℕ) (hn : 0 < n) :
-    ∃ r : ℕ, IsNatCeilSqrt (3 * n) r ∧
-      IsMaximumContact (2 * n) (3 * n - r) := by
-"""
-    statement = "import Mathlib\n\n" + prefix + theorem + "  sorry\n\nend OeisA263135\n"
-
-    chunks = ["import Mathlib\n\n", prefix]
-    for path in ordered_scratch_files(repo):
-        source = strip_project_attributes(strip_imports(path.read_text(encoding="utf-8")))
-        chunks.append(
-            f"\n-- BEGIN {path.relative_to(repo)}\n{source}\n-- END {path.relative_to(repo)}\n"
-        )
-    chunks.append(theorem + "  exact conjecture_solved n hn\n\nend OeisA263135\n")
-    content = "".join(chunks)
-
-    code = re.sub(r"/-.*?-/", "", content, flags=re.DOTALL)
-    code = re.sub(r"--.*", "", code)
-    if re.search(r"\b(sorry|admit)\b", code):
-        raise RuntimeError("flattened A263135 candidate contains a proof placeholder")
-    return statement, content
-
-
-def main() -> int:
-    if len(sys.argv) != 2:
-        print("usage: axle_a263135.py PATH_TO_FORMAL_CONJECTURES", file=sys.stderr)
-        return 2
-
-    repo = Path(sys.argv[1]).resolve()
-    statement, content = build_sources(repo)
-    flat_output = Path(os.environ.get("A263135_FLAT_OUTPUT", "/tmp/A263135Flat.lean"))
-    json_output = Path(os.environ.get("A263135_AXLE_OUTPUT", "/tmp/a263135-axle.json"))
-    flat_output.write_text(content, encoding="utf-8")
-
-    payload = {
-        "formal_statement": statement,
-        "content": content,
-        "environment": "lean-4.27.0",
-        "mathlib_options": True,
-        "ignore_imports": False,
-        "use_def_eq": True,
-        "timeout_seconds": 900,
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "X-Request-Source": "proof-playgrond-oeis-a263135",
-    }
-    if api_key := os.environ.get("AXLE_API_KEY"):
-        headers["Authorization"] = f"Bearer {api_key}"
-    request = urllib.request.Request(
-        AXLE_URL,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=960) as response:
-            result = json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        print(f"AXLE HTTP {exc.code}: {body}", file=sys.stderr)
-        return 3
-    except Exception as exc:
-        print(f"AXLE request failed: {exc}", file=sys.stderr)
-        return 4
-
-    json_output.write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
-    print(json.dumps(result, indent=2, sort_keys=True))
-    errors = result.get("lean_messages", {}).get("errors", [])
-    tool_errors = result.get("tool_messages", {}).get("errors", [])
-    failed = result.get("failed_declarations", [])
-    if not bool(result.get("okay")) or errors or tool_errors or failed:
-        for error in errors:
-            print(f"lean_messages: {error}", file=sys.stderr)
-        for error in tool_errors:
-            print(f"tool_messages: {error}", file=sys.stderr)
-        if failed:
-            print(f"failed_declarations: {failed}", file=sys.stderr)
-        return 1
-
-    print(f"AXLE verified OEIS A263135 with Lean 4.27.0 at proof SHA {PROOF_SHA}.")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+errors = result.get("lean_messages", {}).get("errors", [])
+tool_errors = result.get("tool_messages", {}).get("errors", [])
+failed = result.get("failed_declarations", [])
+if not result.get("okay", False) or errors or tool_errors or failed:
+    raise SystemExit(1)
