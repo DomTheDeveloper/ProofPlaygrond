@@ -1,0 +1,72 @@
+name: A261865 artifact diagnostics
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/a261865-diagnostic.trigger'
+
+permissions:
+  contents: read
+
+jobs:
+  axle-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
+      - name: Run AXLE and save full JSON
+        shell: bash
+        run: |
+          set +e
+          python3 - <<'PY'
+          import json, pathlib, sys, urllib.request
+          files = [
+            'FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean',
+            'FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean',
+            'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean',
+          ]
+          results = {}
+          failed = False
+          for filename in files:
+            payload = json.dumps({
+              'content': pathlib.Path(filename).read_text(),
+              'environment': 'lean-4.27.0',
+              'ignore_imports': False,
+              'mathlib_options': False,
+              'timeout_seconds': 900,
+            }).encode()
+            req = urllib.request.Request(
+              'https://axle.axiommath.ai/api/v1/check', data=payload,
+              headers={'Content-Type': 'application/json'}, method='POST')
+            with urllib.request.urlopen(req, timeout=960) as response:
+              result = json.load(response)
+            results[filename] = result
+            errors = result.get('lean_messages', {}).get('errors', [])
+            tool_errors = result.get('tool_messages', {}).get('errors', [])
+            failed_decls = result.get('failed_declarations', [])
+            okay = bool(result.get('okay', False))
+            print(filename, 'okay=', okay, 'errors=', len(errors), 'tool_errors=', len(tool_errors),
+                  'failed_declarations=', len(failed_decls))
+            failed |= bool(errors or tool_errors or failed_decls or not okay)
+          pathlib.Path('a261865-axle-results.json').write_text(
+            json.dumps(results, indent=2, ensure_ascii=False))
+          pathlib.Path('a261865-axle-status.txt').write_text('failure\n' if failed else 'success\n')
+          sys.exit(1 if failed else 0)
+          PY
+          exit 0
+      - name: Upload AXLE diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-f5d289e-axle-diagnostics
+          path: |
+            a261865-axle-results.json
+            a261865-axle-status.txt
+          if-no-files-found: error
