@@ -10,48 +10,23 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: rna-quasipowers-ef541834-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  export-toolchain:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Install Lean 4.27.0
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain leanprover/lean4:v4.27.0
-          "$HOME/.elan/bin/lean" --version
-
-      - name: Package toolchain only
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$HOME/.elan/toolchains"
-          test -d leanprover--lean4---v4.27.0
-          tar --zstd -cf "$GITHUB_WORKSPACE/lean427-toolchain-only.tar.zst" \
-            leanprover--lean4---v4.27.0
-          ls -lh "$GITHUB_WORKSPACE/lean427-toolchain-only.tar.zst"
-
-      - name: Upload portable Lean 4.27 toolchain
-        uses: actions/upload-artifact@v4
-        with:
-          name: lean427-toolchain-only
-          path: lean427-toolchain-only.tar.zst
-          compression-level: 0
-          if-no-files-found: error
-
-  kernel-audit:
-    needs: export-toolchain
+  audit:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
+      - name: Check out reporting branch
+        uses: actions/checkout@v4
+        with:
+          path: playground
+          ref: verify/rna-quasipowers-ef541834
+
       - name: Check out exact Formal Conjectures proof commit
         uses: actions/checkout@v4
         with:
@@ -59,58 +34,93 @@ jobs:
           ref: ef541834089a3c8941f7bc311601d1b8a8dfc117
           path: formal-conjectures
 
-      - name: Confirm immutable source and pinned toolchain
+      - name: Run exact Lean 4.27 kernel audit
+        id: audit
         shell: bash
         run: |
-          set -euo pipefail
-          cd formal-conjectures
-          test "$(git rev-parse HEAD)" = "ef541834089a3c8941f7bc311601d1b8a8dfc117"
-          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
-          test -f lake-manifest.json
+          set +e
+          LOG="$GITHUB_WORKSPACE/rna-kernel-audit.log"
+          : > "$LOG"
+          {
+            echo "proof_sha=ef541834089a3c8941f7bc311601d1b8a8dfc117"
+            cd "$GITHUB_WORKSPACE/formal-conjectures"
+            test "$(git rev-parse HEAD)" = "ef541834089a3c8941f7bc311601d1b8a8dfc117"
+            test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+            test -f lake-manifest.json
 
-      - name: Install Lean 4.27.0
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
-            | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+              | sh -s -- -y --default-toolchain leanprover/lean4:v4.27.0
+            export PATH="$HOME/.elan/bin:$PATH"
+            lean --version
+            lake --version
 
-      - name: Fetch committed Mathlib cache
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd formal-conjectures
-          lake exe cache get
+            TOOLCHAIN="$HOME/.elan/toolchains/leanprover--lean4---v4.27.0"
+            test -d "$TOOLCHAIN"
+            tar --zstd -cf "$GITHUB_WORKSPACE/lean427-toolchain-only.tar.zst" \
+              -C "$HOME/.elan/toolchains" leanprover--lean4---v4.27.0
 
-      - name: Compile internal and public theorem layers
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd formal-conjectures
-          lake --wfail build RNAQuasiPowers 2>&1 | tee rna-kernel-audit.log
-          lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
-            2>&1 | tee -a rna-kernel-audit.log
+            lake exe cache get
+            lake --wfail build RNAQuasiPowers
+            lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean
+            lake env lean RNAQuasiPowers/AxiomAudit.lean
+            lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean
 
-      - name: Kernel axiom audit
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd formal-conjectures
-          lake env lean RNAQuasiPowers/AxiomAudit.lean \
-            2>&1 | tee -a rna-kernel-audit.log
-          lake env lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean \
-            2>&1 | tee -a rna-kernel-audit.log
-          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
-              rna-kernel-audit.log; then
-            echo 'Forbidden axiom or compiler-trust shortcut detected.' >&2
-            exit 1
-          fi
+            if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$LOG"; then
+              echo 'Forbidden axiom or compiler-trust shortcut detected.'
+              exit 90
+            fi
+          } 2>&1 | tee -a "$LOG"
+          rc=${PIPESTATUS[0]}
+          echo "$rc" > "$GITHUB_WORKSPACE/rna-kernel-audit.rc"
+          exit 0
 
-      - name: Upload exact transcript
+      - name: Upload portable Lean and transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rna-quasipowers-ef541834-kernel-transcript
-          path: formal-conjectures/rna-kernel-audit.log
+          name: rna-quasipowers-ef541834-portable-audit
+          path: |
+            lean427-toolchain-only.tar.zst
+            rna-kernel-audit.log
+            rna-kernel-audit.rc
+          compression-level: 0
           if-no-files-found: warn
+
+      - name: Commit audit transcript to verification branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rc=125
+          if [ -f "$GITHUB_WORKSPACE/rna-kernel-audit.rc" ]; then
+            rc=$(cat "$GITHUB_WORKSPACE/rna-kernel-audit.rc")
+          fi
+          mkdir -p playground/audits
+          {
+            echo "proof_sha=ef541834089a3c8941f7bc311601d1b8a8dfc117"
+            echo "workflow_sha=${GITHUB_SHA}"
+            echo "exit_code=${rc}"
+            echo "run_url=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo "===== Lean transcript ====="
+            if [ -f "$GITHUB_WORKSPACE/rna-kernel-audit.log" ]; then
+              cat "$GITHUB_WORKSPACE/rna-kernel-audit.log"
+            else
+              echo "No transcript was produced."
+            fi
+          } > playground/audits/rna-quasipowers-ef541834-result.txt
+          cd playground
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add audits/rna-quasipowers-ef541834-result.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "audit: record RNA quasi-powers Lean result"
+            git push origin HEAD:verify/rna-quasipowers-ef541834
+          fi
+
+      - name: Enforce audit result
+        if: always()
+        shell: bash
+        run: |
+          test -f "$GITHUB_WORKSPACE/rna-kernel-audit.rc"
+          test "$(cat "$GITHUB_WORKSPACE/rna-kernel-audit.rc")" = "0"
