@@ -1,0 +1,63 @@
+name: A261865 Linux exact kernel audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/a261865-linux-exact.trigger'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a261865-linux-exact-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  exact-kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
+      - name: Confirm immutable proof source
+        run: test "$(git rev-parse HEAD)" = "f5d289e074dc692ab75eb6050128339ef95861c2"
+      - name: Install Lean 4.27
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          files=(
+            FormalConjectures/OEIS/A261865Base.lean
+            FormalConjectures/OEIS/261865.lean
+            FormalConjectures/OEIS/261865Solution.lean
+            FormalConjectures/OEIS/261865FinalAudit.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/TerminalBox.lean
+            FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean
+            FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean
+            FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean
+            FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean
+          )
+          ! grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "${files[@]}"
+      - name: Compile exact theorem and inspect axioms
+        run: |
+          set -euo pipefail
+          lake lean FormalConjectures/OEIS/261865FinalAudit.lean 2>&1 | tee a261865-linux-kernel.log
+          ! grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' a261865-linux-kernel.log
+      - name: Upload exact transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-f5d289e-linux-kernel-transcript
+          path: a261865-linux-kernel.log
+          if-no-files-found: warn
