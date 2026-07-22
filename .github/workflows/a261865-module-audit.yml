@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   focused-build:
-    name: Build A261865 support modules
+    name: Build A261865 through base layer
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -55,6 +55,8 @@ jobs:
             FormalConjecturesForMathlib.MeasureTheory.Probability.PiContinuitySet \
             FormalConjecturesForMathlib.MeasureTheory.Probability.Empirical \
             FormalConjecturesForMathlib.NumberTheory.SquarefreeRadicals \
+            FormalConjecturesForMathlib.Analysis.Equidistribution.TerminalBox \
+            FormalConjectures.OEIS.A261865Base \
             2>&1 | tee a261865-module-audit.log
 
       - name: Upload module transcript
