@@ -1,0 +1,79 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: OEIS A263135 native final audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/a263135-native-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: native build and axiom audit
+    runs-on: ubuntu-slim
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact repaired proof source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 6ad03f2a0fa5de81c0ed08fd0fc38a42f12513b7
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject proof placeholders and trust shortcuts
+        run: |
+          set -euo pipefail
+          if grep -RInE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' Scratch/A263135*.lean; then
+            echo 'Forbidden placeholder or trust shortcut found in A263135 proof modules.' >&2
+            exit 1
+          fi
+
+      - name: Build complete A263135 module chain
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build Scratch.A263135Audit 2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
+
+      - name: Run final theorem axiom audit
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean Scratch/A263135Audit.lean 2>&1 | tee -a "$RUNNER_TEMP/a263135-native.log"
+
+      - name: Enforce final axiom policy
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a263135-native.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload native Lean transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a263135-native-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/a263135-native.log
+          if-no-files-found: warn
