@@ -1,0 +1,50 @@
+name: A263135 AXLE audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a263135-axle-audit.yml'
+      - 'audits/A263135.md'
+      - 'audits/patch_a263135_ordered.py'
+      - 'audits/axle_a263135.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a263135-axle-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-slim
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Proof Playground harness
+        uses: actions/checkout@v4
+        with:
+          path: playground
+      - name: Checkout A263135 workbench
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: dtd/oeis-a263135-scd-scratch
+          path: formal-conjectures
+      - name: Apply ordered-side repair
+        run: python3 playground/audits/patch_a263135_ordered.py formal-conjectures
+      - name: Flatten and check with AXLE
+        env:
+          A263135_FLAT_OUTPUT: ${{ runner.temp }}/A263135Flat.lean
+          A263135_AXLE_OUTPUT: ${{ runner.temp }}/a263135-axle.json
+        run: python3 playground/audits/axle_a263135.py formal-conjectures
+      - name: Upload AXLE transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a263135-axle-audit
+          path: |
+            ${{ runner.temp }}/A263135Flat.lean
+            ${{ runner.temp }}/a263135-axle.json
+          if-no-files-found: warn
