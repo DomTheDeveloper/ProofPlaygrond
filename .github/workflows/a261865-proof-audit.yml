@@ -21,17 +21,17 @@ jobs:
   axle-foundations:
     name: AXLE foundation audit
     runs-on: ubuntu-slim
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout repaired A261865 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 46ea24719cc7b65389fe432a7af484d63cfa541f
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
 
       - name: Confirm immutable proof source
         shell: bash
-        run: test "$(git rev-parse HEAD)" = "46ea24719cc7b65389fe432a7af484d63cfa541f"
+        run: test "$(git rev-parse HEAD)" = "f5d289e074dc692ab75eb6050128339ef95861c2"
 
       - name: Check foundational Lean files with AXLE
         shell: bash
@@ -45,6 +45,10 @@ jobs:
           files = [
               'FormalConjecturesForMathlib/Analysis/Equidistribution/UnitAddTorus.lean',
               'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadical.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Group/UnitAddCircleArc.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Probability/PiContinuitySet.lean',
+              'FormalConjecturesForMathlib/MeasureTheory/Probability/Empirical.lean',
+              'FormalConjecturesForMathlib/NumberTheory/SquarefreeRadicals.lean',
           ]
           failed = False
           for filename in files:
@@ -65,30 +69,32 @@ jobs:
                   result = json.load(response)
               errors = result.get('lean_messages', {}).get('errors', [])
               tool_errors = result.get('tool_messages', {}).get('errors', [])
+              declarations = result.get('failed_declarations', [])
               okay = bool(result.get('okay', False))
               print(f'===== {filename} =====')
               print(f'okay={okay}')
               print('lean_errors=' + json.dumps(errors, ensure_ascii=False))
               print('tool_errors=' + json.dumps(tool_errors, ensure_ascii=False))
-              failed |= bool(errors or tool_errors or not okay)
+              print('failed_declarations=' + json.dumps(declarations, ensure_ascii=False))
+              failed |= bool(errors or tool_errors or declarations or not okay)
           if failed:
               sys.exit(1)
           PY
 
   exact-kernel-audit:
     name: Lean 4.27 exact theorem and axiom audit
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: macos-15
+    timeout-minutes: 120
     steps:
       - name: Checkout repaired A261865 proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 46ea24719cc7b65389fe432a7af484d63cfa541f
+          ref: f5d289e074dc692ab75eb6050128339ef95861c2
 
       - name: Confirm immutable proof source
         shell: bash
-        run: test "$(git rev-parse HEAD)" = "46ea24719cc7b65389fe432a7af484d63cfa541f"
+        run: test "$(git rev-parse HEAD)" = "f5d289e074dc692ab75eb6050128339ef95861c2"
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -143,6 +149,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a261865-46ea2471-kernel-transcript
+          name: a261865-f5d289e-kernel-transcript
           path: a261865-kernel-audit.log
           if-no-files-found: warn
