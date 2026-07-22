@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 7e90ad249783ca57e64c541079d27591a5f23796
+          ref: 4411d3f814b955491d540892e6037516e198f412
 
       - name: Confirm immutable proof source and toolchain
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "7e90ad249783ca57e64c541079d27591a5f23796"
+          test "$(git rev-parse HEAD)" = "4411d3f814b955491d540892e6037516e198f412"
           test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
 
       - name: Install pinned Lean toolchain
@@ -97,6 +97,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a261865-7e90ad24-kernel-v2-transcript
+          name: a261865-4411d3f8-kernel-v2-transcript
           path: a261865-kernel-audit.log
           if-no-files-found: warn
