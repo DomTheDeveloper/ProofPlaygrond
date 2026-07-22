@@ -1,0 +1,2 @@
+796f5e8919a844d78e8bb683d1974e118aa263ee
+exact proof module separated from clean catalog metadata
