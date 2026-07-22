@@ -17,14 +17,14 @@ permissions:
 jobs:
   verify:
     name: native build and axiom audit
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - name: Checkout exact repaired proof source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: efc1ea636f073ce2c90da7ab6b6620c10f8930e5
+          ref: 9b08804ddd17dff14660f6b0cd5d01a9636a4b23
           fetch-depth: 1
 
       - name: Record exact commit
