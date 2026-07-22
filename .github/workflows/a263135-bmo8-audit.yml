@@ -4,18 +4,16 @@
 name: A263135 BMO8 Lean audit
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-    paths:
-      - '.github/workflows/a263135-bmo8-audit.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: a263135-bmo8-${{ github.ref }}
+  group: a263135-bmo8-main
   cancel-in-progress: true
 
 jobs:
