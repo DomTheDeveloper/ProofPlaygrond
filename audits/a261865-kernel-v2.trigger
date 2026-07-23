@@ -1,0 +1,2 @@
+a6b4035b0c4bc05f6475839615bacddc22024415
+canonical attribute module and solved metadata
