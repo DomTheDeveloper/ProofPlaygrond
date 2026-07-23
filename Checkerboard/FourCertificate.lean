@@ -71,10 +71,12 @@ theorem rowFiber_le_two {n : ℕ} {s : Finset (Point n)}
   intro a b c hab hac
   have habv : a.1.1 = b.1.1 := congrArg Fin.val hab
   have hacv : a.1.1 = c.1.1 := congrArg Fin.val hac
-  have hba : (b.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := by
+  have hbaEq : (b.1.1 : ℤ) = (a.1.1 : ℤ) := by
     exact_mod_cast habv.symm
-  have hca : (c.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := by
+  have hcaEq : (c.1.1 : ℤ) = (a.1.1 : ℤ) := by
     exact_mod_cast hacv.symm
+  have hba : (b.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := sub_eq_zero.mpr hbaEq
+  have hca : (c.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := sub_eq_zero.mpr hcaEq
   rw [determinant, hba, hca]
   ring
 
@@ -85,10 +87,12 @@ theorem columnFiber_le_two {n : ℕ} {s : Finset (Point n)}
   intro a b c hab hac
   have habv : a.2.1 = b.2.1 := congrArg Fin.val hab
   have hacv : a.2.1 = c.2.1 := congrArg Fin.val hac
-  have hba : (b.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := by
+  have hbaEq : (b.2.1 : ℤ) = (a.2.1 : ℤ) := by
     exact_mod_cast habv.symm
-  have hca : (c.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := by
+  have hcaEq : (c.2.1 : ℤ) = (a.2.1 : ℤ) := by
     exact_mod_cast hacv.symm
+  have hba : (b.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := sub_eq_zero.mpr hbaEq
+  have hca : (c.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := sub_eq_zero.mpr hcaEq
   rw [determinant, hba, hca]
   ring
 
