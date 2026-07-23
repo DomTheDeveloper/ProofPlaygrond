@@ -40,7 +40,7 @@ def integralWeight (n : ℕ) : QYPoly →ₗ[QYPoly] QYPoly where
   toFun a := Polynomial.C ((n + 1 : ℚ)⁻¹) * a
   map_add' a b := by simp [mul_add]
   map_smul' c a := by
-    simp only [smul_eq_mul]
+    simp only [smul_eq_mul, RingHom.id_apply]
     ring
 
 /-- Algebraic integral from zero to one in the variable `t`. -/
@@ -65,11 +65,14 @@ theorem integral01_derivative (p : TQYPoly) :
       simp [Polynomial.derivative_add, hp, hq, sub_add_sub_comm]
   | monomial n a =>
       cases n with
-      | zero => simp [Polynomial.derivative_monomial]
+      | zero => simp
       | succ n =>
           rw [Polynomial.derivative_monomial_succ, integral01_monomial]
           have hn : (n + 1 : ℚ) ≠ 0 := by positivity
-          simp [Polynomial.eval_monomial, hn, Polynomial.natCast_eq_C, mul_comm]
+          change a * Polynomial.C ((n : ℚ) + 1) *
+            Polynomial.C (((n : ℚ) + 1)⁻¹) = a
+          rw [mul_assoc, ← Polynomial.C_mul]
+          simp [hn]
 
 #print axioms integral01_derivative
 
