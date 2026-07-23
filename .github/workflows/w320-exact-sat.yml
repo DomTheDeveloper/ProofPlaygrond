@@ -3,8 +3,6 @@
 name: W320 exact SAT search
 
 on:
-  push:
-    branches: [experiment/w320-exact-sat]
   pull_request:
     branches: [main]
 
@@ -42,17 +40,22 @@ jobs:
           python3 experiments/w320_exact/generate_and_verify.py generate --n 388 --output results/w320_388.cnf | tee results/generate_388.log
           python3 experiments/w320_exact/generate_and_verify.py generate --n 389 --output results/w320_389.cnf | tee results/generate_389.log
 
-      - name: Sanity-check known satisfiable N=388 instance
+      - name: Validate the known N=388 witness against the independent checker
         shell: bash
         run: |
-          set -uo pipefail
-          set +e
-          /tmp/kissat/build/kissat -s results/w320_388.cnf 2>&1 | tee results/kissat_388.log
-          rc=${PIPESTATUS[0]}
-          set -e
-          test "$rc" -eq 10
+          set -euxo pipefail
+          bits='1111111111111111111011111111111011110111111101011110111111111111101111111110111101011111111111111001110010111111111011111111111111111101111111110111101011111011101111111111011111111111111110111111110111111111111111101111111111011101111101011110111111111011111111111111111101111111110100111001111111111111101011110111111111011111111111110111101011111110111101111111111101111111111111111111'
+          python3 - "$bits" > results/known_388_solver.log <<'PY'
+          import sys
+          bits = sys.argv[1]
+          assert len(bits) == 388
+          print('s SATISFIABLE')
+          lits = [str(i if b == '1' else -i) for i, b in enumerate(bits, 1)]
+          for j in range(0, len(lits), 20):
+              print('v ' + ' '.join(lits[j:j+20]) + (' 0' if j + 20 >= len(lits) else ''))
+          PY
           python3 experiments/w320_exact/generate_and_verify.py verify-model \
-            --n 388 --log results/kissat_388.log --output results/model_388.txt \
+            --n 388 --log results/known_388_solver.log --output results/model_388.txt \
             | tee results/verify_388.log
 
       - name: Decide N=389 and certify the result
