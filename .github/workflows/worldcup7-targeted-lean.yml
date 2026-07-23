@@ -1,5 +1,6 @@
 name: WorldCup7 targeted Lean audit
 
+# Audit target: DomTheDeveloper/formal-conjectures@formalize-worldcup7-polynomial
 on:
   pull_request:
     paths:
