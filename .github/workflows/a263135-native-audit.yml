@@ -1,8 +1,8 @@
 name: A263135 native Lean audit
 
 on:
-  pull_request:
-    branches: [audit-base/a263135-axle-6ad03f2a]
+  push:
+    branches: [audit-run/a263135-base-current]
     paths:
       - '.github/workflows/a263135-native-audit.yml'
       - 'audits/A263135.md'
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: a263135-native-current-${{ github.event.pull_request.number || github.ref }}
+  group: a263135-native-current-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
