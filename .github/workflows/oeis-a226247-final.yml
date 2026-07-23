@@ -8,6 +8,11 @@ on:
     branches: [main]
     paths:
       - 'audits/oeis-a226247-final.trigger'
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'audits/oeis-a226247-final.trigger'
   workflow_dispatch:
 
 permissions:
