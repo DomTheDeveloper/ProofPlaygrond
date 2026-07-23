@@ -1,0 +1,77 @@
+name: A147983 hash-consed strategy sets
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a147983-strategy-sets.yml'
+      - 'audits/a147983-strategy-sets/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a147983-strategy-sets-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout DTD certificate sources
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: experiment/a147983-compact-export
+          path: dtd
+
+      - name: Build exact generators and hash-consed checker
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        shell: bash
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_export_p_ranks.cpp -o chomp_export_p_ranks
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_p_mdd_serialize.cpp -o chomp_p_mdd_serialize
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_strategy_sets.cpp -o chomp_strategy_sets
+
+      - name: Regenerate exact P stream and MDD
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v ./chomp_export_p_ranks 10 42 p10x42.bin > export.stdout 2> export.stderr
+          grep -F 'P=107342138 prefixes=3042311754 last_rank=15820013305' export.stderr
+          /usr/bin/time -v ./chomp_p_mdd_serialize p10x42.bin p10x42.mdd > mdd.stdout 2> mdd.stderr
+          grep -F 'words=107342138 total_nodes=16906422 total_transitions=96754877' mdd.stdout
+
+      - name: Measure representative first-move templates
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        shell: bash
+        run: |
+          set -euo pipefail
+          for move in '0 1' '0 10' '4 35' '6 29' '7 25'; do
+            set -- $move
+            row="$1"
+            target="$2"
+            echo "checking $row,$target"
+            /usr/bin/time -v ./chomp_strategy_sets p10x42.mdd "$row" "$target" 30000000 \
+              > "sets-${row}-${target}.stdout" 2> "sets-${row}-${target}.stderr"
+            grep -F "RESULT first=${row},${target} closed=1" "sets-${row}-${target}.stdout"
+          done
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a147983-strategy-sets
+          path: |
+            dtd/ProofArtifacts/OEIS/A147983/export.stderr
+            dtd/ProofArtifacts/OEIS/A147983/mdd.stdout
+            dtd/ProofArtifacts/OEIS/A147983/sets-*.stdout
+            dtd/ProofArtifacts/OEIS/A147983/sets-*.stderr
+          if-no-files-found: warn
