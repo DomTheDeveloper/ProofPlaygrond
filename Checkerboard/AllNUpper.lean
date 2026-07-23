@@ -114,7 +114,11 @@ def n7ThinWeights : FourWeights 7 where
 
 private theorem n7Thin_cost : fourCost n7ThinWeights = 32 := by
   norm_num [fourCost, n7ThinWeights, Fin.sum_univ_succ, Nat.dist]
-  decide
+  have hboundary :
+      ({x : Fin 7 | x = 0 ∨ (x : ℕ) = 6} : Finset (Fin 7)).card = 2 := by
+    decide
+  rw [hboundary]
+  norm_num
 
 private theorem n7Thin_nonnegative :
     (∀ i, 0 ≤ n7ThinWeights.row i) ∧
