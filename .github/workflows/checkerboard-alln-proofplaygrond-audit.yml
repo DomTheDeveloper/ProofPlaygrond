@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused pure-kernel bridge audit for source commit 0b6ac8fe2444f8b42a871cb397d276b36829a5e9.
+# Focused pure-kernel bridge audit for source commit 4738bccd062f9e6d744ac81da2cef598e1b5303b.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact omega bridge source
+      - name: Checkout exact checkerboard bridge source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: 0b6ac8fe2444f8b42a871cb397d276b36829a5e9
+          ref: 4738bccd062f9e6d744ac81da2cef598e1b5303b
           fetch-depth: 1
 
       - name: Record exact commit
@@ -52,7 +52,7 @@ jobs:
             exit 1
           fi
 
-      - name: Compile omega certificate bridge
+      - name: Compile bv_omega certificate bridge
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
