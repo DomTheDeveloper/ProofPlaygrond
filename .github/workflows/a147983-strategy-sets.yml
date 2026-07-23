@@ -53,16 +53,25 @@ jobs:
         working-directory: dtd/ProofArtifacts/OEIS/A147983
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
+          failures=0
+          : > sets-summary.txt
           for move in '0 1' '0 10' '4 35' '6 29' '7 25'; do
             set -- $move
             row="$1"
             target="$2"
-            echo "checking $row,$target"
+            echo "checking $row,$target" | tee -a sets-summary.txt
             /usr/bin/time -v ./chomp_strategy_sets p10x42.mdd "$row" "$target" 30000000 \
               > "sets-${row}-${target}.stdout" 2> "sets-${row}-${target}.stderr"
-            grep -F "RESULT first=${row},${target} closed=1" "sets-${row}-${target}.stdout"
+            status=$?
+            echo "status=$status" >> sets-summary.txt
+            grep -E '^(RESULT|counterexample=|set=)' "sets-${row}-${target}.stdout" \
+              >> sets-summary.txt 2>/dev/null
+            tail -n 25 "sets-${row}-${target}.stderr" >> sets-summary.txt
+            if [[ $status -ne 0 ]]; then failures=$((failures + 1)); fi
           done
+          echo "failures=$failures" | tee -a sets-summary.txt
+          exit "$failures"
 
       - name: Upload reports
         if: always()
@@ -72,6 +81,7 @@ jobs:
           path: |
             dtd/ProofArtifacts/OEIS/A147983/export.stderr
             dtd/ProofArtifacts/OEIS/A147983/mdd.stdout
+            dtd/ProofArtifacts/OEIS/A147983/sets-summary.txt
             dtd/ProofArtifacts/OEIS/A147983/sets-*.stdout
             dtd/ProofArtifacts/OEIS/A147983/sets-*.stderr
           if-no-files-found: warn
