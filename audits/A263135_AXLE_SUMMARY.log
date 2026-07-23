@@ -1,0 +1,2016 @@
+Proof commit: d871a8ca24c1b6f4bd503e0a45ed7f6a2751502a
+AXLE status: 1
+
+okay: False
+lean errors: 148
+lean warnings: 66
+tool errors: 0
+failed declarations: 0
+
+--- LEAN ERROR 1 ---
+-:640:4-640:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  i ≥ 0
+  h ≥ 0
+  g ≥ 0
+  g - h - i ≥ 0
+  f ≥ 0
+  e ≥ 0
+  e ≥ 0
+  d ≥ 0
+  d - e ≥ 0
+  d - f ≤ 0
+  d + e - f ≤ -1
+  d + e - f ≤ -1
+where
+ d := ↑b
+ e := ↑a
+ f := ↑c
+ g := ↑(2 * a) * ↑b
+ h := ↑m
+ i := ↑(staircaseDeficiency (a + b - c))
+
+
+--- LEAN ERROR 2 ---
+-:654:18-654:22: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  c
+in the target expression
+  2 * m + q ^ 2 ≤ 4 * (q + x) * (q + x + z)
+
+a b c m : ℕ
+hab : a ≤ b
+hbc : b ≤ c
+hm : m + staircaseDeficiency (a + b - c) ≤ 2 * a * b
+q : ℕ := a + b - c
+hq : q ≤ a
+hc : a + b = c + q
+hsq : q ^ 2 ≤ 2 * staircaseDeficiency q
+x : ℕ := a - q
+z : ℕ := b - a
+hm2 : 2 * m + q ^ 2 ≤ 4 * (q + x) * (q + x + z)
+haeq : a = q + x
+hbeq : b = q + x + z
+hceq : c = q + 2 * x + z
+⊢ 6 * m ≤ (q + x + (q + x + z) + c) ^ 2
+
+
+--- LEAN ERROR 3 ---
+-:694:4-694:63: error: Tactic `apply` failed: could not unify the conclusion of `OrderIso.injective
+  ((occupiedRows r S).orderIsoOfFin rfl).symm`
+  ?a₁ = ?a₂
+with the goal
+  rowRank r S v = rowRank r S w
+
+Note: The full type of `OrderIso.injective ((occupiedRows r S).orderIsoOfFin rfl).symm` is
+  Function.Injective ⇑((occupiedRows r S).orderIsoOfFin ⋯).symm
+
+case mpr
+r : RowKind
+S : Finset Vertex
+v w : ↥S
+h : rowCoord r ↑v = rowCoord r ↑w
+⊢ rowRank r S v = rowRank r S w
+
+
+--- LEAN ERROR 4 ---
+-:720:22-720:27: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  n ≥ 0
+  m ≥ 0
+  m - n ≤ 0
+  g ≥ 0
+  g - m ≥ 1
+  g - n ≥ 1
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - g + n ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  c - e ≥ 1
+  c - f ≥ 1
+  c - g + n ≥ 0
+where
+ c := ↑a
+ d := ↑↑k
+ e := ↑↑(i, j).1
+ f := ↑↑(k, l).1
+ g := ↑b
+ m := ↑↑j
+ n := ↑↑l
+
+
+--- LEAN ERROR 5 ---
+-:720:22-720:27: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  n ≥ 0
+  m ≥ 0
+  m - n ≤ 0
+  g ≥ 0
+  g - m ≥ 1
+  g - n ≥ 1
+  f ≥ 0
+  f - g ≤ -1
+  e ≥ 0
+  e - f ≥ 1
+  e - g ≤ -1
+  d ≥ 0
+  d - g + n ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  c - g + n ≥ 0
+where
+ c := ↑a
+ d := ↑↑k
+ e := ↑↑(i, j).2
+ f := ↑↑(k, l).2
+ g := ↑b
+ m := ↑↑j
+ n := ↑↑l
+
+
+--- LEAN ERROR 6 ---
+-:725:22-725:27: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  n ≥ 0
+  m ≥ 0
+  m - n ≤ 0
+  g ≥ 0
+  g - m ≥ 1
+  g - n ≥ 1
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - g + n ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  c - e ≥ 1
+  c - f ≥ 1
+  c - g + n ≥ 0
+where
+ c := ↑a
+ d := ↑↑i
+ e := ↑↑(k, l).1
+ f := ↑↑(i, j).1
+ g := ↑b
+ m := ↑↑l
+ n := ↑↑j
+
+
+--- LEAN ERROR 7 ---
+-:725:22-725:27: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  n ≥ 0
+  m ≥ 0
+  m - n ≤ 0
+  g ≥ 0
+  g - m ≥ 1
+  g - n ≥ 1
+  f ≥ 0
+  f - g ≤ -1
+  e ≥ 0
+  e - f ≥ 1
+  e - g ≤ -1
+  d ≥ 0
+  d - g + n ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  c - g + n ≥ 0
+where
+ c := ↑a
+ d := ↑↑i
+ e := ↑↑(k, l).2
+ f := ↑↑(i, j).2
+ g := ↑b
+ m := ↑↑l
+ n := ↑↑j
+
+
+--- LEAN ERROR 8 ---
+-:738:2-738:15: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Decidable (isRectangleChainLast p)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+
+
+--- LEAN ERROR 9 ---
+-:774:4-774:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  a ≥ 0
+where
+ a := ↑((fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }) y).first
+ c := ↑y
+ d := ↑x
+
+
+--- LEAN ERROR 10 ---
+-:822:12-822:25: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 11 ---
+-:828:12-828:25: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 12 ---
+-:829:6-829:11: error: No goals to be solved
+
+
+--- LEAN ERROR 13 ---
+-:915:10-915:12: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  t
+in the target expression
+  ↑p.2 < (occupiedRows RowKind.second S).card - vertexChainIndex S v
+
+case pos.h.refine_1
+S : Finset Vertex
+v : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+a : ℕ := (occupiedRows RowKind.first S).card
+b : ℕ := (occupiedRows RowKind.second S).card
+p : Fin (occupiedRows RowKind.first S).card × Fin (occupiedRows RowKind.second S).card := rectangleRankPair S v
+t : ℕ := vertexChainIndex S v
+hi : ↑p.1 < a
+hj : ↑p.2 < b
+ht : t = min (↑p.1) (b - 1 - ↑p.2)
+hvertical : ↑p.1 ≤ b - 1 - ↑p.2
+⊢ ↑p.2 < (occupiedRows RowKind.second S).card - vertexChainIndex S v
+
+
+--- LEAN ERROR 14 ---
+-:917:12-917:25: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 15 ---
+-:927:6-927:11: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  d ≥ 0
+  d + e ≥ -1
+  d + e - f ≥ 0
+  c ≥ 0
+  c - e ≥ 1
+  c - f ≤ 0
+where
+ c := ↑↑p.1
+ d := ↑↑p.2
+ e := ↑(b - (1 + ↑p.2))
+ f := ↑(vertexChainIndex S v)
+
+
+--- LEAN ERROR 16 ---
+-:928:12-928:25: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 17 ---
+-:931:6-931:11: error: No goals to be solved
+
+
+--- LEAN ERROR 18 ---
+-:944:10-944:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 19 ---
+-:963:33-963:90: error(lean.unknownIdentifier): Unknown constant `_private.0.OeisA263135._flat_A263135ChainMembership_vertexRankPoint_last_iff.mpr`
+
+
+--- LEAN ERROR 20 ---
+-:963:4-963:97: error: unsolved goals
+case pos
+S : Finset Vertex
+v : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+hbase :
+  vertexRankPoint S v ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+      (↑v).side
+hside : (↑v).side = true
+hlast : isRectangleChainLast (rectangleRankPair S v)
+⊢ vertexRankPoint S v =
+      lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        true ∨
+    vertexRankPoint S v ∈
+      baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 21 ---
+-:964:4-964:102: error: unsolved goals
+case neg
+S : Finset Vertex
+v : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+hbase :
+  vertexRankPoint S v ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+      (↑v).side
+hside : (↑v).side = true
+hlast : ¬isRectangleChainLast (rectangleRankPair S v)
+⊢ ¬vertexRankPoint S v =
+        lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+          true ∧
+    vertexRankPoint S v ∈
+      baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+
+
+--- LEAN ERROR 22 ---
+-:965:2-966:38: error: unsolved goals
+case neg
+S : Finset Vertex
+v : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+hbase :
+  vertexRankPoint S v ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+      (↑v).side
+hside : ¬(↑v).side = true
+hfalse : (↑v).side = false
+⊢ vertexRankPoint S v =
+      lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        true ∨
+    vertexRankPoint S v ∈
+      baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 23 ---
+-:980:8-980:18: error(lean.unknownIdentifier): Unknown constant `OeisA263135.Vertex.ext`
+
+
+--- LEAN ERROR 24 ---
+-:981:2-981:78: error: No goals to be solved
+
+
+--- LEAN ERROR 25 ---
+-:1018:20-1018:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+where
+ c := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).first
+ d := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).first
+
+
+--- LEAN ERROR 26 ---
+-:1018:20-1018:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+where
+ c := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).second
+ d := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).second
+
+
+--- LEAN ERROR 27 ---
+-:1023:20-1023:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+where
+ c := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).first
+ d := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).first
+
+
+--- LEAN ERROR 28 ---
+-:1023:20-1023:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+where
+ c := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).second
+ d := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).second
+
+
+--- LEAN ERROR 29 ---
+-:1027:23-1027:28: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+where
+ c := ↑k
+ d := ↑h
+ e := ↑((horizontalEmbedding t b side) h).first
+ f := ↑((horizontalEmbedding t b side) k).first
+
+
+--- LEAN ERROR 30 ---
+-:1028:23-1028:28: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+where
+ c := ↑h
+ d := ↑k
+ e := ↑((horizontalEmbedding t b side) k).first
+ f := ↑((horizontalEmbedding t b side) h).first
+
+
+--- LEAN ERROR 31 ---
+-:1038:20-1038:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - f ≥ 1
+  c ≥ 0
+  c - f ≤ 0
+where
+ c := ↑t
+ d := ↑b
+ e := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).first
+ f := ↑(a - 1)
+
+
+--- LEAN ERROR 32 ---
+-:1038:20-1038:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - f ≥ 1
+  c ≥ 0
+  c - d ≤ 0
+  c - d + f ≥ 0
+where
+ c := ↑a
+ d := ↑b
+ e := ↑({ toFun := fun j ↦ { first := t, second := j, side := side }, inj' := ⋯ } j).second
+ f := ↑(b - (1 + t))
+
+
+--- LEAN ERROR 33 ---
+-:1041:20-1041:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - f ≥ 1
+  c ≥ 0
+  c - f ≤ 0
+where
+ c := ↑t
+ d := ↑b
+ e := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).first
+ f := ↑(a - 1)
+
+
+--- LEAN ERROR 34 ---
+-:1041:20-1041:25: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 1
+  d ≥ 0
+  d - f ≥ 1
+  c ≥ 0
+  c - d ≤ 0
+  c - d + f ≥ 0
+where
+ c := ↑a
+ d := ↑b
+ e := ↑({ toFun := fun h ↦ { first := t + 1 + h, second := b - 1 - t, side := side }, inj' := ⋯ } h).second
+ f := ↑(b - (1 + t))
+
+
+--- LEAN ERROR 35 ---
+-:1074:6-1074:11: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 0
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+  a - b ≤ 0
+  a - b ≥ 0
+where
+ a := jv
+ b := jw
+ c := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hw⟩).first
+ d := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hv⟩).first
+ e := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hw⟩).second
+ f := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hv⟩).second
+
+
+--- LEAN ERROR 36 ---
+-:1079:6-1079:11: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 0
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+  a - b ≤ -1
+  a - b ≥ -1
+where
+ a := jv
+ b := jw
+ c := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hw⟩).first
+ d := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hv⟩).first
+ e := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hw⟩).second
+ f := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hv⟩).second
+
+
+--- LEAN ERROR 37 ---
+-:1081:10-1081:20: error(lean.unknownIdentifier): Unknown constant `OeisA263135.Vertex.ext`
+
+
+--- LEAN ERROR 38 ---
+-:1082:4-1082:33: error: No goals to be solved
+
+
+--- LEAN ERROR 39 ---
+-:1087:36-1087:46: error: Application type mismatch: The argument
+  Eq.symm hside
+has type
+  (↑w).side = (↑v).side
+but is expected to have type
+  (vertexRankPoint S v).first ≤ (vertexRankPoint S w).first
+in the application
+  finish (Eq.symm hside)
+
+
+--- LEAN ERROR 40 ---
+-:1087:18-1087:26: error: Invalid argument name `v` for function
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `hfirst`: v̵h̲f̲i̲r̲s̲t̲
+  • `hsecond`: v̵h̲s̲e̲c̲o̲n̲d̲
+
+
+--- LEAN ERROR 41 ---
+-:1113:6-1115:41: error: unsolved goals
+case inr
+S : Finset Vertex
+v w : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+ht : vertexChainIndex S v = vertexChainIndex S w
+hv :
+  vertexRankPoint S v ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+hw :
+  vertexRankPoint S w ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+hdiag : rowCoord RowKind.diagonal ↑v = rowCoord RowKind.diagonal ↑w
+hsv : (↑v).side = true
+hsw : ¬(↑w).side = true
+hvlast :
+  vertexRankPoint S v =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+h :
+  vertexRankPoint S w ∈
+    {lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true}
+hlast :
+  vertexRankPoint S w =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+this : (vertexRankPoint S w).side = true
+⊢ vertexRankPoint S w ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 42 ---
+-:1118:54-1118:59: error: Application type mismatch: The argument
+  hle.left
+has type
+  (vertexRankPoint S w).first ≤
+    (lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        false).first
+but is expected to have type
+  rowRank RowKind.first S w ≤ rowRank RowKind.first S v
+in the application
+  rowCoord_le_of_rowRank_le RowKind.first S w v hle.left
+
+
+--- LEAN ERROR 43 ---
+-:1119:55-1119:60: error: Application type mismatch: The argument
+  hle.right
+has type
+  (vertexRankPoint S w).second ≤
+    (lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        false).second
+but is expected to have type
+  rowRank RowKind.second S w ≤ rowRank RowKind.second S v
+in the application
+  rowCoord_le_of_rowRank_le RowKind.second S w v hle.right
+
+
+--- LEAN ERROR 44 ---
+-:1123:4-1123:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  i ≥ 0
+  h ≥ 0
+  h - i ≥ 0
+  g ≥ 0
+  f ≥ 0
+  f - g ≥ 0
+  d - e ≥ 0
+  d - e ≤ 0
+  c ≥ 0
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 0
+where
+ a := ↑(occupiedRows RowKind.second S).card
+ b := ↑(occupiedRows RowKind.first S).card
+ c := ↑(vertexChainIndex S ⟨{ i := iw, j := jw, side := sw }, hwS⟩)
+ d := jv
+ e := jw
+ f := ↑(lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card
+      (vertexChainIndex S ⟨{ i := iv, j := jv, side := sv }, hvS⟩) false).first
+ g := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hwS⟩).first
+ h := ↑(lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card
+      (vertexChainIndex S ⟨{ i := iv, j := jv, side := sv }, hvS⟩) false).second
+ i := ↑(vertexRankPoint S ⟨{ i := iw, j := jw, side := sw }, hwS⟩).second
+
+
+--- LEAN ERROR 45 ---
+-:1130:6-1132:41: error: unsolved goals
+case inr
+S : Finset Vertex
+v w : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+ht : vertexChainIndex S v = vertexChainIndex S w
+hv :
+  vertexRankPoint S v ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+hw :
+  vertexRankPoint S w ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+hdiag : rowCoord RowKind.diagonal ↑v = rowCoord RowKind.diagonal ↑w
+hsv : ¬(↑v).side = true
+hsw : (↑w).side = true
+hwlast :
+  vertexRankPoint S w =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+h :
+  vertexRankPoint S v ∈
+    {lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true}
+hlast :
+  vertexRankPoint S v =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+this : (vertexRankPoint S v).side = true
+⊢ vertexRankPoint S v ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 46 ---
+-:1135:54-1135:59: error: Application type mismatch: The argument
+  hle.left
+has type
+  (vertexRankPoint S v).first ≤
+    (lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        false).first
+but is expected to have type
+  rowRank RowKind.first S v ≤ rowRank RowKind.first S w
+in the application
+  rowCoord_le_of_rowRank_le RowKind.first S v w hle.left
+
+
+--- LEAN ERROR 47 ---
+-:1136:55-1136:60: error: Application type mismatch: The argument
+  hle.right
+has type
+  (vertexRankPoint S v).second ≤
+    (lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+        false).second
+but is expected to have type
+  rowRank RowKind.second S v ≤ rowRank RowKind.second S w
+in the application
+  rowCoord_le_of_rowRank_le RowKind.second S v w hle.right
+
+
+--- LEAN ERROR 48 ---
+-:1140:4-1140:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h - i ≤ 0
+  h - i ≥ 0
+  g ≥ 0
+  f ≥ 0
+  e ≥ 0
+  e - f ≥ 0
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 0
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 0
+where
+ a := ↑(occupiedRows RowKind.second S).card
+ b := ↑(occupiedRows RowKind.first S).card
+ c := ↑(lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card
+      (vertexChainIndex S ⟨{ i := iv, j := jv, side := sv }, hvS⟩) false).first
+ d := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hvS⟩).first
+ e := ↑(lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card
+      (vertexChainIndex S ⟨{ i := iv, j := jv, side := sv }, hvS⟩) false).second
+ f := ↑(vertexRankPoint S ⟨{ i := iv, j := jv, side := sv }, hvS⟩).second
+ g := ↑(vertexChainIndex S ⟨{ i := iw, j := jw, side := sw }, hwS⟩)
+ h := jv
+ i := jw
+
+
+--- LEAN ERROR 49 ---
+-:1147:8-1149:43: error: unsolved goals
+case inr
+S : Finset Vertex
+v w : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+ht : vertexChainIndex S v = vertexChainIndex S w
+hv :
+  vertexRankPoint S v ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+hw :
+  vertexRankPoint S w ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+hdiag : rowCoord RowKind.diagonal ↑v = rowCoord RowKind.diagonal ↑w
+hsv : ¬(↑v).side = true
+hsw : ¬(↑w).side = true
+h :
+  vertexRankPoint S v ∈
+    {lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true}
+hlast :
+  vertexRankPoint S v =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+this : (vertexRankPoint S v).side = true
+⊢ vertexRankPoint S v ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 50 ---
+-:1155:8-1157:43: error: unsolved goals
+case inr
+S : Finset Vertex
+v w : ↥S
+hab : (occupiedRows RowKind.first S).card ≤ (occupiedRows RowKind.second S).card
+ht : vertexChainIndex S v = vertexChainIndex S w
+hv :
+  vertexRankPoint S v ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+hw :
+  vertexRankPoint S w ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+hdiag : rowCoord RowKind.diagonal ↑v = rowCoord RowKind.diagonal ↑w
+hsv : ¬(↑v).side = true
+hsw : ¬(↑w).side = true
+h :
+  vertexRankPoint S w ∈
+    {lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true}
+hlast :
+  vertexRankPoint S w =
+    lastRankPoint (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) true
+this : (vertexRankPoint S w).side = true
+⊢ vertexRankPoint S w ∈
+    baseBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v) false
+
+
+--- LEAN ERROR 51 ---
+-:1234:2-1234:46: error: Type mismatch: After simplification, term
+  hchosen
+ has type
+  if vertexSubchain S v = true then
+    vertexRankPoint S v ∈
+      shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+  else
+    vertexRankPoint S v ∈
+      longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+but is expected to have type
+  if k.2 = true then
+    vertexRankPoint S v ∈ shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+  else vertexRankPoint S v ∈ longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+
+
+--- LEAN ERROR 52 ---
+-:1276:12-1276:36: error: Type mismatch: After simplification, term
+  hvchain
+ has type
+  vertexRankPoint S v ∈ longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+but is expected to have type
+  vertexRankPoint S v ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+
+
+--- LEAN ERROR 53 ---
+-:1276:42-1276:66: error: Type mismatch: After simplification, term
+  hwchain
+ has type
+  vertexRankPoint S w ∈ longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+but is expected to have type
+  vertexRankPoint S w ∈
+    longBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+
+
+--- LEAN ERROR 54 ---
+-:1278:12-1278:36: error: Type mismatch: After simplification, term
+  hvchain
+ has type
+  vertexRankPoint S v ∈ shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+but is expected to have type
+  vertexRankPoint S v ∈
+    shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S v)
+
+
+--- LEAN ERROR 55 ---
+-:1278:42-1278:66: error: Type mismatch: After simplification, term
+  hwchain
+ has type
+  vertexRankPoint S w ∈ shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card k.1
+but is expected to have type
+  vertexRankPoint S w ∈
+    shortBoxChain (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card (vertexChainIndex S w)
+
+
+--- LEAN ERROR 56 ---
+-:1378:2-1378:11: error: linarith failed to find a contradiction
+case h1.h
+a b : ℕ
+hab : a ≤ b
+hterm : ∀ t ∈ Finset.range a, a + b - 2 * t + (a + b - 2 - 2 * t) + 4 * t = 2 * (a + b - 1)
+hsum :
+  ∑ x ∈ Finset.range a, (a + b - 2 * x) + ∑ x ∈ Finset.range a, (a + b - 2 - 2 * x) + 4 * ∑ t ∈ Finset.range a, t =
+    a * (2 * (a + b - 1))
+hfour : ∑ t ∈ Finset.range a, 4 * t = 4 * ∑ t ∈ Finset.range a, t
+hgauss : (∑ i ∈ Finset.range a, i) * 2 = a * (a - 1)
+a✝ : ∑ t ∈ Finset.range a, (a + b - 2 * t + (a + b - 2 - 2 * t)) < 2 * a * b
+⊢ False
+failed
+
+
+--- LEAN ERROR 57 ---
+-:1404:6-1404:58: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ∑ t ∈ Finset.range a, (a + b - 2 * t + (a + b - 2 - 2 * t))
+in the target expression
+  ∑ x ∈ Finset.range a, min c (a + b - 2 * x) + ∑ x ∈ Finset.range a, min c (a + b - 2 - 2 * x) +
+      (∑ x ∈ Finset.range a, (q - 2 * x) + ∑ x ∈ Finset.range a, (q - 2 - 2 * x)) =
+    ∑ x ∈ Finset.range a, (a + b - 2 * x) + ∑ x ∈ Finset.range a, (a + b - 2 - 2 * x)
+
+a b c : ℕ
+hab : a ≤ b
+hbc : b ≤ c
+q : ℕ := a + b - c
+hqa : q ≤ a
+hq2a : q - 2 ≤ a
+hdef1 : ∑ t ∈ Finset.range a, (q - 2 * t) = staircase q
+hdef2 : ∑ t ∈ Finset.range a, (q - 2 - 2 * t) = staircase (q - 2)
+hterm :
+  ∀ t ∈ Finset.range a,
+    min c (a + b - 2 * t) + min c (a + b - 2 - 2 * t) + (q - 2 * t + (q - 2 - 2 * t)) =
+      a + b - 2 * t + (a + b - 2 - 2 * t)
+hsum :
+  ∑ x ∈ Finset.range a, min c (a + b - 2 * x) + ∑ x ∈ Finset.range a, min c (a + b - 2 - 2 * x) +
+      (∑ x ∈ Finset.range a, (q - 2 * x) + ∑ x ∈ Finset.range a, (q - 2 - 2 * x)) =
+    ∑ x ∈ Finset.range a, (a + b - 2 * x) + ∑ x ∈ Finset.range a, (a + b - 2 - 2 * x)
+⊢ ∑ x ∈ Finset.range a, min c (a + b - 2 * x) + ∑ x ∈ Finset.range a, min c (a + b - 2 - 2 * x) +
+      (∑ t ∈ Finset.range a, (q - 2 * t) + ∑ t ∈ Finset.range a, (q - 2 - 2 * t)) =
+    2 * a * b
+
+
+--- LEAN ERROR 58 ---
+-:1420:4-1420:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  i ≥ 0
+  i - j ≤ 0
+  h ≥ 0
+  h + i - j ≥ 1
+  g ≥ 0
+  g - h ≥ 0
+  f ≥ 0
+  e ≥ 0
+  d ≥ 0
+  d - e ≥ 0
+  d - f ≤ 0
+where
+ d := ↑(occupiedRows RowKind.second S).card
+ e := ↑(occupiedRows RowKind.first S).card
+ f := ↑(occupiedRows RowKind.diagonal S).card
+ g := ↑(chainCapSum (occupiedRows RowKind.first S).card (occupiedRows RowKind.second S).card
+    (occupiedRows RowKind.diagonal S).card)
+ h := ↑S.card
+ i := ↑(staircaseDeficiency (a + b - c))
+ j := ↑(2 * a) * ↑b
+
+
+--- LEAN ERROR 59 ---
+-:1615:8-1615:63: error: Function expected at
+  (Finset.mem_filter.mp hi).right
+but this term has type
+  neighbor vd.1 vd.2 ∈ S
+
+Note: Expected a function because this term is being applied to the argument
+  (Finset.mem_filter.mp hb).2
+
+
+--- LEAN ERROR 60 ---
+-:1618:60-1620:37: error: unsolved goals
+case h
+S : Finset Vertex
+vd : Vertex × Direction
+⊢ vd.1 ∈ S ∧ neighbor vd.1 vd.2 ∈ S ∨ vd.1 ∈ S ∧ neighbor vd.1 vd.2 ∉ S ↔ vd.1 ∈ S
+
+
+--- LEAN ERROR 61 ---
+-:1624:60-1627:17: error: unsolved goals
+S : Finset Vertex
+⊢ Fintype.card Direction = 3 ∨ S = ∅
+
+
+--- LEAN ERROR 62 ---
+-:1665:50-1665:55: error: Tactic `assumption` failed
+
+S : Finset Vertex
+v : Vertex
+d : Direction
+h : (v, d) ∈ aInternalDarts S
+hint : (v, d) ∈ internalDarts S
+hvside : (v, d).1.side = false
+hprod : (v, d) ∈ S ×ˢ Finset.univ
+hnmem : neighbor (v, d).1 (v, d).2 ∈ S
+hvS : (v, d).1 ∈ S
+hd : (v, d).2 ∈ Finset.univ
+⊢ neighbor (reverseDart (v, d)).1 (reverseDart (v, d)).2 ∈ S
+
+
+--- LEAN ERROR 63 ---
+-:1678:50-1678:55: error: Tactic `assumption` failed
+
+S : Finset Vertex
+v : Vertex
+d : Direction
+h : (v, d) ∈ bInternalDarts S
+hint : (v, d) ∈ internalDarts S
+hvside : (v, d).1.side = true
+hprod : (v, d) ∈ S ×ˢ Finset.univ
+hnmem : neighbor (v, d).1 (v, d).2 ∈ S
+hvS : (v, d).1 ∈ S
+hd : (v, d).2 ∈ Finset.univ
+⊢ neighbor (reverseDart (v, d)).1 (reverseDart (v, d)).2 ∈ S
+
+
+--- LEAN ERROR 64 ---
+-:1701:4-1701:19: error: Invalid argument name `g` for function `Finset.card_eq_sum_card_fiberwise`
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `ι`: g̵ι̲
+  • `M`: g̵M̲
+  • `f`: g̵f̲
+  • `H`: g̵H̲
+
+
+--- LEAN ERROR 65 ---
+-:1695:44-1706:41: error: unsolved goals
+S : Finset Vertex
+⊢ (∑ v ∈ S, if v.side = true then 0 else ∑ d, if neighbor v d ∈ S then 1 else 0) =
+    {vd ∈ {vd ∈ S ×ˢ Finset.univ | neighbor vd.1 vd.2 ∈ S} | vd.1.side = false}.card
+
+
+--- LEAN ERROR 66 ---
+-:1715:2-1715:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 1
+where
+ a := ↑(contacts S)
+ b := ↑(aInternalDarts S).card
+
+
+--- LEAN ERROR 67 ---
+-:1721:2-1721:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  a ≥ 0
+  a + b - 3*c ≥ 1
+where
+ a := ↑(internalDarts S).card
+ b := ↑(edgeBoundary S)
+ c := ↑S.card
+
+
+--- LEAN ERROR 68 ---
+-:1750:4-1750:59: error: Type mismatch: After simplification, term
+  sum_occupiedRows_card_le_edgeBoundary S
+ has type
+  ∑ r, (occupiedRows r S).card ≤ edgeBoundary S
+but is expected to have type
+  (occupiedRows RowKind.first S).card + (occupiedRows RowKind.second S).card + (occupiedRows RowKind.diagonal S).card ≤
+    edgeBoundary S
+
+
+--- LEAN ERROR 69 ---
+-:1756:4-1756:13: error: linarith failed to find a contradiction
+case h
+S : Finset Vertex
+n r : ℕ
+hcard : S.card = 2 * n
+hr : IsNatCeilSqrt (3 * n) r
+R : ℕ :=
+  (occupiedRows RowKind.first S).card + (occupiedRows RowKind.second S).card + (occupiedRows RowKind.diagonal S).card
+hrow : R ≤ edgeBoundary S
+hquad :
+  6 * (2 * n) ≤
+    ((occupiedRows RowKind.first S).card + (occupiedRows RowKind.second S).card +
+        (occupiedRows RowKind.diagonal S).card) ^
+      2
+hsq : R ^ 2 ≤ edgeBoundary S ^ 2
+a✝ : edgeBoundary S ^ 2 < 12 * n
+⊢ False
+failed
+
+
+--- LEAN ERROR 70 ---
+-:1857:4-1857:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  b - 3*c ≤ -1
+  -2 ≤ 3*b - d ≤ 0
+  a ≥ 1
+  2*a + b - 3*c ≤ -1
+where
+ a := ↑(1 + r / 3 * 3) / 3
+ b := ↑((r / 3 * 3 - 1) ^ 2) / 3
+ c := ↑((r / 3) ^ 2)
+ d := ↑((r / 3 * 3 - 1) ^ 2)
+
+
+--- LEAN ERROR 71 ---
+-:1861:4-1861:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  b - 3*c ≤ -1
+  -2 ≤ 3*b - d ≤ 0
+  a ≥ 1
+  2*a - b + 3*c ≥ 1
+where
+ a := ↑(2 + r / 3 * 3) / 3
+ b := ↑((1 + r / 3 * 3 - 1) ^ 2) / 3
+ c := ↑((r / 3) ^ 2)
+ d := ↑((1 + r / 3 * 3 - 1) ^ 2)
+
+
+--- LEAN ERROR 72 ---
+-:1865:4-1865:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  -2 ≤ 3*b - d ≤ 0
+  a ≥ 2
+  2*a - b + 3*c ≥ 3
+  4*a - b + 3*c ≥ 4
+where
+ a := ↑(3 + r / 3 * 3) / 3
+ b := ↑((2 + r / 3 * 3 - 1) ^ 2) / 3
+ c := ↑((r / 3) ^ 2)
+ d := ↑((2 + r / 3 * 3 - 1) ^ 2)
+
+
+--- LEAN ERROR 73 ---
+-:1887:4-1887:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  0 ≤ c ≤ 4
+  0 ≤ b ≤ 2
+  a ≥ 2
+where
+ a := ↑n
+ b := ↑r
+ c := ↑(r ^ 2)
+
+
+--- LEAN ERROR 74 ---
+-:1896:4-1896:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  i ≥ 0
+  -2 ≤ 3*h - i ≤ 0
+  g ≥ 0
+  f ≥ 0
+  f + g - h ≤ 0
+  e ≥ 3
+  d ≥ 2
+  d - h ≥ 1
+where
+ d := ↑n
+ e := ↑r
+ f := ↑b * ↑c
+ g := ↑c * ↑a
+ h := ↑(r ^ 2) / 3
+ i := ↑(r ^ 2)
+
+
+--- LEAN ERROR 75 ---
+-:1908:44-1908:49: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  -2 ≤ 3*k - l ≤ 0
+  j ≥ 0
+  -2 ≤ 3*i - j ≤ 0
+  h ≥ 0
+  g ≥ 0
+  g + h - i ≤ 0
+  f ≥ 3
+  e ≥ 2
+  e - i ≤ 0
+  e - k ≤ 0
+where
+ e := ↑n
+ f := ↑r
+ g := ↑b * ↑c
+ h := ↑c * ↑a
+ i := ↑(r ^ 2) / 3
+ j := ↑(r ^ 2)
+ k := ↑((r - 1) ^ 2) / 3
+ l := ↑((r - 1) ^ 2)
+
+
+--- LEAN ERROR 76 ---
+-:1949:8-1949:21: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 77 ---
+-:1950:2-1951:21: error: No goals to be solved
+
+
+--- LEAN ERROR 78 ---
+-:2007:27-2007:50: error(lean.unknownIdentifier): Unknown constant `Finset.Nat.antidiagonal`
+
+
+--- LEAN ERROR 79 ---
+-:2022:44-2022:67: error(lean.unknownIdentifier): Unknown constant `Finset.Nat.antidiagonal`
+
+
+--- LEAN ERROR 80 ---
+-:2034:2-2034:8: error: unsolved goals
+b : ℕ
+⊢ ∑ x ∈ Finset.range b, (sorry () x).card = ∑ n ∈ Finset.range b, (n + 1)
+
+
+--- LEAN ERROR 81 ---
+-:2035:10-2035:66: error(lean.unknownIdentifier): Unknown identifier `_flat_A263135PatchCorners_antidiagonal_pairwise_disjoint`
+
+
+--- LEAN ERROR 82 ---
+-:2042:73-2047:15: error: unsolved goals
+b : ℕ
+x : (ℕ × ℕ) × Bool
+hx : x ∈ lowerPairs b ×ˢ {false}
+hy : x ∈ lowerPairs (b - 1) ×ˢ {true}
+hf : x.2 = false
+ht : x.2 = true
+⊢ False
+
+
+--- LEAN ERROR 83 ---
+-:2064:4-2064:13: error: linarith failed to find a contradiction
+case neg.h1.h
+b : ℕ
+hb : ¬b = 0
+hb1 : 1 ≤ b
+hgauss1 : (∑ i ∈ Finset.range b, i) * 2 = b * (b - 1)
+hgauss2 : (∑ i ∈ Finset.range (b - 1), i) * 2 = (b - 1) * (b - 1 - 1)
+a✝ : ∑ x ∈ Finset.range b, x + b + (∑ x ∈ Finset.range (b - 1), x + (b - 1)) < b ^ 2
+⊢ False
+failed
+
+
+--- LEAN ERROR 84 ---
+-:2096:2-2096:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  e ≥ 0
+  d ≥ 0
+  c ≥ 0
+  c - d ≥ 1
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 1
+  a - e ≤ 0
+where
+ a := ↑A
+ b := ↑i
+ c := ↑B
+ d := ↑j
+ e := ↑(reflectTriple A B ((i, j), side)).1.1
+
+
+--- LEAN ERROR 85 ---
+-:2107:6-2107:15: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  {x ∈ rankBox A B | rankLevel (tripleRankPoint x) < b}
+in the target expression
+  (upperCornerTriples A B b C).card = b ^ 2
+
+A B b C : ℕ
+hsum : A + B = C + 2 * b
+hbA : b ≤ A
+hbB : b ≤ B
+htarget : lowerCornerTriples b = {x ∈ rankBox A B | rankLevel (tripleRankPoint x) < b}
+⊢ (upperCornerTriples A B b C).card = b ^ 2
+
+
+--- LEAN ERROR 86 ---
+-:2170:2-2170:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  e ≥ 0
+  d ≥ 0
+  d - e ≥ 1
+where
+ d := ↑b
+ e := ↑(rankLevel (tripleRankPoint x))
+
+
+--- LEAN ERROR 87 ---
+-:2188:2-2188:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ 0
+  f ≥ 0
+  e ≥ 0
+  d ≥ 0
+  d + e + f - g ≥ 1
+where
+ d := ↑b
+ e := ↑a
+ f := ↑c
+ g := ↑(rankLevel (tripleRankPoint x))
+
+
+--- LEAN ERROR 88 ---
+-:2236:4-2236:62: error: Type mismatch: After simplification, term
+  ⟨hbox, hlev⟩
+ has type
+  (i < a + b ∧ j < b + c) ∧
+    b ≤ rankLevel { first := i, second := j, side := side } ∧
+      rankLevel { first := i, second := j, side := side } < b + (a + c)
+but is expected to have type
+  i < a + b ∧
+    j < b + c ∧
+      b ≤ rankLevel { first := i, second := j, side := side } ∧
+        rankLevel { first := i, second := j, side := side } < b + (a + c)
+
+
+--- LEAN ERROR 89 ---
+-:2242:46-2242:72: error: Tactic `assumption` failed
+
+a b c : ℕ
+p : RankPoint
+hi : p.first < a + b
+hj : p.second < b + c
+hlo : b ≤ rankLevel p
+hhi : rankLevel p < b + (a + c)
+x : (ℕ × ℕ) × Bool := ((p.first, p.second), p.side)
+⊢ b ≤ rankLevel { first := p.first, second := p.second, side := p.side } ∧
+    rankLevel { first := p.first, second := p.second, side := p.side } < b + (a + c)
+
+
+--- LEAN ERROR 90 ---
+-:2294:2-2294:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  l ≥ 0
+  k ≥ 0
+  k - l ≥ 1
+  k - l ≥ 1
+  h ≥ 0
+  g ≥ 0
+  f ≥ 0
+  f - h + l ≥ 0
+  e ≥ 0
+  e - l ≤ 0
+  d ≥ 0
+  d - h ≤ 0
+  d - l ≤ 1
+  d + f - g ≥ 1
+where
+ d := ↑b
+ e := ↑{ first := i, second := j, side := side }.first
+ f := ↑c
+ g := ↑{ first := i, second := j, side := side }.second
+ h := ↑(rankLevel { first := i, second := j, side := side })
+ k := ↑i
+ l := ↑(a + b - (1 + (a + b - 1 - i)))
+
+
+--- LEAN ERROR 91 ---
+-:2320:2-2320:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ 0
+  f ≥ 0
+  e ≥ 0
+  d ≥ 0
+  d + e + f ≥ 0
+  d + e + f - g ≥ 1
+where
+ d := ↑a * ↑b
+ e := ↑b * ↑c
+ f := ↑c * ↑a
+ g := ↑(aRankPatch a b c).card
+
+
+--- LEAN ERROR 92 ---
+-:2351:4-2351:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  i ≥ 0
+  i - j ≥ 1
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑{ first := a + l, second := b + c - 1 - l, side := false }.first
+ i := ↑l
+ j := ↑k
+
+
+--- LEAN ERROR 93 ---
+-:2359:10-2359:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 94 ---
+-:2376:4-2376:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  i ≥ 0
+  i - j ≥ 1
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑{ first := 0, second := b + l, side := false }.second
+ i := ↑l
+ j := ↑k
+
+
+--- LEAN ERROR 95 ---
+-:2384:10-2384:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 96 ---
+-:2401:4-2401:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  j ≥ 0
+  i ≥ 0
+  i - j ≥ 1
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑{ first := b + l, second := 0, side := false }.first
+ i := ↑l
+ j := ↑k
+
+
+--- LEAN ERROR 97 ---
+-:2409:10-2409:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 98 ---
+-:2445:8-2445:18: error(lean.unknownIdentifier): Unknown constant `OeisA263135.Vertex.ext`
+
+
+--- LEAN ERROR 99 ---
+-:2454:8-2454:18: error(lean.unknownIdentifier): Unknown constant `OeisA263135.Vertex.ext`
+
+
+--- LEAN ERROR 100 ---
+-:2468:2-2468:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g ≥ 1
+  f ≥ 0
+  f + g - h ≤ 0
+  e ≥ 1
+  e - f - g ≤ 0
+  d ≥ 1
+  d - h ≤ 0
+  d + g - h ≤ 1
+  d + e - f ≥ 1
+  d + e - h ≤ 0
+where
+ d := ↑b
+ e := ↑c
+ f := ↑j
+ g := ↑(if false = true then 1 else 0)
+ h := ↑(a + b + c - 1)
+
+
+--- LEAN ERROR 101 ---
+-:2484:4-2484:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := (match { i := ↑i, j := ↑j - 1, side := false }, Direction.horizontal with
+  | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+  | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }).i
+
+
+--- LEAN ERROR 102 ---
+-:2493:4-2493:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  k ≥ 1
+  h ≥ 0
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  e - g - h - l ≤ 1
+  e - g - l ≥ 2
+  e + f - g ≥ 1
+  d ≥ 1
+  d + e - l ≥ 2
+  d + e + f - g - h - l ≥ 2
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑j
+ h := ↑(if false = true then 1 else 0)
+ k := ↑{ first := i, second := j, side := false }.first
+ l := ↑(i - 1)
+
+
+--- LEAN ERROR 103 ---
+-:2509:4-2509:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ -1
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := (match { i := ↑i, j := ↑j - 1, side := false }, Direction.diagonal with
+  | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+  | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }).j
+
+
+--- LEAN ERROR 104 ---
+-:2518:4-2518:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  k ≥ 1
+  h ≥ 0
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  e - g - h - l ≤ 1
+  e - g - l ≥ 2
+  e + f - l ≥ 2
+  d ≥ 1
+  d + e - g ≥ 1
+  d + e + f - g - h - l ≥ 2
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑i
+ h := ↑(if false = true then 1 else 0)
+ k := ↑{ first := i, second := j, side := false }.second
+ l := ↑(j - 1)
+
+
+--- LEAN ERROR 105 ---
+-:2538:63-2540:8: error: unsolved goals
+α : Type u_1
+inst✝¹ : DecidableEq α
+S : Finset α
+P : α → Prop
+inst✝ : DecidablePred P
+hu : {x ∈ S | ¬P x} ∪ Finset.filter P S = S
+⊢ ∀ ⦃a : α⦄, a ∈ S → ¬P a → a ∈ S → ¬P a
+
+
+--- LEAN ERROR 106 ---
+-:2549:2-2550:80: error: Type mismatch: After simplification, term
+  have this := h;
+  this
+ has type
+  {p ∈ aRankPatch a b c | ¬rankLevel p = a + b + c - 1}.card + b = a * b + b * c + c * a
+but is expected to have type
+  {p ∈ aRankPatch a b c | ¬rankLevel p = a + b + c - 1}.card = a * b + b * c + c * a - b
+
+
+--- LEAN ERROR 107 ---
+-:2558:2-2559:86: error: Type mismatch: After simplification, term
+  have this := h;
+  this
+ has type
+  {p ∈ aRankPatch a b c | ¬p.first = 0}.card + c = a * b + b * c + c * a
+but is expected to have type
+  {p ∈ aRankPatch a b c | ¬p.first = 0}.card = a * b + b * c + c * a - c
+
+
+--- LEAN ERROR 108 ---
+-:2567:2-2568:84: error: Type mismatch: After simplification, term
+  have this := h;
+  this
+ has type
+  {p ∈ aRankPatch a b c | ¬p.second = 0}.card + a = a * b + b * c + c * a
+but is expected to have type
+  {p ∈ aRankPatch a b c | ¬p.second = 0}.card = a * b + b * c + c * a - a
+
+
+--- LEAN ERROR 109 ---
+-:2577:42-2577:47: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.same` could not be determined
+
+Hint: Using `Direction.same would be unambiguous:
+  [apply] `Direction.same`
+
+
+--- LEAN ERROR 110 ---
+-:2578:41-2578:52: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.horizontal` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Combinatorics.Line.horizontal`
+  [apply] `Direction.horizontal`
+
+
+--- LEAN ERROR 111 ---
+-:2579:43-2579:48: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.same` could not be determined
+
+Hint: Using `Direction.same would be unambiguous:
+  [apply] `Direction.same`
+
+
+--- LEAN ERROR 112 ---
+-:2580:41-2580:52: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.horizontal` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Combinatorics.Line.horizontal`
+  [apply] `Direction.horizontal`
+
+
+--- LEAN ERROR 113 ---
+-:2581:39-2581:48: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.diagonal` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `Action.diagonal`
+  [apply] `CoxeterMatrix.diagonal`
+  [apply] `Matrix.diagonal`
+  [apply] `Rep.diagonal`
+  [apply] `Representation.diagonal`
+  [apply] `Set.diagonal`
+  [apply] `AlgebraicGeometry.AffineTargetMorphismProperty.diagonal`
+  [apply] `CategoryTheory.Bifunctor.diagonal`
+  [apply] `CategoryTheory.MorphismProperty.diagonal`
+  [apply] `CategoryTheory.SimplicialObject.diagonal`
+  [apply] `Combinatorics.Line.diagonal`
+  [apply] `Matrix.PosDef.diagonal`
+  [apply] `Matrix.PosSemidef.diagonal`
+  [apply] `Direction.diagonal`
+  [apply] `RowKind.diagonal`
+  [apply] `CategoryTheory.Limits.pullback.diagonal`
+  [apply] `CategoryTheory.MorphismProperty.IsStableUnderBaseChange.diagonal`
+  [apply] `CategoryTheory.MorphismProperty.RespectsIso.diagonal`
+
+
+--- LEAN ERROR 114 ---
+-:2581:54-2582:52: error: unsolved goals
+case left
+a b c : ℕ
+⊢ ∀ a_1 ∈ sameContactPoints a b c, a_1 ∉ horizontalContactPoints a b c
+
+case right
+a b c : ℕ
+⊢ ∀ (a_1 : RankPoint) (b_1 : ?m.60 a b c),
+    (a_1, b_1) ∈
+        Finset.map { toFun := fun i ↦ (i, sorry ()), inj' := ⋯ } (sameContactPoints a b c) ∪
+          Finset.map { toFun := fun i ↦ (i, sorry ()), inj' := ⋯ } (horizontalContactPoints a b c) →
+      ∀ x ∈ diagonalContactPoints a b c, x = a_1 → ¬sorry () = b_1
+
+
+--- LEAN ERROR 115 ---
+-:2588:9-2588:71: error(lean.unknownIdentifier): Unknown identifier `_flat_A263135PatchContacts_patchContactDarts_pairwise_disjoint`
+
+
+--- LEAN ERROR 116 ---
+-:2588:83-2588:94: error: Tactic `rcases` failed: `x✝ : ?m.54` is not an inductive datatype
+
+
+--- LEAN ERROR 117 ---
+-:2607:28-2607:29: error: Application type mismatch: The argument
+  h
+has type
+  _flat_A263135PatchContacts_rankDartVertex p = _flat_A263135PatchContacts_rankDartVertex q
+but is expected to have type
+  p = q
+in the application
+  congrArg Prod.snd h
+
+
+--- LEAN ERROR 118 ---
+-:2728:6-2728:26: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Disjoint ?m.46 ?m.47
+in the target expression
+  Function.onFun Disjoint (clipPair a b) k l
+
+a b d : ℕ
+hd : d ≤ a + b - 1
+k : ℕ
+hk : k ∈ (Finset.range d).toSet
+l : ℕ
+hl : l ∈ (Finset.range d).toSet
+hkl : k ≠ l
+hkd : k < d
+hld : l < d
+⊢ Function.onFun Disjoint (clipPair a b) k l
+
+
+--- LEAN ERROR 119 ---
+-:2850:6-2850:26: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  Disjoint ?m.76 ?m.77
+in the target expression
+  Function.onFun Disjoint (clipLostDarts a b) k l
+
+a b d : ℕ
+hd : d ≤ a + b - 1
+k : ℕ
+hk : k ∈ (Finset.range d).toSet
+l : ℕ
+hl : l ∈ (Finset.range d).toSet
+hkl : k ≠ l
+hkd : k < a + b - 1
+hld : l < a + b - 1
+⊢ Function.onFun Disjoint (clipLostDarts a b) k l
+
+
+--- LEAN ERROR 120 ---
+-:2926:10-2926:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 121 ---
+-:2928:10-2928:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 122 ---
+-:2935:10-2935:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 123 ---
+-:2937:10-2937:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 124 ---
+-:2949:72-2949:75: error: Application type mismatch: The argument
+  hpk
+has type
+  p ∈ {clipBPoint a b k, clipAPoint a b k}
+but is expected to have type
+  p = clipBPoint a b k ∨ p = clipAPoint a b k
+in the application
+  ⟨hk', hpk⟩
+
+
+--- LEAN ERROR 125 ---
+-:3030:10-3030:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 126 ---
+-:3033:10-3033:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 127 ---
+-:3049:10-3049:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 128 ---
+-:3050:4-3053:11: error: No goals to be solved
+
+
+--- LEAN ERROR 129 ---
+-:3058:10-3058:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 130 ---
+-:3059:4-3062:11: error: No goals to be solved
+
+
+--- LEAN ERROR 131 ---
+-:3073:10-3073:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 132 ---
+-:3074:4-3076:33: error: No goals to be solved
+
+
+--- LEAN ERROR 133 ---
+-:3082:10-3082:23: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 134 ---
+-:3083:4-3085:33: error: No goals to be solved
+
+
+--- LEAN ERROR 135 ---
+-:3135:8-3135:15: error: Tactic `subst` failed: did not find equation for eliminating 'p'
+
+case mpr.inl.inr
+a b c d : ℕ
+ha : 0 < a
+hb : 0 < b
+hc : 0 < c
+hab : a ≤ b
+hd : d ≤ a + b - 1
+k : ℕ
+hk : k < d
+p : RankPoint
+direction : Direction
+hpd : (p, direction) ∈ patchContactDarts a b c
+hbase : (p, direction).1 ∈ clippedRankPoints a b d
+hbaseSide : (p, direction).1.side = false
+hpk : (p, direction).1 = clipAPoint a b k
+⊢ (p, direction) ∈ clippedLostDarts a b d
+
+
+--- LEAN ERROR 136 ---
+-:3170:12-3170:17: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  o ≥ 0
+  n ≥ 0
+  m ≥ 0
+  l ≥ 0
+  h ≥ 0
+  h - l - m - n + o ≤ -1
+  h + o ≥ 0
+  g ≥ 0
+  g - h ≥ 1
+  f ≥ 0
+  f - g ≥ 0
+  f - 2*h - 2*o ≤ 1
+  f - h - o ≥ 1
+  f - l ≥ 0
+  f ≥ 0
+  e ≥ 1
+  e + h - m + o ≥ 0
+  e + f - l - m - n ≥ 0
+where
+ e := ↑c
+ f := ↑(a + b - 1)
+ g := ↑d
+ h := ↑(clipBPoint a b k).first
+ l := ↑i
+ m := ↑j
+ n := ↑(if side = true then 1 else 0)
+ o := ↑(b - (1 + k))
+
+
+--- LEAN ERROR 137 ---
+-:3177:20-3177:33: error(lean.unknownIdentifier): Unknown constant `OeisA263135.RankPoint.ext`
+
+
+--- LEAN ERROR 138 ---
+-:3178:14-3178:74: error: No goals to be solved
+
+
+--- LEAN ERROR 139 ---
+-:3231:28-3231:29: error: Application type mismatch: The argument
+  h
+has type
+  clippingRankDartVertex p = clippingRankDartVertex q
+but is expected to have type
+  p = q
+in the application
+  congrArg Prod.snd h
+
+
+--- LEAN ERROR 140 ---
+-:3245:2-3245:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  h ≥ 0
+  g ≥ 0
+  g ≥ 1
+  f ≥ 0
+  f + g - h ≤ 0
+  e ≥ 1
+  e - f - g ≤ 0
+  d ≥ 1
+  d - h ≤ 0
+  d + g - h ≤ 1
+  d + e - f ≥ 1
+  d + e - h ≤ 0
+where
+ d := ↑b
+ e := ↑c
+ f := ↑j
+ g := ↑(if false = true then 1 else 0)
+ h := ↑(a + b + c - 1)
+
+
+--- LEAN ERROR 141 ---
+-:3261:4-3261:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := (match { i := ↑i, j := ↑j - 1, side := false }, Direction.horizontal with
+  | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+  | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }).i
+
+
+--- LEAN ERROR 142 ---
+-:3270:4-3270:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  k ≥ 1
+  h ≥ 0
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  e - g - h - l ≤ 1
+  e - g - l ≥ 2
+  e + f - g ≥ 1
+  d ≥ 1
+  d + e - l ≥ 2
+  d + e + f - g - h - l ≥ 2
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑j
+ h := ↑(if false = true then 1 else 0)
+ k := ↑{ first := i, second := j, side := false }.first
+ l := ↑(i - 1)
+
+
+--- LEAN ERROR 143 ---
+-:3286:4-3286:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  g ≥ -1
+  f ≥ 1
+  e ≥ 1
+  d ≥ 1
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := (match { i := ↑i, j := ↑j - 1, side := false }, Direction.diagonal with
+  | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+  | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+  | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+  | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }).j
+
+
+--- LEAN ERROR 144 ---
+-:3295:4-3295:9: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  l ≥ 0
+  k ≥ 1
+  h ≥ 0
+  g ≥ 0
+  f ≥ 1
+  e ≥ 1
+  e - g - h - l ≤ 1
+  e - g - l ≥ 2
+  e + f - l ≥ 2
+  d ≥ 1
+  d + e - g ≥ 1
+  d + e + f - g - h - l ≥ 2
+where
+ d := ↑a
+ e := ↑b
+ f := ↑c
+ g := ↑i
+ h := ↑(if false = true then 1 else 0)
+ k := ↑{ first := i, second := j, side := false }.second
+ l := ↑(j - 1)
+
+
+--- LEAN ERROR 145 ---
+-:3457:6-3457:38: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  neighbor (rankPointVertex pd.1) pd.2
+in the target expression
+  neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ patch a b c
+
+a b c : ℕ
+ha : 0 < a
+hb : 0 < b
+hc : 0 < c
+pd : RankPoint × Direction
+hpd : pd ∈ patchContactDarts a b c
+hint✝ : clippingRankDartVertex pd ∈ aInternalDarts (patch a b c)
+hint : clippingRankDartVertex pd ∈ internalDarts (patch a b c)
+hside : (clippingRankDartVertex pd).1.side = false
+hprod : clippingRankDartVertex pd ∈ patch a b c ×ˢ Finset.univ
+hn : neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ patch a b c
+⊢ rankDartNeighbor pd ∈ rankPatch a b c
+
+
+--- LEAN ERROR 146 ---
+-:3480:8-3480:40: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  neighbor (rankPointVertex pd.1) pd.2
+in the target expression
+  neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ clippedPatch a b c d
+
+case mp
+a b c d : ℕ
+ha : 0 < a
+hb : 0 < b
+hc : 0 < c
+pd : RankPoint × Direction
+hpd : pd ∈ patchContactDarts a b c
+hpPatch : pd.1 ∈ rankPatch a b c
+hnPatch : rankDartNeighbor pd ∈ rankPatch a b c
+hint✝ : clippingRankDartVertex pd ∈ aInternalDarts (clippedPatch a b c d)
+hint : clippingRankDartVertex pd ∈ internalDarts (clippedPatch a b c d)
+hside : (clippingRankDartVertex pd).1.side = false
+hprod : clippingRankDartVertex pd ∈ clippedPatch a b c d ×ˢ Finset.univ
+hn : neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ clippedPatch a b c d
+hpClip : pd.1 ∉ clippedRankPoints a b d
+⊢ pd.1 ∉ clippedRankPoints a b d ∧ rankDartNeighbor pd ∉ clippedRankPoints a b d
+
+
+--- LEAN ERROR 147 ---
+-:3488:10-3488:42: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  neighbor (rankPointVertex pd.1) pd.2
+in the target expression
+  neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ clippedPatch a b c d
+
+case mpr.refine_1
+a b c d : ℕ
+ha : 0 < a
+hb : 0 < b
+hc : 0 < c
+pd : RankPoint × Direction
+hpd : pd ∈ patchContactDarts a b c
+hpPatch : pd.1 ∈ rankPatch a b c
+hnPatch : rankDartNeighbor pd ∈ rankPatch a b c
+hpClip : pd.1 ∉ clippedRankPoints a b d
+hnClip : rankDartNeighbor pd ∉ clippedRankPoints a b d
+⊢ neighbor (clippingRankDartVertex pd).1 (clippingRankDartVertex pd).2 ∈ clippedPatch a b c d
+
+
+--- LEAN ERROR 148 ---
+-:3609:115-3610:68: error: unsolved goals
+⊢ {x |
+        (match { i := 0, j := 0, side := false }, x with
+            | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+            | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+            | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+            | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+            | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+            | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }) =
+            { i := 0, j := 0, side := false } ∨
+          (match { i := 0, j := 0, side := false }, x with
+            | { i := i, j := j, side := false }, Direction.same => { i := i, j := j, side := true }
+            | { i := i, j := j, side := false }, Direction.horizontal => { i := i - 1, j := j, side := true }
+            | { i := i, j := j, side := false }, Direction.diagonal => { i := i, j := j - 1, side := true }
+            | { i := i, j := j, side := true }, Direction.same => { i := i, j := j, side := false }
+            | { i := i, j := j, side := true }, Direction.horizontal => { i := i + 1, j := j, side := false }
+            | { i := i, j := j, side := true }, Direction.diagonal => { i := i, j := j + 1, side := false }) =
+            { i := 0, j := 0, side := true }}.card =
+    1
+
