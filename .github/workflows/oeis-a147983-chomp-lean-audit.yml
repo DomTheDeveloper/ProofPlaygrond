@@ -57,7 +57,11 @@ jobs:
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-lean.log
+          mkdir -p .lake/build/lib/lean/FormalConjectures/OEIS
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/OEIS/147983.olean \
+            FormalConjectures/OEIS/147983.lean \
+            2>&1 | tee chomp-a147983-lean.log
 
       - name: Compile pure kernel theorem layers
         shell: bash
