@@ -136,11 +136,10 @@ theorem evenQuadratic_coverage (m parity : ℕ) (hp : parity = 0 ∨ parity = 1)
     rcases hp with rfl | rfl <;>
       simp [differenceIndex, InColor] at hcolor ⊢ <;> omega
   have hy : p.2.1 ≤ 2 * m - 1 := by omega
-  have hmtwo : 1 ≤ m * 2 := by omega
-  have hcast : (((m * 2 - 1 : ℕ) : ℚ)) = 2 * (m : ℚ) - 1 := by
-    rw [Nat.cast_sub hmtwo]
+  have htwo : 1 ≤ 2 * m := by omega
+  have hcast : (((2 * m - 1 : ℕ) : ℚ)) = 2 * (m : ℚ) - 1 := by
+    rw [Nat.cast_sub htwo]
     norm_num
-    ring
   unfold fourCoverage evenQuadraticWeights
   dsimp
   rw [if_pos hsum, if_pos hdiff]
