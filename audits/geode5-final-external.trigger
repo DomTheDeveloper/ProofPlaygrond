@@ -1,0 +1,2 @@
+DomTheDeveloper/formal-conjectures@89a8f3c8de74039ab989100c27a6bf24234556f8
+FormalConjectures/Arxiv/2508.10245/Geode5.lean
