@@ -10,6 +10,8 @@ preparation. All formal claims are checked by the repository-pinned Lean compile
 
 namespace Checkerboard
 
+set_option maxHeartbeats 0
+
 /-- Convert a Boolean selection bit to its natural indicator. -/
 def bitNat (b : Bool) : ℕ := if b then 1 else 0
 
@@ -58,7 +60,7 @@ theorem n6p0_sat
   have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
   have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  omega
+  cases x0 <;> cases x1 <;> simp [bitNat] at * <;> omega
 
 /-- Integer certificate for the odd checkerboard color class on the 6-board. -/
 theorem n6p1_sat
@@ -105,7 +107,7 @@ theorem n6p1_sat
   have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
   have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  omega
+  cases x0 <;> cases x1 <;> simp [bitNat] at * <;> omega
 
 #print axioms n6p0_sat
 #print axioms n6p1_sat
