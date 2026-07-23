@@ -71,13 +71,19 @@ jobs:
           cp ../playground/proofs/chomp-10x42/lean/ChompRank.lean ./ChompRank.lean
           cp ../playground/proofs/chomp-10x42/lean/ChompPosition.lean ./ChompPosition.lean
           cp ../playground/proofs/chomp-10x42/lean/ChompCatalogBridge.lean ./ChompCatalogBridge.lean
-          lake lean ChompKernelCertificate.lean 2>&1 | tee chomp-kernel-certificate.log
-          lake lean ChompKernelGameTheory.lean 2>&1 | tee chomp-kernel-game-theory.log
-          lake lean ChompKernelPSet.lean 2>&1 | tee chomp-kernel-pset.log
-          lake lean ChompMDDCertificate.lean 2>&1 | tee chomp-mdd-certificate.log
-          lake lean ChompRank.lean 2>&1 | tee chomp-rank.log
-          lake lean ChompPosition.lean 2>&1 | tee chomp-position.log
-          lake lean ChompCatalogBridge.lean 2>&1 | tee chomp-catalog-bridge.log
+          mkdir -p .lake/build/lib/lean
+          compile_module() {
+            local module="$1"
+            local log="$2"
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean" 2>&1 | tee "$log"
+          }
+          compile_module ChompKernelCertificate chomp-kernel-certificate.log
+          compile_module ChompKernelGameTheory chomp-kernel-game-theory.log
+          compile_module ChompKernelPSet chomp-kernel-pset.log
+          compile_module ChompMDDCertificate chomp-mdd-certificate.log
+          compile_module ChompRank chomp-rank.log
+          compile_module ChompPosition chomp-position.log
+          compile_module ChompCatalogBridge chomp-catalog-bridge.log
           if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool|sorryAx' \
               ChompKernelCertificate.lean ChompKernelGameTheory.lean ChompKernelPSet.lean \
               ChompMDDCertificate.lean ChompRank.lean ChompPosition.lean ChompCatalogBridge.lean \
