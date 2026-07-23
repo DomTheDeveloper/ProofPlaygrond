@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'proofs/chomp-10x42/lean/**'
       - '.github/workflows/oeis-a147983-chomp-lean-audit.yml'
   workflow_dispatch:
 
@@ -19,15 +20,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout immutable DTD source commit
+      - name: Checkout ProofPlaygrond proof sources
+        uses: actions/checkout@v4
+        with:
+          path: playground
+
+      - name: Checkout immutable canonical DTD source commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda
+          ref: 9242e34d74bea32655e840a5e8637377de1431e4
+          path: formal-conjectures
 
-      - name: Confirm immutable source
+      - name: Confirm immutable DTD source
         shell: bash
-        run: test "$(git rev-parse HEAD)" = "5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda"
+        run: test "$(git -C formal-conjectures rev-parse HEAD)" = "9242e34d74bea32655e840a5e8637377de1431e4"
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -40,32 +47,54 @@ jobs:
 
       - name: Fetch Mathlib cache
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
           lake exe cache get
+          lake build FormalConjecturesUtil
 
-      - name: Compile exact Chomp module
+      - name: Compile exact canonical Chomp catalog module
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-lean.log
+          mkdir -p .lake/build/lib/lean/FormalConjectures/OEIS
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/OEIS/147983.olean \
+            FormalConjectures/OEIS/147983.lean \
+            2>&1 | tee chomp-a147983-lean.log
 
-      - name: Audit kernel-checkable helper declarations
+      - name: Compile pure kernel theorem layers
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          cat >> FormalConjectures/OEIS/147983.lean <<'EOF'
-
-          #print axioms OeisA147983.child₁_is_legal_move
-          #print axioms OeisA147983.child₂_is_legal_move
-          #print axioms OeisA147983.child₃_is_legal_move
-          #print axioms OeisA147983.candidate_children_pairwise_distinct
-          #print axioms OeisA147983.three_openings_of_p_positions
-          EOF
-          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-axioms.log
-          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
-              chomp-a147983-axioms.log; then
-            echo 'A kernel-checkable helper depends on a forbidden proof escape.' >&2
+          cp ../playground/proofs/chomp-10x42/lean/KernelCertificate.lean ./ChompKernelCertificate.lean
+          cp ../playground/proofs/chomp-10x42/lean/KernelGameTheory.lean ./ChompKernelGameTheory.lean
+          cp ../playground/proofs/chomp-10x42/lean/KernelPSet.lean ./ChompKernelPSet.lean
+          cp ../playground/proofs/chomp-10x42/lean/MDDCertificate.lean ./ChompMDDCertificate.lean
+          cp ../playground/proofs/chomp-10x42/lean/ChompRank.lean ./ChompRank.lean
+          cp ../playground/proofs/chomp-10x42/lean/ChompPosition.lean ./ChompPosition.lean
+          cp ../playground/proofs/chomp-10x42/lean/ChompCatalogBridge.lean ./ChompCatalogBridge.lean
+          mkdir -p .lake/build/lib/lean
+          compile_module() {
+            local module="$1"
+            local log="$2"
+            lake env lean -o ".lake/build/lib/lean/${module}.olean" "${module}.lean" 2>&1 | tee "$log"
+          }
+          compile_module ChompKernelCertificate chomp-kernel-certificate.log
+          compile_module ChompKernelGameTheory chomp-kernel-game-theory.log
+          compile_module ChompKernelPSet chomp-kernel-pset.log
+          compile_module ChompMDDCertificate chomp-mdd-certificate.log
+          compile_module ChompRank chomp-rank.log
+          compile_module ChompPosition chomp-position.log
+          compile_module ChompCatalogBridge chomp-catalog-bridge.log
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool|sorryAx' \
+              ChompKernelCertificate.lean ChompKernelGameTheory.lean ChompKernelPSet.lean \
+              ChompMDDCertificate.lean ChompRank.lean ChompPosition.lean ChompCatalogBridge.lean \
+              chomp-kernel-certificate.log chomp-kernel-game-theory.log chomp-kernel-pset.log \
+              chomp-mdd-certificate.log chomp-rank.log chomp-position.log chomp-catalog-bridge.log; then
+            echo 'Forbidden placeholder or trust escape in kernel certificate development.' >&2
             exit 1
           fi
 
@@ -73,8 +102,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oeis-a147983-chomp-lean-audit
+          name: oeis-a147983-chomp-kernel-audit
           path: |
-            chomp-a147983-lean.log
-            chomp-a147983-axioms.log
+            formal-conjectures/chomp-a147983-lean.log
+            formal-conjectures/chomp-kernel-certificate.log
+            formal-conjectures/chomp-kernel-game-theory.log
+            formal-conjectures/chomp-kernel-pset.log
+            formal-conjectures/chomp-mdd-certificate.log
+            formal-conjectures/chomp-rank.log
+            formal-conjectures/chomp-position.log
+            formal-conjectures/chomp-catalog-bridge.log
           if-no-files-found: warn
