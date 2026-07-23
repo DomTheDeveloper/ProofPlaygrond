@@ -88,7 +88,7 @@ private theorem card_filter_bool_and {α : Type*} (s : Finset α)
       s.filter (fun i => x i = true ∧ p i) =
         (s.filter p).filter (fun i => x i = true) := by
     ext i
-    simp [and_comm]
+    simp [and_comm, and_left_comm, and_assoc]
   rw [hfilter]
   exact card_filter_bool (s.filter p) x
 
