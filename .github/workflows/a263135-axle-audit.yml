@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/a263135-axle-audit.yml'
       - 'audits/axle_a263135.py'
+      - 'audits/axle_a263135_v2.py'
       - 'audits/A263135.md'
   workflow_dispatch:
 
@@ -16,32 +17,42 @@ permissions:
   contents: read
 
 concurrency:
-  group: a263135-axle-frozen-${{ github.event.pull_request.number || github.ref }}
+  group: a263135-axle-current-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: verify exact repaired A263135 theorem with AXLE
+    name: verify current A263135 theorem with AXLE
     runs-on: ubuntu-slim
     timeout-minutes: 25
     steps:
-      - name: Checkout frozen Proof Playground harness
+      - name: Checkout Proof Playground harness
         uses: actions/checkout@v6
         with:
           path: playground
+          show-progress: false
 
-      - name: Checkout exact repaired A263135 proof source
+      - name: Checkout current A263135 proof branch
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 6ad03f2a0fa5de81c0ed08fd0fc38a42f12513b7
+          ref: agent/solve-oeis-a263135
           path: formal-conjectures
+          show-progress: false
 
       - name: Flatten and verify with AXLE Lean 4.27
         env:
           A263135_FLAT_OUTPUT: ${{ runner.temp }}/A263135Flat.lean
           A263135_AXLE_OUTPUT: ${{ runner.temp }}/a263135-axle.json
-        run: python3 playground/audits/axle_a263135.py formal-conjectures
+          A263135_AXLE_CONSOLE: ${{ runner.temp }}/a263135-axle-console.log
+        shell: bash
+        run: |
+          set +e
+          python3 playground/audits/axle_a263135_v2.py formal-conjectures \
+            >"$A263135_AXLE_CONSOLE" 2>&1
+          status=$?
+          cat "$A263135_AXLE_CONSOLE"
+          exit "$status"
 
       - name: Upload AXLE transcript
         if: always()
@@ -51,4 +62,5 @@ jobs:
           path: |
             ${{ runner.temp }}/A263135Flat.lean
             ${{ runner.temp }}/a263135-axle.json
-          if-no-files-found: warn
+            ${{ runner.temp }}/a263135-axle-console.log
+          if-no-files-found: error
