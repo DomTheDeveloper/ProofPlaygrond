@@ -177,8 +177,7 @@ private theorem n6p0_boolean_bound :
   have h16 := hline (LineFamily.difference, ⟨5, by decide⟩)
   have h17 := hline (LineFamily.difference, ⟨3, by decide⟩)
   have h18 := hline (LineFamily.difference, ⟨7, by decide⟩)
-  norm_num [n6p0Point, OnLine, lineValue, bitNat] at
-    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  norm_num [n6p0Point, OnLine, lineValue, bitNat] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
   exact n6p0_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
     (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
     (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
@@ -210,8 +209,7 @@ private theorem n6p1_boolean_bound :
   have h16 := hline (LineFamily.difference, ⟨2, by decide⟩)
   have h17 := hline (LineFamily.difference, ⟨6, by decide⟩)
   have h18 := hline (LineFamily.difference, ⟨8, by decide⟩)
-  norm_num [n6p1Point, OnLine, lineValue, bitNat] at
-    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  norm_num [n6p1Point, OnLine, lineValue, bitNat] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
   exact n6p1_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
     (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
     (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
