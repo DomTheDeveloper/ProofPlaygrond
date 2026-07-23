@@ -32,11 +32,15 @@ private theorem fiberCard_mul_eq_sum [CommSemiring R]
           by_cases hxa : x = a
           · subst x; simp [ha, h]
           · simp [hxa]
+        have ih' :
+            ((s.filter fun x => f x = b).card : R) * g b =
+              ∑ x ∈ s, if f x = b then g b else 0 := by
+          simpa [fiberCard] using ih
         rw [fiberCard, hfilter]
         rw [Finset.sum_insert ha, if_pos h]
         simp only [Finset.card_insert_of_notMem hnot, Nat.cast_add, Nat.cast_one,
           add_mul, one_mul]
-        rw [ih]
+        rw [ih']
         ac_rfl
       · have hfilter : (insert a s).filter (fun x => f x = b) =
             s.filter fun x => f x = b := by
