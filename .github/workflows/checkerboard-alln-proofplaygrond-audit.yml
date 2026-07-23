@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused arithmetic and bridge audit for source commit ad1baeac925239fa830496fc3169e9f057748c50.
+# Focused arithmetic and bridge audit for source commit 100efa954491eb2c201796d251764d94dbb65edf.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: ad1baeac925239fa830496fc3169e9f057748c50
+          ref: 100efa954491eb2c201796d251764d94dbb65edf
           fetch-depth: 1
 
       - name: Record exact commit
