@@ -1,0 +1,46 @@
+name: Chomp 10x42 Lean audit
+
+on:
+  push:
+    branches:
+      - audit-chomp-10x42-lean
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out clean Formal Conjectures branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: oeis-a147983-chomp-10x42-gdm
+          path: formal-conjectures
+
+      - name: Install pinned Lean toolchain manager
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/mathlib
+          key: chomp-a147983-${{ hashFiles('formal-conjectures/lake-manifest.json') }}
+          restore-keys: |
+            chomp-a147983-
+
+      - name: Download pinned olean cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack
+          lake exe cache get
+
+      - name: Compile the Chomp module
+        working-directory: formal-conjectures
+        run: lake env lean FormalConjectures/OEIS/147983.lean
