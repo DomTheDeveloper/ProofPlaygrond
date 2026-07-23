@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: adaa1b9b971715f011415ed9611c15b28dd14630
+          ref: cb8de9921fc62810991a0384ee412cfed0ad8e7c
           fetch-depth: 1
 
       - name: Record exact commit
@@ -67,7 +67,10 @@ jobs:
       - name: Reject proof placeholders and trust shortcuts
         run: |
           set -euo pipefail
-          if grep -RInE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' Scratch/A263135*.lean; then
+          if grep -RInE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' \
+            Scratch/A263135*.lean \
+            FormalConjectures/OEIS/263135.lean \
+            FormalConjectures/OEIS/A263135Defs.lean; then
             echo 'Forbidden placeholder or trust shortcut found in A263135 proof modules.' >&2
             exit 1
           fi
