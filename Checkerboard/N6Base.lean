@@ -17,8 +17,6 @@ preparation. All formal claims are checked by the repository-pinned Lean compile
 
 namespace Checkerboard
 
-open scoped BigOperators
-
 set_option maxHeartbeats 0
 set_option maxRecDepth 1000000
 
@@ -76,7 +74,8 @@ private def chosenOnLine (point : Fin 18 → Point 6)
   Finset.univ.filter fun i => point i ∈ s ∧ OnLine line (point i)
 
 private theorem card_filter_bool {α : Type*} (s : Finset α) (x : α → Bool) :
-    (s.filter fun i => x i = true).card = ∑ i in s, bitNat (x i) := by
+    (s.filter fun i => x i = true).card =
+      Finset.sum s (fun i => bitNat (x i)) := by
   classical
   induction s using Finset.induction_on with
   | empty => simp
@@ -86,7 +85,7 @@ private theorem card_filter_bool {α : Type*} (s : Finset α) (x : α → Bool) 
 private theorem card_filter_bool_and {α : Type*} (s : Finset α)
     (x : α → Bool) (p : α → Prop) [DecidablePred p] :
     (s.filter fun i => x i = true ∧ p i).card =
-      ∑ i in s.filter p, bitNat (x i) := by
+      Finset.sum (s.filter p) (fun i => bitNat (x i)) := by
   classical
   have hfilter :
       s.filter (fun i => x i = true ∧ p i) =
