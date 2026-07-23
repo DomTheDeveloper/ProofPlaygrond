@@ -2,9 +2,11 @@ import Mathlib
 
 namespace Checkerboard
 
-private def bitNat (b : Bool) : ℕ := if b then 1 else 0
+/-- Convert a Boolean selection bit to its natural indicator. -/
+def bitNat (b : Bool) : ℕ := if b then 1 else 0
 
-private theorem p0_sat
+/-- Integer certificate for the even checkerboard color class on the 6-board. -/
+theorem n6p0_sat
     (x0 : Bool) (x1 : Bool) (x2 : Bool) (x3 : Bool) (x4 : Bool) (x5 : Bool)
     (x6 : Bool) (x7 : Bool) (x8 : Bool) (x9 : Bool) (x10 : Bool) (x11 : Bool)
     (x12 : Bool) (x13 : Bool) (x14 : Bool) (x15 : Bool) (x16 : Bool) (x17 : Bool)
@@ -50,7 +52,8 @@ private theorem p0_sat
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
   omega
 
-private theorem p1_sat
+/-- Integer certificate for the odd checkerboard color class on the 6-board. -/
+theorem n6p1_sat
     (x0 : Bool) (x1 : Bool) (x2 : Bool) (x3 : Bool) (x4 : Bool) (x5 : Bool)
     (x6 : Bool) (x7 : Bool) (x8 : Bool) (x9 : Bool) (x10 : Bool) (x11 : Bool)
     (x12 : Bool) (x13 : Bool) (x14 : Bool) (x15 : Bool) (x16 : Bool) (x17 : Bool)
@@ -96,7 +99,7 @@ private theorem p1_sat
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
   omega
 
-#print axioms p0_sat
-#print axioms p1_sat
+#print axioms n6p0_sat
+#print axioms n6p1_sat
 
 end Checkerboard
