@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This is a measurement run, not the final proof check. The two-million-node cap determines
+# whether direct theorem generation is plausible before a full certificate is serialized.
 g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
   chomp_export_p_ranks.cpp -o chomp_export_p_ranks
 g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
