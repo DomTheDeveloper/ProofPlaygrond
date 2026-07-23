@@ -1,0 +1,53 @@
+Primary exact run
+=================
+Compiler: g++ (Debian 14.2.0-19) 14.2.0
+Command: ./chomp_dimred_hybrid 10 45
+The run stops as soon as the third losing child is found, at width 42.
+
+Output:
+10x42 openings=3
+  (42,42,42,42,35,35,35,35,35,35)
+  (42,42,42,42,42,42,29,29,29,29)
+  (42,42,42,42,42,42,42,25,25,25)
+max=3 P=107342138 prefixes=3042311754
+
+Published-data regression check
+===============================
+Command: ./chomp 6 13
+Output:
+6x13 openings=2
+  (13,13,13,11,11,11)
+  (13,13,13,13,8,8)
+max=2 P=895 prefixes=8567
+
+Source SHA-256
+==============
+fe8ec31248ca85cb10e182c2518f3a14ab4a5e8d6fc6145ba489ceafc84a32fd  chomp_three_openings.cpp
+
+Independent scalar cross-check
+==============================
+A separate implementation that scans each possible final-row length one by one,
+rather than using the hybrid bit-window search, reproduced exactly the same result:
+
+10x42 openings=3
+  (42,42,42,42,35,35,35,35,35,35)
+  (42,42,42,42,42,42,29,29,29,29)
+  (42,42,42,42,42,42,42,25,25,25)
+max=3 P=107342138 leaves=3042311754
+
+Current sandbox rebuild
+=======================
+The supplied source was rebuilt with:
+
+g++ -O3 -march=native -DNDEBUG chomp_three_openings.cpp -o chomp_rebuilt
+
+The 6x13 regression reproduced exactly:
+
+6x13 openings=2
+  (13,13,13,11,11,11)
+  (13,13,13,13,8,8)
+max=2 P=895 prefixes=8567
+
+The full 10x42 replay reached approximately 452 MB RSS and was terminated by the
+current sandbox limit before producing output. This file therefore distinguishes the
+fresh small regression from the two recorded full computations above.
