@@ -26,7 +26,16 @@ theorem axis_quadratic_sum (n : ℕ) :
     (∑ i : Fin n, (2 * (i.1 : ℚ) - ((n : ℚ) - 1)) ^ 2) =
       (n : ℚ) * ((n : ℚ) ^ 2 - 1) / 3 := by
   have h := sum_fin_affine_sq n (2 : ℚ) (1 - (n : ℚ))
-  convert h using 1 <;> ring
+  calc
+    (∑ i : Fin n, (2 * (i.1 : ℚ) - ((n : ℚ) - 1)) ^ 2) =
+        ∑ i : Fin n, (2 * (i.1 : ℚ) + (1 - (n : ℚ))) ^ 2 := by
+          apply Finset.sum_congr rfl
+          intro i _
+          ring
+    _ = 2 ^ 2 * ((n : ℚ) * ((n : ℚ) - 1) * (2 * (n : ℚ) - 1) / 6) +
+        2 * 2 * (1 - (n : ℚ)) * ((n : ℚ) * ((n : ℚ) - 1) / 2) +
+        (n : ℚ) * (1 - (n : ℚ)) ^ 2 := h
+    _ = (n : ℚ) * ((n : ℚ) ^ 2 - 1) / 3 := by ring
 
 /-- Full sum of a quadratic diagonal cap over `Fin (2N+1)`. -/
 theorem fin_quadratic_cap_sum (N : ℕ) :
