@@ -1,18 +1,18 @@
-name: A147983 low-area carrier audit
+name: A147983 high-area carrier completion
 
 on:
   pull_request:
     branches: [main]
     paths:
       - '.github/workflows/a147983-low-area-carrier.yml'
-      - 'audits/a147983-low-area/**'
+      - 'audits/a147983-high-area/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: a147983-low-area-${{ github.event.pull_request.number || github.ref }}
+  group: a147983-high-area-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -47,11 +47,11 @@ jobs:
           /usr/bin/time -v ./chomp_p_mdd_serialize p10x42.bin p10x42.mdd > mdd.stdout 2> mdd.stderr
           grep -F 'words=107342138 total_nodes=16906422 total_transitions=96754877' mdd.stdout
 
-      - name: Measure low-area carrier
+      - name: Complete high-area carrier
         working-directory: dtd/ProofArtifacts/OEIS/A147983
         run: |
           set +e
-          /usr/bin/time -v ./chomp_compact_carrier p10x42.mdd 100000 low > carrier.stdout 2> carrier.stderr
+          /usr/bin/time -v ./chomp_compact_carrier p10x42.mdd 500000 high > carrier.stdout 2> carrier.stderr
           status=$?
           set -e
           if [[ $status -ne 0 && $status -ne 3 ]]; then
@@ -65,7 +65,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a147983-low-area-carrier
+          name: a147983-high-area-carrier
           path: |
             dtd/ProofArtifacts/OEIS/A147983/export.stderr
             dtd/ProofArtifacts/OEIS/A147983/mdd.stdout
