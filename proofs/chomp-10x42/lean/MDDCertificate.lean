@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import FormalConjectures.Util.ProblemImports
+import FormalConjecturesUtil
 
 /-!
 # Kernel certificates for layered decision-diagram languages
 
 The concrete Chomp P-set is represented externally by a reduced layered multi-valued decision
-diagram.  This file supplies the small trusted theorem layer: local simulation certificates imply
+diagram. This file supplies the small trusted theorem layer: local simulation certificates imply
 language inclusion, and local product-closure certificates imply language disjointness.
 
 Concrete node tables and local certificates remain untrusted data until these hypotheses are
@@ -30,7 +30,7 @@ proved in Lean.
 namespace ChompKernel
 namespace MDD
 
-/-- A deterministic finite-state acceptor.  Layering is not needed for semantic correctness;
+/-- A deterministic finite-state acceptor. Layering is not needed for semantic correctness;
 the concrete MDD checker separately proves that its node table is layered and well formed. -/
 structure Automaton (σ : Type) (n : ℕ) where
   step : Fin n → σ → Option (Fin n)
