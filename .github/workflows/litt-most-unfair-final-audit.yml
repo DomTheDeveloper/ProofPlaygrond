@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Synchronization gate for the current agent/litt-most-unfair-proof tip.
+# Exact audit gate for source commit 2411488aa849ab83034e6d4a4c5a189edef12f35.
 
 name: Litt most-unfair final audit
 
@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout current repaired proof source
+      - name: Checkout exact repaired proof source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: agent/litt-most-unfair-proof
+          ref: 2411488aa849ab83034e6d4a4c5a189edef12f35
           fetch-depth: 1
 
       - name: Record exact commit
