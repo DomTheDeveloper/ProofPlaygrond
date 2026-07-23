@@ -1,0 +1,88 @@
+name: Trusted Geode5 formal proof audit
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trusted-geode5-proof-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  certificate:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'geode5-formal-proof'
+    name: Check Geode5 proof layers
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact proof commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: controller
+
+      - name: Checkout immutable Formal Conjectures base
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 6db9713c4c2036afdad119eda930b4d1a8da3250
+          path: target
+
+      - name: Install proof modules and certificate data
+        shell: bash
+        run: |
+          set -euo pipefail
+          dst=target/FormalConjectures/Arxiv/2508.10245/Geode5Proof
+          mkdir -p "$dst/data"
+          cp controller/proofs/geode5/Geode5CRT.lean "$dst/CRT.lean"
+          cp controller/proofs/geode5/Geode5MomentAlgebra.lean "$dst/MomentAlgebra.lean"
+          cp controller/proofs/geode5/data/G5_1000.txt "$dst/data/G5_1000.txt"
+          cp controller/proofs/geode5/data/residues_480.txt "$dst/data/residues_480.txt"
+          test -z "$(grep -nE '\b(sorry|admit)\b' "$dst/CRT.lean" "$dst/MomentAlgebra.lean" || true)"
+
+      - name: Install Lean 4.27
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        working-directory: target
+        run: lake exe cache get
+
+      - name: Compile symbolic moment algebra
+        working-directory: target
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2508.10245/Geode5Proof/MomentAlgebra.lean \
+            2>&1 | tee geode5-moment-audit.log
+
+      - name: Compile CRT certificate
+        working-directory: target
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2508.10245/Geode5Proof/CRT.lean \
+            2>&1 | tee geode5-crt-audit.log
+
+      - name: Upload compiler transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trusted-geode5-proof-audit
+          path: |
+            target/geode5-moment-audit.log
+            target/geode5-crt-audit.log
+          if-no-files-found: warn
