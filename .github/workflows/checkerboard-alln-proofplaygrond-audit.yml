@@ -1,6 +1,7 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
 # Focused audit for compact n6 SAT source commit aa165e404a0319c272c2eb6cf76efa29e144b06c.
+# Retriggered after reopening the canonical audit PR.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
