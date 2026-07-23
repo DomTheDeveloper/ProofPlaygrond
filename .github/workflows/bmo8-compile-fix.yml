@@ -53,9 +53,13 @@ jobs:
             exit 1
           fi
 
-      - name: Build proof with warnings fatal
+      - name: Build imported BMO definitions
         working-directory: formal-conjectures
-        run: lake --wfail build FormalConjectures.Other.BeaverMathOlympiad8Proof
+        run: lake build FormalConjectures.Other.BeaverMathOlympiad
+
+      - name: Compile exact proof with warnings fatal
+        working-directory: formal-conjectures
+        run: lake env lean -DwarningAsError=true FormalConjectures/Other/BeaverMathOlympiad8Proof.lean
 
       - name: Print theorem axioms
         working-directory: formal-conjectures
