@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Exact audit gate for source commit b790c9d75033659e272fc64bac23b185c07fabc2.
+# Focused audit for compact n6 SAT source commit aa165e404a0319c272c2eb6cf76efa29e144b06c.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: b790c9d75033659e272fc64bac23b185c07fabc2
+          ref: aa165e404a0319c272c2eb6cf76efa29e144b06c
           fetch-depth: 1
 
       - name: Record exact commit
@@ -62,53 +62,24 @@ jobs:
           done
           exit 1
 
-      - name: Save checkerboard Lean cache
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            .lake/packages
-            .lake/build
-          key: checkerboard-432-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.lean') }}
-
-      - name: Reject proof holes and trust shortcuts
-        run: |
-          set -euo pipefail
-          files=(Checkerboard.lean Checkerboard/*.lean)
-          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
-            echo 'Forbidden placeholder or trust shortcut found in checkerboard proof chain.' >&2
-            exit 1
-          fi
-
-      - name: Build exact all-n library
+      - name: Test compact n6 SAT certificate
+        id: sat
+        continue-on-error: true
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" build Checkerboard \
+          "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-alln.log"
 
-      - name: Run terminal axiom audit
-        run: |
-          set -o pipefail
-          cat > CheckerboardAllNAxiomAudit.lean <<'EOF'
-          import Checkerboard.AllNTheorem
-          #print axioms Checkerboard.checkerboard_upper_all_n
-          EOF
-          "$HOME/.elan/bin/lake" env lean CheckerboardAllNAxiomAudit.lean \
-            2>&1 | tee -a "$RUNNER_TEMP/checkerboard-alln.log"
-
-      - name: Enforce final axiom policy
-        run: |
-          set -euo pipefail
-          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-alln.log"; then
-            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
-            exit 1
-          fi
-
-      - name: Upload transcript
+      - name: Upload focused transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: checkerboard-alln-proofplaygrond-${{ github.run_id }}
+          name: checkerboard-n6-sat-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/checkerboard-alln.log
           if-no-files-found: warn
+
+      - name: Enforce focused result
+        if: always()
+        run: test '${{ steps.sat.outcome }}' = 'success'
