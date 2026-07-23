@@ -50,6 +50,10 @@ jobs:
             exit 1
           fi
 
+      - name: Build imported BMO definitions
+        working-directory: formal-conjectures
+        run: lake build FormalConjectures.Other.BeaverMathOlympiad
+
       - name: Compile exact proof with warnings fatal
         id: compile
         continue-on-error: true
