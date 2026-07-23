@@ -57,10 +57,10 @@ jobs:
           set -euo pipefail
           "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate
 
-      - name: Compile arithmetic certificate
+      - name: Build arithmetic certificate module
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
+          "$HOME/.elan/bin/lake" build Checkerboard.N6SATTest \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-sat.log"
 
       - name: Compile both geometric bridges
