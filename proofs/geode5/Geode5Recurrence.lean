@@ -59,11 +59,12 @@ theorem qMoment_division_identity (k : ℕ) :
 
 /-- Evaluation at `t = 1` vanishes because the `w = 0` factor is `1 - t`. -/
 theorem qKernel_eval_one : qKernel.eval 1 = 0 := by
-  native_decide
+  simp [qKernel, qy, qt, Finset.prod_range_succ]
 
 /-- Evaluation at `t = 0` is `y^(0+1+2+3+4) = y^10`. -/
 theorem qKernel_eval_zero : qKernel.eval 0 = qy ^ 10 := by
-  native_decide
+  simp [qKernel, qy, qt, Finset.prod_range_succ]
+  ring
 
 /-- The exact polynomial moment `J_{n,k}(y)`. -/
 def qMoment (n k : ℕ) : QYPoly :=
@@ -87,23 +88,48 @@ theorem qMoment_recurrence_raw (n k : ℕ) (hk : 0 < k) :
   have hboundary :
       integral01 ((qt ^ k * qKernel ^ (n + 1)).derivative) = 0 := by
     rw [integral01_derivative]
-    simp [Polynomial.eval_mul, qKernel_eval_one, hk.ne']
+    simp [Polynomial.eval_mul, qt, qKernel_eval_one, hk.ne']
   have hderiv :
       (qt ^ k * qKernel ^ (n + 1)).derivative =
-        Polynomial.C (k : QYPoly) * qt ^ (k - 1) * qKernel ^ (n + 1) +
-          Polynomial.C (n + 1 : QYPoly) *
+        (k : QYPoly) • (qt ^ (k - 1) * qKernel ^ (n + 1)) +
+          (n + 1 : QYPoly) •
             (qMomentQuotient k * qKernel ^ (n + 1) +
               qMomentRemainder k * qKernel ^ n) := by
-    rw [Polynomial.derivative_mul, Polynomial.derivative_X_pow,
-      Polynomial.derivative_pow_succ, qMoment_division_identity]
-    ring
+    rw [Polynomial.derivative_mul]
+    simp only [qt, Polynomial.derivative_X_pow,
+      Polynomial.derivative_pow_succ]
+    have hdiv := qMoment_division_identity k
+    simp only [qt] at hdiv
+    simp only [Polynomial.smul_eq_C_mul]
+    calc
+      Polynomial.C (k : QYPoly) * Polynomial.X ^ (k - 1) *
+            qKernel ^ (n + 1) +
+          Polynomial.X ^ k *
+            (Polynomial.C (n + 1 : QYPoly) * qKernel ^ n *
+              qKernel.derivative) =
+        Polynomial.C (k : QYPoly) *
+            (Polynomial.X ^ (k - 1) * qKernel ^ (n + 1)) +
+          Polynomial.C (n + 1 : QYPoly) *
+            ((Polynomial.X ^ k * qKernel.derivative) * qKernel ^ n) := by
+              ring
+      _ = Polynomial.C (k : QYPoly) *
+            (Polynomial.X ^ (k - 1) * qKernel ^ (n + 1)) +
+          Polynomial.C (n + 1 : QYPoly) *
+            ((qMomentQuotient k * qKernel + qMomentRemainder k) *
+              qKernel ^ n) := by rw [hdiv]
+      _ = Polynomial.C (k : QYPoly) *
+            (Polynomial.X ^ (k - 1) * qKernel ^ (n + 1)) +
+          Polynomial.C (n + 1 : QYPoly) *
+            (qMomentQuotient k * qKernel ^ (n + 1) +
+              qMomentRemainder k * qKernel ^ n) := by ring
   rw [hderiv] at hboundary
-  simp only [map_add, ← Polynomial.smul_eq_C_mul, map_smul] at hboundary
+  simp only [map_add, map_smul, smul_eq_mul] at hboundary
   change
-    (k : QYPoly) * qMoment (n + 1) (k - 1) +
+    (k : QYPoly) * integral01 (qt ^ (k - 1) * qKernel ^ (n + 1)) +
         (n + 1 : QYPoly) *
-          (integral01 (qMomentQuotient k * qKernel ^ (n + 1)) +
-            integral01 (qMomentRemainder k * qKernel ^ n)) = 0 at hboundary
+          integral01 (qMomentQuotient k * qKernel ^ (n + 1)) =
+      -(n + 1 : QYPoly) *
+        integral01 (qMomentRemainder k * qKernel ^ n)
   linear_combination hboundary
 
 #print axioms qMoment_recurrence_raw
