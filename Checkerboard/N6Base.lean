@@ -6,11 +6,14 @@ import Checkerboard.FourCertificate
 The uniform quadratic cover is sharp at value nine on the 6-board, so an
 integrality argument is required. Each color class has eighteen points. We
 transport an arbitrary monochromatic set to eighteen Boolean variables, and
-`bv_decide` checks the finite statement that row, column, and slope `±1`
+an exact finite kernel decision checks that row, column, and slope `±1`
 capacities already force at most eight selected points.
 -/
 
 namespace Checkerboard
+
+set_option maxHeartbeats 0
+set_option maxRecDepth 1000000
 
 /-- Enumeration of the fat color class of the 6-board. -/
 def n6p0Point : Fin 18 → Point 6 := ![
@@ -40,10 +43,22 @@ private theorem n6p0_injective : Function.Injective n6p0Point := by decide
 private theorem n6p1_injective : Function.Injective n6p1Point := by decide
 
 private theorem n6p0_surjective :
-    ∀ p : Point 6, InColor 0 p → ∃ i, n6p0Point i = p := by decide
+    ∀ p : Point 6, InColor 0 p → ∃ i, n6p0Point i = p := by
+  letI : DecidablePred (fun p : Point 6 =>
+      InColor 0 p → ∃ i, n6p0Point i = p) := by
+    intro p
+    unfold InColor
+    infer_instance
+  exact of_decide_eq_true rfl
 
 private theorem n6p1_surjective :
-    ∀ p : Point 6, InColor 1 p → ∃ i, n6p1Point i = p := by decide
+    ∀ p : Point 6, InColor 1 p → ∃ i, n6p1Point i = p := by
+  letI : DecidablePred (fun p : Point 6 =>
+      InColor 1 p → ∃ i, n6p1Point i = p) := by
+    intro p
+    unfold InColor
+    infer_instance
+  exact of_decide_eq_true rfl
 
 private def chosenIndices (point : Fin 18 → Point 6)
     (s : Finset (Point 6)) : Finset (Fin 18) :=
@@ -137,7 +152,14 @@ private theorem n6p0_boolean_bound :
         (Finset.univ.filter fun i =>
           x i = true ∧ OnLine line (n6p0Point i)).card ≤ 2) →
       (Finset.univ.filter fun i => x i = true).card ≤ 8 := by
-  bv_decide
+  letI : DecidablePred (fun x : Fin 18 → Bool =>
+      (∀ line : PrincipalLine 6,
+        (Finset.univ.filter fun i =>
+          x i = true ∧ OnLine line (n6p0Point i)).card ≤ 2) →
+      (Finset.univ.filter fun i => x i = true).card ≤ 8) := by
+    intro x
+    infer_instance
+  exact of_decide_eq_true rfl
 
 private theorem n6p1_boolean_bound :
     ∀ x : Fin 18 → Bool,
@@ -145,7 +167,14 @@ private theorem n6p1_boolean_bound :
         (Finset.univ.filter fun i =>
           x i = true ∧ OnLine line (n6p1Point i)).card ≤ 2) →
       (Finset.univ.filter fun i => x i = true).card ≤ 8 := by
-  bv_decide
+  letI : DecidablePred (fun x : Fin 18 → Bool =>
+      (∀ line : PrincipalLine 6,
+        (Finset.univ.filter fun i =>
+          x i = true ∧ OnLine line (n6p1Point i)).card ≤ 2) →
+      (Finset.univ.filter fun i => x i = true).card ≤ 8) := by
+    intro x
+    infer_instance
+  exact of_decide_eq_true rfl
 
 /-- `D_mono(6,0) ≤ 8`. -/
 theorem n6_zero_upper (s : Finset (Point 6))
