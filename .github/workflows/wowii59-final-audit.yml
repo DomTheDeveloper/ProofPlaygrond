@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Symbolic omega audit for source commit bc1002bcc964df139b00ecc75ff77f6cdbad3258.
+# Reduced core audit for source commit 639ebe2db8c942aaa65b9a287844f2fa0c27bd93.
 
 name: WOWII 59 final audit
 
@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact symbolic-certificate source
+      - name: Checkout exact reduced-certificate source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: bc1002bcc964df139b00ecc75ff77f6cdbad3258
+          ref: 639ebe2db8c942aaa65b9a287844f2fa0c27bd93
           fetch-depth: 1
 
       - name: Record exact commit
@@ -52,19 +52,24 @@ jobs:
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
+      - name: Build shared Formal Conjectures utilities
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
+
       - name: Reject placeholders and trust shortcuts
         run: |
           set -euo pipefail
-          target='Scratch/WOWII59CycleBridgeTest.lean'
+          target='Scratch/WOWII59CoreTest.lean'
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|bv_decide|bv_check|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
             echo 'Forbidden placeholder or trust shortcut found.' >&2
             exit 1
           fi
 
-      - name: Compile symbolic cycle-cover bridge
+      - name: Compile reduced 11-vertex core certificate
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Scratch/WOWII59CycleBridgeTest.lean \
+          "$HOME/.elan/bin/lake" env lean Scratch/WOWII59CoreTest.lean \
             2>&1 | tee "$RUNNER_TEMP/wowii59-final.log"
 
       - name: Enforce axiom policy
@@ -79,7 +84,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: wowii59-cycle-bridge-${{ github.run_id }}
+          name: wowii59-core-certificate-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/wowii59-final.log
