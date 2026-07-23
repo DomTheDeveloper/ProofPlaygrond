@@ -31,7 +31,7 @@ private theorem p0_sat (x : BitVec 18)
     (h18 : pop18 (x &&& 0x12240#18) ≤ 2#18) :
     pop18 x ≤ 8#18 := by
   dsimp [pop18, pop18.go] at *
-  bv_decide
+  bv_decide?
 
 private theorem p1_sat (x : BitVec 18)
     (h0 : pop18 (x &&& 0x7#18) ≤ 2#18)
@@ -55,9 +55,6 @@ private theorem p1_sat (x : BitVec 18)
     (h18 : pop18 (x &&& 0x11200#18) ≤ 2#18) :
     pop18 x ≤ 8#18 := by
   dsimp [pop18, pop18.go] at *
-  bv_decide
-
-#print axioms p0_sat
-#print axioms p1_sat
+  bv_decide?
 
 end Checkerboard
