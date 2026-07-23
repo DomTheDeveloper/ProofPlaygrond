@@ -24,8 +24,11 @@ theorem odd_zero_upper {m : ℕ} (hm : 3 ≤ m)
     have hmpos : (0 : ℚ) < m := by nlinarith
     have hpoly : 0 < 2 * (m : ℚ) ^ 2 - 6 * m + 1 := by nlinarith
     have hprod := mul_pos hmpos hpoly
-    push_cast
-    norm_num [show 4 * m - 2 + 1 = 4 * m - 1 by omega]
+    have hk : 2 ≤ 4 * m := by omega
+    have hcast : (((4 * m - 2 : ℕ) : ℚ)) = 4 * (m : ℚ) - 2 := by
+      rw [Nat.cast_sub hk]
+      norm_num
+    rw [hcast]
     nlinarith
   · exact hr
   · exact hc
@@ -49,8 +52,11 @@ theorem odd_one_upper {m : ℕ} (hm : 4 ≤ m)
     have hmpos : (0 : ℚ) < m := by nlinarith
     have hpoly : 0 < 2 * (m : ℚ) ^ 2 - 6 * m - 2 := by nlinarith
     have hprod := mul_pos hmpos hpoly
-    push_cast
-    norm_num [show 4 * m - 2 + 1 = 4 * m - 1 by omega]
+    have hk : 2 ≤ 4 * m := by omega
+    have hcast : (((4 * m - 2 : ℕ) : ℚ)) = 4 * (m : ℚ) - 2 := by
+      rw [Nat.cast_sub hk]
+      norm_num
+    rw [hcast]
     nlinarith
   · exact hr
   · exact hc
@@ -67,27 +73,23 @@ theorem even_upper {m parity : ℕ} (hm : 4 ≤ m)
     (hcolor : Monochromatic parity s) (hntil : NoThreeInLine s) :
     s.card ≤ 4 * m - 4 := by
   have hm1 : 1 ≤ m := by omega
+  have hmQ : (4 : ℚ) ≤ m := by exact_mod_cast hm
+  have hcenter : (0 : ℚ) < 2 * m - 1 := by nlinarith
+  have hpoly : 0 < 2 * (m : ℚ) ^ 2 - 8 * m + 3 := by nlinarith
+  have hprod := mul_pos hcenter hpoly
+  have hk : 4 ≤ 4 * m := by omega
+  have hcast : (((4 * m - 4 : ℕ) : ℚ)) = 4 * (m : ℚ) - 4 := by
+    rw [Nat.cast_sub hk]
+    norm_num
   have hpCost := hp
   obtain ⟨hr, hc, hs, hd⟩ := evenQuadratic_nonnegative m parity hm1
   apply card_le_of_fourCertificate (evenQuadraticWeights m parity)
       (q := 4 * ((2 * m : ℚ) - 1) ^ 2) (k := 4 * m - 4)
   · positivity
   · rcases hpCost with rfl | rfl
-    · rw [evenQuadratic_cost_zero m hm1]
-      have hmQ : (4 : ℚ) ≤ m := by exact_mod_cast hm
-      have hcenter : (0 : ℚ) < 2 * m - 1 := by nlinarith
-      have hpoly : 0 < 2 * (m : ℚ) ^ 2 - 8 * m + 3 := by nlinarith
-      have hprod := mul_pos hcenter hpoly
-      push_cast
-      norm_num [show 4 * m - 4 + 1 = 4 * m - 3 by omega]
+    · rw [evenQuadratic_cost_zero m hm1, hcast]
       nlinarith
-    · rw [evenQuadratic_cost_one m hm1]
-      have hmQ : (4 : ℚ) ≤ m := by exact_mod_cast hm
-      have hcenter : (0 : ℚ) < 2 * m - 1 := by nlinarith
-      have hpoly : 0 < 2 * (m : ℚ) ^ 2 - 8 * m + 3 := by nlinarith
-      have hprod := mul_pos hcenter hpoly
-      push_cast
-      norm_num [show 4 * m - 4 + 1 = 4 * m - 3 by omega]
+    · rw [evenQuadratic_cost_one m hm1, hcast]
       nlinarith
   · exact hr
   · exact hc
@@ -110,14 +112,32 @@ def n7ThinWeights : FourWeights 7 where
       if Nat.dist j.1 6 = 1 then 2 else if Nat.dist j.1 6 = 3 then 1 else 0
     else 0
 
-private theorem n7Thin_cost : fourCost n7ThinWeights = 32 := by decide
+private theorem n7Thin_cost : fourCost n7ThinWeights = 32 := by
+  norm_num [fourCost, n7ThinWeights, Fin.sum_univ_succ, Nat.dist]
+
 private theorem n7Thin_nonnegative :
     (∀ i, 0 ≤ n7ThinWeights.row i) ∧
     (∀ i, 0 ≤ n7ThinWeights.column i) ∧
     (∀ i, 0 ≤ n7ThinWeights.sum i) ∧
-    ∀ i, 0 ≤ n7ThinWeights.difference i := by decide
+    ∀ i, 0 ≤ n7ThinWeights.difference i := by
+  constructor
+  · intro i
+    fin_cases i <;> norm_num [n7ThinWeights]
+  constructor
+  · intro i
+    fin_cases i <;> norm_num [n7ThinWeights]
+  constructor
+  · intro i
+    fin_cases i <;> norm_num [n7ThinWeights, Nat.dist]
+  · intro i
+    fin_cases i <;> norm_num [n7ThinWeights, Nat.dist]
+
 private theorem n7Thin_cover :
-    ∀ p : Point 7, InColor 1 p → 3 ≤ fourCoverage n7ThinWeights p := by decide
+    ∀ p : Point 7, InColor 1 p → 3 ≤ fourCoverage n7ThinWeights p := by
+  rintro ⟨i, j⟩ hp
+  fin_cases i <;> fin_cases j <;>
+    norm_num [InColor, fourCoverage, n7ThinWeights, sumIndex,
+      differenceIndex, Nat.dist] at hp ⊢
 
 /-- Exceptional thin-color bound on the 7-board. -/
 theorem n7_one_upper (s : Finset (Point 7))
