@@ -69,32 +69,18 @@ theorem rowFiber_le_two {n : ℕ} {s : Finset (Point n)}
     fiberCard s (fun p : Point n => p.1) i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil (fun p : Point n => p.1)
   intro a b c hab hac
-  have habv : a.1.1 = b.1.1 := congrArg Fin.val hab
-  have hacv : a.1.1 = c.1.1 := congrArg Fin.val hac
-  have hbaEq : (b.1.1 : ℤ) = (a.1.1 : ℤ) := by
-    exact_mod_cast habv.symm
-  have hcaEq : (c.1.1 : ℤ) = (a.1.1 : ℤ) := by
-    exact_mod_cast hacv.symm
-  have hba : (b.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := sub_eq_zero.mpr hbaEq
-  have hca : (c.1.1 : ℤ) - (a.1.1 : ℤ) = 0 := sub_eq_zero.mpr hcaEq
-  rw [determinant, hba, hca]
-  ring
+  have hb : b.1 = a.1 := hab.symm
+  have hc : c.1 = a.1 := hac.symm
+  simp [determinant, hb, hc]
 
 theorem columnFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin n) :
     fiberCard s (fun p : Point n => p.2) i ≤ 2 := by
   apply fiberCard_le_two_of_collinear hntil (fun p : Point n => p.2)
   intro a b c hab hac
-  have habv : a.2.1 = b.2.1 := congrArg Fin.val hab
-  have hacv : a.2.1 = c.2.1 := congrArg Fin.val hac
-  have hbaEq : (b.2.1 : ℤ) = (a.2.1 : ℤ) := by
-    exact_mod_cast habv.symm
-  have hcaEq : (c.2.1 : ℤ) = (a.2.1 : ℤ) := by
-    exact_mod_cast hacv.symm
-  have hba : (b.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := sub_eq_zero.mpr hbaEq
-  have hca : (c.2.1 : ℤ) - (a.2.1 : ℤ) = 0 := sub_eq_zero.mpr hcaEq
-  rw [determinant, hba, hca]
-  ring
+  have hb : b.2 = a.2 := hab.symm
+  have hc : c.2 = a.2 := hac.symm
+  simp [determinant, hb, hc]
 
 theorem sumFiber_le_two {n : ℕ} {s : Finset (Point n)}
     (hntil : NoThreeInLine s) (i : Fin (2 * n - 1)) :
