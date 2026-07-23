@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact migrated proof project
+      - name: Checkout current checkerboard proof project
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: b6b2e5541702a09f89a0176bae2dc0c7899a01c4
+          ref: migrate/checkerboard-alln-27a80067
           fetch-depth: 1
 
       - name: Record exact commit
