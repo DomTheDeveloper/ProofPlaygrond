@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused arithmetic and bridge audit for source commit 5fa90d646295dfc48baef23a90fe1e2883366ec5.
+# Focused 6×6 production-module audit for source commit 5fa90d646295dfc48baef23a90fe1e2883366ec5.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -46,33 +46,34 @@ jobs:
       - name: Reject proof holes and trust shortcuts
         run: |
           set -euo pipefail
-          files=(Checkerboard/N6SATTest.lean Checkerboard/N6BridgeTest.lean)
+          files=(Checkerboard/N6SATTest.lean Checkerboard/N6Base.lean)
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|bv_decide|bv_check|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
             echo 'Forbidden placeholder or trust shortcut found in checkerboard certificate.' >&2
             exit 1
           fi
 
-      - name: Build geometric dependency
+      - name: Build production 6x6 proof
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build Checkerboard.N6Base \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-build.log"
+
+      - name: Print public base-case axioms
         run: |
           set -euo pipefail
-          "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate
-
-      - name: Build arithmetic certificate module
-        run: |
+          cat > "$RUNNER_TEMP/CheckerboardN6AxiomAudit.lean" <<'EOF'
+          import Checkerboard.N6Base
+          #print axioms Checkerboard.n6_zero_upper
+          #print axioms Checkerboard.n6_one_upper
+          EOF
           set -o pipefail
-          "$HOME/.elan/bin/lake" build Checkerboard.N6SATTest \
-            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-sat.log"
-
-      - name: Compile both geometric bridges
-        run: |
-          set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
-            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/CheckerboardN6AxiomAudit.lean" \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-axioms.log"
 
       - name: Enforce axiom policy
         run: |
           set -euo pipefail
-          cat "$RUNNER_TEMP/checkerboard-n6-sat.log" "$RUNNER_TEMP/checkerboard-n6-bridge.log" > "$RUNNER_TEMP/checkerboard-n6-all.log"
+          cat "$RUNNER_TEMP/checkerboard-n6-build.log" "$RUNNER_TEMP/checkerboard-n6-axioms.log" > "$RUNNER_TEMP/checkerboard-n6-all.log"
           if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-all.log"; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
@@ -85,6 +86,6 @@ jobs:
           name: checkerboard-n6-certificate-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
-            ${{ runner.temp }}/checkerboard-n6-sat.log
-            ${{ runner.temp }}/checkerboard-n6-bridge.log
+            ${{ runner.temp }}/checkerboard-n6-build.log
+            ${{ runner.temp }}/checkerboard-n6-axioms.log
           if-no-files-found: warn
