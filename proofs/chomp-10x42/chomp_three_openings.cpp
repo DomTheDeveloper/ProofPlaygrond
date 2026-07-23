@@ -156,6 +156,7 @@ private:
         ++prefix_count;
         const int bottom_bound = x[K - 2];
         uint64_t base[64];
+        base[K - 2] = 0;
         uint64_t acc = 0;
         for (int pos = K - 2; pos >= 1; --pos) {
             const int j = K - pos;
