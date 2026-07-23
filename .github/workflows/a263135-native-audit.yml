@@ -1,0 +1,93 @@
+name: A263135 native Lean audit
+
+on:
+  pull_request:
+    branches: [audit-base/a263135-axle-6ad03f2a]
+    paths:
+      - '.github/workflows/a263135-native-audit.yml'
+      - 'audits/A263135.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a263135-native-current-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout current A263135 proof branch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: agent/solve-oeis-a263135
+          path: formal-conjectures
+          show-progress: false
+
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch pinned Mathlib cache
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake exe cache get
+
+      - name: Reject proof shortcuts in A263135 source
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=$(find Scratch -maxdepth 1 -type f -name 'A263135*.lean' -print)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe|axiom)\b|Lean\.(trustCompiler|ofReduce|ofReduceBool)' $files; then
+            echo 'Forbidden proof shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Register every A263135 proof module
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          lakefile = Path('lakefile.toml')
+          text = lakefile.read_text()
+          modules = sorted('Scratch.' + path.stem for path in Path('Scratch').glob('A263135*.lean'))
+          old = 'globs = ["Scratch.A263135Audit"]'
+          if old not in text:
+              raise SystemExit('focused A263135 library declaration not found')
+          lakefile.write_text(text.replace(old, 'globs = ' + json.dumps(modules), 1))
+          print(f'Registered {len(modules)} A263135 modules')
+          PY
+
+      - name: Compile exact theorem and print axioms
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake build A263135ScratchAudit 2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a263135-native.log"; then
+            echo 'Unacceptable axiom dependency found.' >&2
+            exit 1
+          fi
+
+      - name: Upload native transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a263135-native-audit
+          path: ${{ runner.temp }}/a263135-native.log
+          if-no-files-found: error
