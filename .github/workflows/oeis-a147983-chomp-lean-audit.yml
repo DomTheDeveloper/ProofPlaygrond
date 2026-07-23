@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/oeis-a147983-chomp-lean-audit.yml'
+      - 'proofs/chomp-10x42/lean/**'
   workflow_dispatch:
 
 permissions:
@@ -19,15 +20,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Checkout ProofPlaygrond proof sources
+        uses: actions/checkout@v4
+        with:
+          path: playground
+
       - name: Checkout immutable DTD source commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda
+          path: formal-conjectures
 
-      - name: Confirm immutable source
+      - name: Confirm immutable DTD source
         shell: bash
-        run: test "$(git rev-parse HEAD)" = "5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda"
+        run: test "$(git -C formal-conjectures rev-parse HEAD)" = "5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda"
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -40,32 +47,28 @@ jobs:
 
       - name: Fetch Mathlib cache
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
           lake exe cache get
 
-      - name: Compile exact Chomp module
+      - name: Compile exact Chomp catalog module
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
           lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-lean.log
 
-      - name: Audit kernel-checkable helper declarations
+      - name: Compile kernel certificate theorem
         shell: bash
+        working-directory: formal-conjectures
         run: |
           set -euo pipefail
-          cat >> FormalConjectures/OEIS/147983.lean <<'EOF'
-
-          #print axioms OeisA147983.child₁_is_legal_move
-          #print axioms OeisA147983.child₂_is_legal_move
-          #print axioms OeisA147983.child₃_is_legal_move
-          #print axioms OeisA147983.candidate_children_pairwise_distinct
-          #print axioms OeisA147983.three_openings_of_p_positions
-          EOF
-          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-axioms.log
-          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
-              chomp-a147983-axioms.log; then
-            echo 'A kernel-checkable helper depends on a forbidden proof escape.' >&2
+          cp ../playground/proofs/chomp-10x42/lean/KernelCertificate.lean ./ChompKernelCertificate.lean
+          lake lean ChompKernelCertificate.lean 2>&1 | tee chomp-kernel-certificate.log
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
+              ChompKernelCertificate.lean chomp-kernel-certificate.log; then
+            echo 'Forbidden placeholder or trust escape in kernel certificate development.' >&2
             exit 1
           fi
 
@@ -73,8 +76,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oeis-a147983-chomp-lean-audit
+          name: oeis-a147983-chomp-kernel-audit
           path: |
-            chomp-a147983-lean.log
-            chomp-a147983-axioms.log
+            formal-conjectures/chomp-a147983-lean.log
+            formal-conjectures/chomp-kernel-certificate.log
           if-no-files-found: warn
