@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Exact audit gate for source commit b8c19a2f7cc1d1a8dd430327756c999dc23d7af6.
+# Exact audit gate for source commit 28e75b80f2b159cbadef429c3dde8cbb9a041611.
 
 name: Litt most-unfair final audit
 
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: b8c19a2f7cc1d1a8dd430327756c999dc23d7af6
+          ref: 28e75b80f2b159cbadef429c3dde8cbb9a041611
           fetch-depth: 1
 
       - name: Record exact commit
@@ -83,7 +83,7 @@ jobs:
       - name: Enforce final axiom policy
         run: |
           set -euo pipefail
-          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/litt-lean-audit.log"; then
+          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/litt-lean-audit.log"; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
           fi
