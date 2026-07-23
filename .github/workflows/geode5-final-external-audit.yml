@@ -43,8 +43,18 @@ jobs:
           ! grep -RInE 'by[[:space:]]+(sorry|admit)\b|^[[:space:]]*(sorry|admit)\b' \
             FormalConjectures/Arxiv/2508.10245/Geode5Proof \
             FormalConjectures/Arxiv/2508.10245/Geode5.lean
-      - name: Compile exact final theorem
+      - name: Build exact final theorem module
         id: compile
+        continue-on-error: true
+        working-directory: target
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 'FormalConjectures.Arxiv.«2508.10245».Geode5' \
+            2>&1 | tee "$RUNNER_TEMP/geode5-final.log"
+      - name: Re-elaborate final source with warnings as errors
+        if: steps.compile.outcome == 'success'
+        id: warnings
         continue-on-error: true
         working-directory: target
         shell: bash
@@ -52,26 +62,28 @@ jobs:
           set -o pipefail
           lake env lean -DwarningAsError=true \
             FormalConjectures/Arxiv/2508.10245/Geode5.lean \
-            2>&1 | tee "$RUNNER_TEMP/geode5-final.log"
+            2>&1 | tee -a "$RUNNER_TEMP/geode5-final.log"
       - name: Report
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-          OUTCOME: ${{ steps.compile.outcome }}
+          BUILD_OUTCOME: ${{ steps.compile.outcome }}
+          WARNING_OUTCOME: ${{ steps.warnings.outcome }}
         shell: bash
         run: |
           {
             echo '## Geode5 immutable final audit'
             echo
             echo 'Target: `DomTheDeveloper/formal-conjectures@89a8f3c8de74039ab989100c27a6bf24234556f8`'
-            echo 'Module: `FormalConjectures/Arxiv/2508.10245/Geode5.lean`'
-            echo "Result: **${OUTCOME}**"
+            echo 'Module: `FormalConjectures.Arxiv.«2508.10245».Geode5`'
+            echo "Lake build: **${BUILD_OUTCOME}**"
+            echo "Warnings-as-errors recheck: **${WARNING_OUTCOME:-skipped}**"
             echo
             echo '```text'
-            tail -n 240 "$RUNNER_TEMP/geode5-final.log" 2>/dev/null || true
+            tail -n 260 "$RUNNER_TEMP/geode5-final.log" 2>/dev/null || true
             echo '```'
           } > "$RUNNER_TEMP/geode5-comment.md"
           gh pr comment '${{ github.event.pull_request.number }}' --repo '${{ github.repository }}' --body-file "$RUNNER_TEMP/geode5-comment.md"
       - name: Enforce
-        if: steps.compile.outcome != 'success'
+        if: steps.compile.outcome != 'success' || steps.warnings.outcome != 'success'
         run: exit 1
