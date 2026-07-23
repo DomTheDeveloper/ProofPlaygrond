@@ -57,7 +57,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          lake env lean Scratch/A263135Audit.lean 2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
+          lake build A263135ScratchAudit 2>&1 | tee "$RUNNER_TEMP/a263135-native.log"
           if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a263135-native.log"; then
             echo 'Unacceptable axiom dependency found.' >&2
             exit 1
