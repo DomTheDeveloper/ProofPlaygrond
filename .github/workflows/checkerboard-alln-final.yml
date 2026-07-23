@@ -1,0 +1,91 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+# Final pinned audit of the merged checkerboard all-n theorem at ce800ba8.
+
+name: Final checkerboard all-n audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/checkerboard-alln-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-alln:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout merged theorem source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/ProofPlaygrond
+          ref: ce800ba8d8a6b67296d0502c0a0ee20d8b579a2b
+          fetch-depth: 1
+
+      - name: Record exact source
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/checkerboard-source-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Resolve pinned Mathlib and cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" update
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject unfinished or trusted shortcuts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(find Checkerboard -name '*.lean' -print0)
+          if grep -nE '(^|[[:space:]])(sorry|admit|native_decide|bv_decide)([[:space:]]|$)|^[[:space:]]*(axiom|opaque)[[:space:]]|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
+            echo 'Forbidden proof shortcut found in checkerboard sources.' >&2
+            exit 1
+          fi
+
+      - name: Build complete checkerboard library
+        shell: bash
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build Checkerboard 2>&1 \
+            | tee "$RUNNER_TEMP/checkerboard-alln-build.log"
+
+      - name: Compile public theorem and print axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/CheckerboardAllNAxiomAudit.lean" <<'EOF'
+          import Checkerboard.AllNTheorem
+          #print axioms Checkerboard.checkerboard_upper_all_n
+          EOF
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/CheckerboardAllNAxiomAudit.lean" 2>&1 \
+            | tee "$RUNNER_TEMP/checkerboard-alln-axioms.log"
+          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' \
+              "$RUNNER_TEMP/checkerboard-alln-build.log" \
+              "$RUNNER_TEMP/checkerboard-alln-axioms.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+          grep -q 'Checkerboard.checkerboard_upper_all_n' \
+            "$RUNNER_TEMP/checkerboard-alln-axioms.log"
+
+      - name: Upload final audit transcript
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-alln-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/checkerboard-source-sha.txt
+            ${{ runner.temp }}/checkerboard-alln-build.log
+            ${{ runner.temp }}/checkerboard-alln-axioms.log
+          if-no-files-found: warn
