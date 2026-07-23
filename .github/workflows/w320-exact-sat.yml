@@ -5,6 +5,8 @@ name: W320 exact SAT search
 on:
   push:
     branches: [experiment/w320-exact-sat]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
