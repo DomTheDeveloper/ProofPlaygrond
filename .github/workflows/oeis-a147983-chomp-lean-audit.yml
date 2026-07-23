@@ -25,16 +25,16 @@ jobs:
         with:
           path: playground
 
-      - name: Checkout immutable DTD source commit
+      - name: Checkout immutable canonical DTD source commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda
+          ref: 9242e34d74bea32655e840a5e8637377de1431e4
           path: formal-conjectures
 
       - name: Confirm immutable DTD source
         shell: bash
-        run: test "$(git -C formal-conjectures rev-parse HEAD)" = "5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda"
+        run: test "$(git -C formal-conjectures rev-parse HEAD)" = "9242e34d74bea32655e840a5e8637377de1431e4"
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -52,22 +52,25 @@ jobs:
           set -euo pipefail
           lake exe cache get
 
-      - name: Compile exact Chomp catalog module
+      - name: Compile exact canonical Chomp catalog module
         shell: bash
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
           lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-lean.log
 
-      - name: Compile kernel certificate theorem
+      - name: Compile kernel certificate and Chomp rank theorems
         shell: bash
         working-directory: formal-conjectures
         run: |
           set -euo pipefail
           cp ../playground/proofs/chomp-10x42/lean/KernelCertificate.lean ./ChompKernelCertificate.lean
+          cp ../playground/proofs/chomp-10x42/lean/ChompRank.lean ./ChompRank.lean
           lake lean ChompKernelCertificate.lean 2>&1 | tee chomp-kernel-certificate.log
-          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
-              ChompKernelCertificate.lean chomp-kernel-certificate.log; then
+          lake lean ChompRank.lean 2>&1 | tee chomp-rank.log
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool|sorryAx' \
+              ChompKernelCertificate.lean ChompRank.lean \
+              chomp-kernel-certificate.log chomp-rank.log; then
             echo 'Forbidden placeholder or trust escape in kernel certificate development.' >&2
             exit 1
           fi
@@ -80,4 +83,5 @@ jobs:
           path: |
             formal-conjectures/chomp-a147983-lean.log
             formal-conjectures/chomp-kernel-certificate.log
+            formal-conjectures/chomp-rank.log
           if-no-files-found: warn
