@@ -1,9 +1,9 @@
 // Exact solver for the OEIS-linked Chomp three-opening challenge.
 //
 // Build:
-//   g++ -O3 -march=native -DNDEBUG chomp_three_openings.cpp -o chomp
+//   g++ -O3 -march=native -DNDEBUG chomp_three_openings_fast.cpp -o chomp_fast
 // Run:
-//   ./chomp 10 42
+//   ./chomp_fast 10 42
 //
 // A position is a nonincreasing vector x[0] >= ... >= x[K-1] >= 0.
 // The poisoned square is not a legal target, so x[0] is enumerated from 1.
@@ -17,7 +17,6 @@
 
 using std::cerr;
 using std::cout;
-using std::max_element;
 using std::min;
 using std::vector;
 
@@ -26,9 +25,6 @@ struct Bits {
     Bits() = default;
     explicit Bits(uint64_t nbits) : words((nbits + 63) / 64 + 1) {}
 
-    bool get(uint64_t i) const {
-        return (words[i >> 6] >> (i & 63)) & 1ULL;
-    }
     uint64_t get64(uint64_t i) const {
         const uint64_t q = i >> 6;
         const int s = static_cast<int>(i & 63);
@@ -124,7 +120,6 @@ private:
         x[pos] = old;
     }
 
-    // Mark every later position that can move directly to the current P-position.
     void add_shadow_of_current_p() {
         const vector<int> p = x;
         for (int i = 0; i < K - 1; ++i) {
@@ -150,8 +145,6 @@ private:
         }
     }
 
-    // For a fixed first K-1 rows, at most one final row can complete a P-position:
-    // two such positions would be joined by a legal move in the last row.
     bool process_prefix() {
         ++prefix_count;
         const int bottom_bound = x[K - 2];
@@ -165,33 +158,17 @@ private:
         }
 
         int chosen = -1;
-        if (bottom_bound < 48) {
-            for (int v = 0; v <= bottom_bound; ++v) {
-                bool has_p_option = false;
-                for (int i = 0; i < K - 1; ++i) {
-                    if (shadow_sets[i].get(base[i] + static_cast<uint64_t>(v))) {
-                        has_p_option = true;
-                        break;
-                    }
-                }
-                if (!has_p_option) {
-                    chosen = v;
-                    break;
-                }
+        for (int v0 = 0; v0 <= bottom_bound; v0 += 64) {
+            uint64_t hit = 0;
+            for (int i = 0; i < K - 1; ++i) {
+                hit |= shadow_sets[i].get64(base[i] + static_cast<uint64_t>(v0));
             }
-        } else {
-            for (int v0 = 0; v0 <= bottom_bound; v0 += 64) {
-                uint64_t hit = 0;
-                for (int i = 0; i < K - 1; ++i) {
-                    hit |= shadow_sets[i].get64(base[i] + static_cast<uint64_t>(v0));
-                }
-                const int len = min(64, bottom_bound - v0 + 1);
-                const uint64_t valid = (len == 64) ? ~0ULL : ((1ULL << len) - 1);
-                const uint64_t available = (~hit) & valid;
-                if (available) {
-                    chosen = v0 + __builtin_ctzll(available);
-                    break;
-                }
+            const int len = min(64, bottom_bound - v0 + 1);
+            const uint64_t valid = (len == 64) ? ~0ULL : ((1ULL << len) - 1);
+            const uint64_t available = (~hit) & valid;
+            if (available) {
+                chosen = v0 + __builtin_ctzll(available);
+                break;
             }
         }
 
