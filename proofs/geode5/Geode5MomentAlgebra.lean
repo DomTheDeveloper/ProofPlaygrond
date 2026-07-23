@@ -1,5 +1,5 @@
 /-
-Copyright 2026 Dominic Dabish.
+Copyright 2026 The Formal Conjectures Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import Mathlib
 # Symbolic moment algebra for the five-dimensional Geode
 
 This file formalizes the symbolic source of the five-state recurrence from the
-Geode certificate.  The large sparse tables used by the C++ evaluator are not
+Geode certificate. The large sparse tables used by the C++ evaluator are not
 trusted as primitive data: they are generated from the single polynomial
 
 `P_y(t) = ∏ w ∈ {0,1,2,3,4}, (y^w - t)`.
 
 For `k = 1, ..., 5`, the quotient in the Euclidean division of
 `t^k * ∂P/∂t` by `P` is expressed by the power sums
-`1 + y^d + y^(2d) + y^(3d) + y^(4d)`.  The corresponding remainders have
+`1 + y^d + y^(2d) + y^(3d) + y^(4d)`. The corresponding remainders have
 `t`-degree at most four, which is exactly why five moments suffice.
 -/
 
@@ -103,7 +103,7 @@ theorem momentRemainder_degree_bounds :
     (momentRemainder 5).natDegree < 5 := by
   native_decide
 
-/-- The degree bound in the parameter `y` used by the sparse evaluator. -/
+/-- The constant-in-`t` coefficients satisfy the sparse evaluator's degree bounds. -/
 theorem momentRemainder_y_degree_bounds :
     (momentRemainder 1).coeff 0 |>.natDegree ≤ 10 ∧
     (momentRemainder 2).coeff 0 |>.natDegree ≤ 14 ∧
