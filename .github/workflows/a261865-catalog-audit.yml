@@ -1,0 +1,65 @@
+name: A261865 clean catalog audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/a261865-catalog-audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/a261865-catalog.trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a261865-catalog-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog:
+    name: Lean 4.27 clean catalog module
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout immutable clean catalog commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 05168c195bfea7df151451bec4433d25a10e5122
+
+      - name: Confirm immutable source and toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "05168c195bfea7df151451bec4433d25a10e5122"
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+
+      - name: Install Lean 4.27
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        run: lake exe cache get
+
+      - name: Build exact clean catalog module
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build 'FormalConjectures.OEIS.«261865»' \
+            2>&1 | tee a261865-catalog-audit.log
+
+      - name: Upload catalog transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a261865-05168c19-catalog-transcript
+          path: a261865-catalog-audit.log
+          if-no-files-found: warn
