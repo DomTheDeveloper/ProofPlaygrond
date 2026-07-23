@@ -8,4 +8,4 @@ require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "v4.32.0"
 
 lean_lib Checkerboard where
-  roots := #[`Checkerboard]
+  roots := #[`Checkerboard.AllNTheorem]
