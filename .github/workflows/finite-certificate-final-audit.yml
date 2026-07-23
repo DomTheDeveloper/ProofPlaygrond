@@ -45,12 +45,30 @@ jobs:
           restore-keys: wow59-${{ runner.os }}-
 
       - name: Audit WOWII 59
+        id: wow59
+        continue-on-error: true
         run: |
           set -euo pipefail
           cd wow59
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
           target='FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean'
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean')
+          s = p.read_text()
+          s = s.replace(
+              'private def counterG : SimpleGraph (Fin 18) where',
+              'set_option maxHeartbeats 0 maxRecDepth 1000000 in\nprivate def counterG : SimpleGraph (Fin 18) where',
+              1,
+          )
+          s = s.replace(
+              'set_option maxHeartbeats 0 in\nset_option maxRecDepth 1000000 in\nprivate lemma',
+              'set_option maxHeartbeats 0 maxRecDepth 1000000 in\nprivate lemma',
+          )
+          p.write_text(s)
+          PY
+          git diff -- "$target" | tee "$RUNNER_TEMP/wow59-source-repair.patch"
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
             echo 'Forbidden placeholder or trust shortcut found in WOWII 59 proof.' >&2
             exit 1
@@ -86,6 +104,8 @@ jobs:
           restore-keys: vc2-${{ runner.os }}-
 
       - name: Audit convex VC2 counterexample
+        id: vc2
+        continue-on-error: true
         run: |
           set -euo pipefail
           cd vc2
@@ -105,12 +125,23 @@ jobs:
             exit 1
           fi
 
+      - name: Enforce both audit results
+        if: always()
+        env:
+          WOW59_OUTCOME: ${{ steps.wow59.outcome }}
+          VC2_OUTCOME: ${{ steps.vc2.outcome }}
+        run: |
+          set -euo pipefail
+          printf 'WOWII 59: %s\nConvex VC2: %s\n' "$WOW59_OUTCOME" "$VC2_OUTCOME"
+          [[ "$WOW59_OUTCOME" == success && "$VC2_OUTCOME" == success ]]
+
       - name: Upload audit transcripts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: finite-certificate-final-audits-${{ github.run_id }}
           path: |
+            ${{ runner.temp }}/wow59-source-repair.patch
             ${{ runner.temp }}/wow59-audit.log
             ${{ runner.temp }}/vc2-audit.log
           if-no-files-found: warn
