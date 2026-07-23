@@ -1,14 +1,13 @@
 # OEIS A263135 native final audit
 
-The complete repaired honeycomb-contact proof is pinned to immutable Formal Conjectures commit `accf632d7bb6ff41d1b1660e6fcb204e3b3bdb1f`.
+The promoted canonical honeycomb-contact proof is pinned to immutable Formal Conjectures commit `cb8de9921fc62810991a0384ee412cfed0ad8e7c`.
 
-GitHub Actions run `29987594607` completed successfully under the repository-pinned Lean 4.27 / Mathlib environment. It:
+The audit checks the exact catalog declaration `OeisA263135.conjecture`, not merely the auxiliary theorem used during development. It:
 
-- passed the placeholder and trust-shortcut scan;
-- built the complete `A263135ScratchAudit` module chain;
-- executed `Scratch/A263135Audit.lean`;
-- checked `OeisA263135.conjecture_solved`;
-- printed the theorem's axiom dependencies as `[propext, Classical.choice, Quot.sound]`;
-- found no `sorryAx`, `Lean.trustCompiler`, `Lean.ofReduce`, or `Lean.ofReduceBool` dependency.
+- rejects placeholders and trust shortcuts across the complete `Scratch/A263135*.lean` chain and both canonical A263135 files;
+- builds the complete `A263135ScratchAudit` module chain;
+- executes `Scratch/A263135Audit.lean`;
+- prints the axiom dependencies of `OeisA263135.conjecture`;
+- rejects `sorryAx`, `Lean.trustCompiler`, `Lean.ofReduce`, and `Lean.ofReduceBool`.
 
-The final finite base case uses kernel reduction with `decide`; it does not use `native_decide` or compiler trust.
+The underlying proof chain previously passed all gates in run `29987594607`, with dependencies `[propext, Classical.choice, Quot.sound]`. The promoted catalog theorem preserves the original statement and delegates to that verified theorem. The finite two-vertex base case uses kernel reduction with `decide`, not `native_decide` or compiler trust.
