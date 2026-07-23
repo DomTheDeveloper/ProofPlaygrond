@@ -4,18 +4,17 @@
 name: OEIS A343881 final Lean audit
 
 on:
-  pull_request:
+  push:
     branches: [main]
     paths:
-      - '.github/workflows/oeis-a343881-final.yml'
       - 'audits/oeis-a343881-final.trigger'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: oeis-a343881-final-${{ github.event.pull_request.number || github.ref }}
+  group: oeis-a343881-final
   cancel-in-progress: true
 
 jobs:
@@ -24,20 +23,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
+      - name: Checkout checker repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: checker
+
       - name: Checkout immutable proof commit
         uses: actions/checkout@v4
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 7db1d1a3347619a7c3f5d0662c43d77ed47e130e
           fetch-depth: 1
+          path: proof
 
-      - name: Confirm immutable source and toolchain
+      - name: Confirm immutable source
         shell: bash
         run: |
           set -euo pipefail
-          git rev-parse HEAD | tee "$RUNNER_TEMP/a343881-resolved-sha.txt"
+          cd proof
           test "$(git rev-parse HEAD)" = "7db1d1a3347619a7c3f5d0662c43d77ed47e130e"
-          cat lean-toolchain
+          mkdir -p ../checker/audit-results
+          git rev-parse HEAD > ../checker/audit-results/oeis-a343881-resolved-sha.txt
 
       - name: Install repository-pinned Lean
         shell: bash
@@ -48,9 +55,11 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Fetch Mathlib cache
+        working-directory: proof
         run: "$HOME/.elan/bin/lake" exe cache get
 
       - name: Reject placeholders and trust shortcuts
+        working-directory: proof
         shell: bash
         run: |
           set -euo pipefail
@@ -60,41 +69,40 @@ jobs:
             exit 1
           fi
 
-      - name: Build exact A343881 proof module
+      - name: Build exact proof and audit axioms
+        id: compile
+        continue-on-error: true
+        working-directory: proof
         shell: bash
         run: |
           set -o pipefail
-          : > "$RUNNER_TEMP/a343881-final.log"
+          : > ../checker/audit-results/oeis-a343881-final.log
           "$HOME/.elan/bin/lake" build 'FormalConjectures.OEIS.«343881»' \
-            2>&1 | tee "$RUNNER_TEMP/a343881-final.log"
-
-      - name: Run terminal axiom audit
-        shell: bash
-        run: |
-          set -o pipefail
+            2>&1 | tee ../checker/audit-results/oeis-a343881-final.log
           cat > "$RUNNER_TEMP/A343881AxiomAudit.lean" <<'EOF'
           import FormalConjectures.OEIS.«343881»
           #print axioms OeisA343881.conjecture
           EOF
           "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/A343881AxiomAudit.lean" \
-            2>&1 | tee -a "$RUNNER_TEMP/a343881-final.log"
-
-      - name: Enforce final axiom policy
-        shell: bash
-        run: |
-          set -euo pipefail
-          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a343881-final.log"; then
+            2>&1 | tee -a ../checker/audit-results/oeis-a343881-final.log
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' \
+              ../checker/audit-results/oeis-a343881-final.log; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
           fi
 
-      - name: Upload final transcript
+      - name: Persist audit transcript
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: oeis-a343881-final-${{ github.run_id }}
-          path: |
-            ${{ runner.temp }}/a343881-resolved-sha.txt
-            ${{ runner.temp }}/a343881-final.log
-            ${{ runner.temp }}/A343881AxiomAudit.lean
-          if-no-files-found: warn
+        working-directory: checker
+        shell: bash
+        run: |
+          printf 'outcome=%s\n' '${{ steps.compile.outcome }}' > audit-results/oeis-a343881-outcome.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add audit-results/oeis-a343881-*
+          git commit -m 'Record final OEIS A343881 audit transcript [skip ci]' || true
+          git push origin HEAD:main
+
+      - name: Enforce compiler result
+        if: steps.compile.outcome != 'success'
+        run: exit 1
