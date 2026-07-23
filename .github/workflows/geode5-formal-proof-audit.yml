@@ -1,0 +1,75 @@
+name: Geode5 formal proof audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'proofs/geode5/**'
+      - '.github/workflows/geode5-formal-proof-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geode5-formal-proof-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  crt-certificate:
+    name: Check Geode5 CRT certificate layer
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout proof playground
+        uses: actions/checkout@v4
+        with:
+          path: controller
+
+      - name: Checkout immutable Formal Conjectures base
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 6db9713c4c2036afdad119eda930b4d1a8da3250
+          path: target
+
+      - name: Install proof module and certificate data
+        shell: bash
+        run: |
+          set -euo pipefail
+          dst=target/FormalConjectures/Arxiv/2508.10245/Geode5Proof
+          mkdir -p "$dst/data"
+          cp controller/proofs/geode5/Geode5CRT.lean "$dst/CRT.lean"
+          cp controller/proofs/geode5/data/G5_1000.txt "$dst/data/G5_1000.txt"
+          cp controller/proofs/geode5/data/residues_480.txt "$dst/data/residues_480.txt"
+          test -z "$(grep -nE '\b(sorry|admit)\b' "$dst/CRT.lean" || true)"
+
+      - name: Install Lean 4.27
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        working-directory: target
+        run: lake exe cache get
+
+      - name: Compile certificate with warnings as errors
+        working-directory: target
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2508.10245/Geode5Proof/CRT.lean \
+            2>&1 | tee geode5-crt-audit.log
+
+      - name: Upload compiler transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geode5-crt-audit
+          path: target/geode5-crt-audit.log
+          if-no-files-found: warn
