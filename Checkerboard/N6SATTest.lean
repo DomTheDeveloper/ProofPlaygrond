@@ -15,6 +15,9 @@ set_option maxHeartbeats 0
 /-- Convert a Boolean selection bit to its natural indicator. -/
 def bitNat (b : Bool) : ℕ := if b then 1 else 0
 
+@[simp] theorem bitNat_false : bitNat false = 0 := rfl
+@[simp] theorem bitNat_true : bitNat true = 1 := rfl
+
 /-- Integer certificate for the even checkerboard color class on the 6-board. -/
 theorem n6p0_sat
     (x0 : Bool) (x1 : Bool) (x2 : Bool) (x3 : Bool) (x4 : Bool) (x5 : Bool)
@@ -42,25 +45,26 @@ theorem n6p0_sat
     bitNat x0 + bitNat x1 + bitNat x2 + bitNat x3 + bitNat x4 + bitNat x5 +
       bitNat x6 + bitNat x7 + bitNat x8 + bitNat x9 + bitNat x10 + bitNat x11 +
       bitNat x12 + bitNat x13 + bitNat x14 + bitNat x15 + bitNat x16 + bitNat x17 ≤ 8 := by
-  have hx0 : bitNat x0 ≤ 1 := by cases x0 <;> simp [bitNat]
-  have hx1 : bitNat x1 ≤ 1 := by cases x1 <;> simp [bitNat]
-  have hx2 : bitNat x2 ≤ 1 := by cases x2 <;> simp [bitNat]
-  have hx3 : bitNat x3 ≤ 1 := by cases x3 <;> simp [bitNat]
-  have hx4 : bitNat x4 ≤ 1 := by cases x4 <;> simp [bitNat]
-  have hx5 : bitNat x5 ≤ 1 := by cases x5 <;> simp [bitNat]
-  have hx6 : bitNat x6 ≤ 1 := by cases x6 <;> simp [bitNat]
-  have hx7 : bitNat x7 ≤ 1 := by cases x7 <;> simp [bitNat]
-  have hx8 : bitNat x8 ≤ 1 := by cases x8 <;> simp [bitNat]
-  have hx9 : bitNat x9 ≤ 1 := by cases x9 <;> simp [bitNat]
-  have hx10 : bitNat x10 ≤ 1 := by cases x10 <;> simp [bitNat]
-  have hx11 : bitNat x11 ≤ 1 := by cases x11 <;> simp [bitNat]
-  have hx12 : bitNat x12 ≤ 1 := by cases x12 <;> simp [bitNat]
-  have hx13 : bitNat x13 ≤ 1 := by cases x13 <;> simp [bitNat]
-  have hx14 : bitNat x14 ≤ 1 := by cases x14 <;> simp [bitNat]
-  have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
-  have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
-  have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  cases x0 <;> cases x1 <;> simp [bitNat] at * <;> omega
+  have hx0 : bitNat x0 ≤ 1 := by cases x0 <;> simp
+  have hx1 : bitNat x1 ≤ 1 := by cases x1 <;> simp
+  have hx2 : bitNat x2 ≤ 1 := by cases x2 <;> simp
+  have hx3 : bitNat x3 ≤ 1 := by cases x3 <;> simp
+  have hx4 : bitNat x4 ≤ 1 := by cases x4 <;> simp
+  have hx5 : bitNat x5 ≤ 1 := by cases x5 <;> simp
+  have hx6 : bitNat x6 ≤ 1 := by cases x6 <;> simp
+  have hx7 : bitNat x7 ≤ 1 := by cases x7 <;> simp
+  have hx8 : bitNat x8 ≤ 1 := by cases x8 <;> simp
+  have hx9 : bitNat x9 ≤ 1 := by cases x9 <;> simp
+  have hx10 : bitNat x10 ≤ 1 := by cases x10 <;> simp
+  have hx11 : bitNat x11 ≤ 1 := by cases x11 <;> simp
+  have hx12 : bitNat x12 ≤ 1 := by cases x12 <;> simp
+  have hx13 : bitNat x13 ≤ 1 := by cases x13 <;> simp
+  have hx14 : bitNat x14 ≤ 1 := by cases x14 <;> simp
+  have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp
+  have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp
+  have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp
+  cases x0 <;> cases x1 <;>
+    simp only [bitNat_false, bitNat_true, Nat.zero_add, Nat.add_zero] at * <;> omega
 
 /-- Integer certificate for the odd checkerboard color class on the 6-board. -/
 theorem n6p1_sat
@@ -89,25 +93,26 @@ theorem n6p1_sat
     bitNat x0 + bitNat x1 + bitNat x2 + bitNat x3 + bitNat x4 + bitNat x5 +
       bitNat x6 + bitNat x7 + bitNat x8 + bitNat x9 + bitNat x10 + bitNat x11 +
       bitNat x12 + bitNat x13 + bitNat x14 + bitNat x15 + bitNat x16 + bitNat x17 ≤ 8 := by
-  have hx0 : bitNat x0 ≤ 1 := by cases x0 <;> simp [bitNat]
-  have hx1 : bitNat x1 ≤ 1 := by cases x1 <;> simp [bitNat]
-  have hx2 : bitNat x2 ≤ 1 := by cases x2 <;> simp [bitNat]
-  have hx3 : bitNat x3 ≤ 1 := by cases x3 <;> simp [bitNat]
-  have hx4 : bitNat x4 ≤ 1 := by cases x4 <;> simp [bitNat]
-  have hx5 : bitNat x5 ≤ 1 := by cases x5 <;> simp [bitNat]
-  have hx6 : bitNat x6 ≤ 1 := by cases x6 <;> simp [bitNat]
-  have hx7 : bitNat x7 ≤ 1 := by cases x7 <;> simp [bitNat]
-  have hx8 : bitNat x8 ≤ 1 := by cases x8 <;> simp [bitNat]
-  have hx9 : bitNat x9 ≤ 1 := by cases x9 <;> simp [bitNat]
-  have hx10 : bitNat x10 ≤ 1 := by cases x10 <;> simp [bitNat]
-  have hx11 : bitNat x11 ≤ 1 := by cases x11 <;> simp [bitNat]
-  have hx12 : bitNat x12 ≤ 1 := by cases x12 <;> simp [bitNat]
-  have hx13 : bitNat x13 ≤ 1 := by cases x13 <;> simp [bitNat]
-  have hx14 : bitNat x14 ≤ 1 := by cases x14 <;> simp [bitNat]
-  have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
-  have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
-  have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  cases x0 <;> cases x1 <;> simp [bitNat] at * <;> omega
+  have hx0 : bitNat x0 ≤ 1 := by cases x0 <;> simp
+  have hx1 : bitNat x1 ≤ 1 := by cases x1 <;> simp
+  have hx2 : bitNat x2 ≤ 1 := by cases x2 <;> simp
+  have hx3 : bitNat x3 ≤ 1 := by cases x3 <;> simp
+  have hx4 : bitNat x4 ≤ 1 := by cases x4 <;> simp
+  have hx5 : bitNat x5 ≤ 1 := by cases x5 <;> simp
+  have hx6 : bitNat x6 ≤ 1 := by cases x6 <;> simp
+  have hx7 : bitNat x7 ≤ 1 := by cases x7 <;> simp
+  have hx8 : bitNat x8 ≤ 1 := by cases x8 <;> simp
+  have hx9 : bitNat x9 ≤ 1 := by cases x9 <;> simp
+  have hx10 : bitNat x10 ≤ 1 := by cases x10 <;> simp
+  have hx11 : bitNat x11 ≤ 1 := by cases x11 <;> simp
+  have hx12 : bitNat x12 ≤ 1 := by cases x12 <;> simp
+  have hx13 : bitNat x13 ≤ 1 := by cases x13 <;> simp
+  have hx14 : bitNat x14 ≤ 1 := by cases x14 <;> simp
+  have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp
+  have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp
+  have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp
+  cases x0 <;> cases x1 <;>
+    simp only [bitNat_false, bitNat_true, Nat.zero_add, Nat.add_zero] at * <;> omega
 
 #print axioms n6p0_sat
 #print axioms n6p1_sat
