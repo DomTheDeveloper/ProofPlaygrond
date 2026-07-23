@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Exact audit gate for source commit ae368d7e39af42dc8cae1cd49c9e741d64468b8b.
+# Exact audit gate for source commit b8c19a2f7cc1d1a8dd430327756c999dc23d7af6.
 
 name: Litt most-unfair final audit
 
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: ae368d7e39af42dc8cae1cd49c9e741d64468b8b
+          ref: b8c19a2f7cc1d1a8dd430327756c999dc23d7af6
           fetch-depth: 1
 
       - name: Record exact commit
