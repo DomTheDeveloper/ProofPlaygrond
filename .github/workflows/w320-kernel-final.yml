@@ -1,0 +1,94 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: W320 kernel final audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/w320-kernel-final.yml'
+      - 'audits/W320-kernel-final.md'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: exact DTD proof build and axiom audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact DTD proof commit
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: c81b931c9bc70203dc1a687a1381957d6c3e167e
+          fetch-depth: 0
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Lean build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: w320-kernel-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: w320-kernel-${{ runner.os }}-
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Verify exact proof scope
+        run: |
+          set -euo pipefail
+          git diff --name-only 022c1989ef80195545332f5ace7ac4e43caff572..HEAD | tee "$RUNNER_TEMP/scope.txt"
+          test "$(wc -l < "$RUNNER_TEMP/scope.txt")" -eq 5
+          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14Core.lean' "$RUNNER_TEMP/scope.txt"
+          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14FiniteExistence.lean' "$RUNNER_TEMP/scope.txt"
+          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14OrderBridge.lean' "$RUNNER_TEMP/scope.txt"
+          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14ArrayCertificateBridge.lean' "$RUNNER_TEMP/scope.txt"
+          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14FastKernel20.lean' "$RUNNER_TEMP/scope.txt"
+
+      - name: Build exact W(3,20) proof module
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build FormalConjectures.GreensOpenProblems.Green14FastKernel20 \
+            2>&1 | tee "$RUNNER_TEMP/w320-build.log"
+
+      - name: Audit theorem axioms
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/W320Axioms.lean" <<'EOF'
+          import FormalConjectures.GreensOpenProblems.Green14FastKernel20
+          #print axioms Green14.FastKernel.valid_20
+          #print axioms Green14.FastKernel.W_3_20_lower_fast
+          EOF
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/W320Axioms.lean" \
+            2>&1 | tee "$RUNNER_TEMP/w320-axioms.log"
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' "$RUNNER_TEMP/w320-axioms.log"
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w320-kernel-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/scope.txt
+            ${{ runner.temp }}/w320-build.log
+            ${{ runner.temp }}/w320-axioms.log
+          if-no-files-found: warn
