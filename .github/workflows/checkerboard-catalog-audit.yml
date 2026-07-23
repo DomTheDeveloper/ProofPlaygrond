@@ -1,0 +1,53 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Checkerboard catalog audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/checkerboard-catalog-audit.yml'
+      - 'audits/checkerboard-catalog.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact catalog patch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 48ce0affb9521ab0a36fabcd834d27741cc5654a
+          fetch-depth: 1
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Build exact catalog module
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" --wfail build FormalConjectures.Other.MonochromaticCheckerboardNoThreeInLine \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-catalog.log"
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-catalog-${{ github.run_id }}
+          path: ${{ runner.temp }}/checkerboard-catalog.log
+          if-no-files-found: warn
