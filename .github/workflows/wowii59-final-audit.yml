@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused audit for source commit 85d52e049213bdbefd5aba1c999f0b1351a2e2c7.
+# Focused omega audit for source commit 8791cf07fc1c5522f9f1afc3791894d44cf8305b.
 
 name: WOWII 59 final audit
 
@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact finite-repair source
+      - name: Checkout exact linear-certificate source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 85d52e049213bdbefd5aba1c999f0b1351a2e2c7
+          ref: 8791cf07fc1c5522f9f1afc3791894d44cf8305b
           fetch-depth: 1
 
       - name: Record exact commit
@@ -52,33 +52,25 @@ jobs:
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
-      - name: Build shared Formal Conjectures utilities
-        run: |
-          set -euo pipefail
-          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
-
       - name: Reject placeholders and trust shortcuts
         run: |
           set -euo pipefail
-          target='Scratch/WOWII59FiniteTest.lean'
+          target='Scratch/WOWII59LinearCoverTest.lean'
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
             echo 'Forbidden placeholder or trust shortcut found.' >&2
             exit 1
           fi
 
-      - name: Compile finite repair tests
+      - name: Compile integer cycle-cover certificate
         run: |
           set -o pipefail
-          ulimit -s unlimited
-          "$HOME/.elan/bin/lake" env lean \
-            -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
-            Scratch/WOWII59FiniteTest.lean \
+          "$HOME/.elan/bin/lake" env lean Scratch/WOWII59LinearCoverTest.lean \
             2>&1 | tee "$RUNNER_TEMP/wowii59-final.log"
 
       - name: Enforce axiom policy
         run: |
           set -euo pipefail
-          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/wowii59-final.log"; then
+          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/wowii59-final.log"; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
           fi
@@ -87,7 +79,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: wowii59-finite-test-${{ github.run_id }}
+          name: wowii59-linear-cover-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/wowii59-final.log
