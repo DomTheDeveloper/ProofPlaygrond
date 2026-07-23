@@ -17,3 +17,5 @@ The current workflow audits the GDM-facing branch at `e1f22c58af222484dbcecf3fbd
 - a successful pinned build of `FormalConjectures.OEIS.263135`.
 
 The statement and solution metadata are intentionally separate commits.
+
+This synchronization commit forces the final clean-catalog gate against the exact submission SHA above.
