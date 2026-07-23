@@ -3,17 +3,17 @@ import FormalConjectures.Util.ProblemImports
 /-!
 # Kernel-checked finite game certificates
 
-The certificate producer is untrusted.  A certificate contains a finite collection of nodes,
-an interpretation of each node as an actual game position, and proofs that its edge lists are
-sound and complete for the real move relation.  Lean reconstructs the normal-play outcome proof
-by well-founded induction on a strictly decreasing rank.
+The certificate producer is untrusted. A certificate contains finitely many nodes, interprets
+each node as an actual game position, and proves every edge it uses is a real move. At a
+losing-labelled node it must additionally prove that every real legal child is represented.
+Lean reconstructs the normal-play outcome proof by well-founded induction on a decreasing rank.
 -/
 
 namespace ChompKernel
 
 /-- A finite proof that a position is losing (`false`) or winning (`true`).
 
-A losing proof contains a winning proof for every legal child.  A winning proof contains one
+A losing proof contains a winning proof for every legal child. A winning proof contains one
 legal move to a position with a losing proof. -/
 inductive Outcome {P : Type} (Move : P → P → Prop) : P → Bool → Prop
   | losing {p : P} (children : ∀ q, Move p q → Outcome Move q true) : Outcome Move p false
@@ -39,23 +39,24 @@ variable {P : Type} {G : RankedGame P} {n : ℕ}
 
 /-- A finite, interpreted game certificate.
 
-`children` is not trusted data by itself.  `children_sound` and `children_complete` prove that
-it lists exactly all real legal moves from every interpreted certificate node. -/
+At losing nodes, `losing_complete` proves that all actual legal children occur in `children`.
+At winning nodes only one legal losing reply is required, so irrelevant alternatives need not be
+stored. -/
 structure Certificate (G : RankedGame P) (n : ℕ) where
   pos : Fin n → P
   label : Fin n → Bool
   children : Fin n → Finset (Fin n)
   reply : Fin n → Option (Fin n)
   children_sound : ∀ {i j : Fin n}, j ∈ children i → G.Move (pos i) (pos j)
-  children_complete : ∀ (i : Fin n) (q : P), G.Move (pos i) q →
+  losing_complete : ∀ (i : Fin n), label i = false → ∀ (q : P), G.Move (pos i) q →
     ∃ j, j ∈ children i ∧ pos j = q
 
 namespace Certificate
 
 /-- Local outcome-label validity.
 
-* Every child of a losing-labelled node is labelled winning.
-* Every winning-labelled node names a legal child labelled losing.
+* Every represented child of a losing-labelled node is labelled winning.
+* Every winning-labelled node names a represented child labelled losing.
 -/
 def ValidAt (C : Certificate G n) (i : Fin n) : Prop :=
   match C.label i with
@@ -64,9 +65,8 @@ def ValidAt (C : Certificate G n) (i : Fin n) : Prop :=
 
 /-- A valid finite interpreted certificate yields genuine outcome proofs for the actual game.
 
-The key point is `children_complete`: at a losing node, an arbitrary real legal move is mapped
-back to a certificate node before the induction hypothesis is used.  No default labels or
-unrepresented positions are trusted. -/
+An arbitrary real move from a losing node is brought into the finite certificate through
+`losing_complete`. A winning node needs only its one certified reply. -/
 theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i : Fin n) :
     Outcome G.Move (C.pos i) (C.label i) := by
   refine (measure_wf (fun i ↦ G.rank (C.pos i))).induction i ?_
@@ -77,7 +77,7 @@ theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i 
         simpa [ValidAt, hi] using hvalid i
       rw [hi]
       exact Outcome.losing (fun q hq ↦ by
-        obtain ⟨j, hj, hpos⟩ := C.children_complete i q hq
+        obtain ⟨j, hj, hpos⟩ := C.losing_complete i hi q hq
         subst q
         have hout := ih j (G.decreases (C.children_sound hj))
         simpa [hv j hj] using hout)
