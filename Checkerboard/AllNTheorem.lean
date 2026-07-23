@@ -1,5 +1,5 @@
 import Checkerboard.AllNUpper
-import Checkerboard.N6Base
+import Checkerboard.N6Explicit
 
 /-!
 # Complete all-n checkerboard upper bound
