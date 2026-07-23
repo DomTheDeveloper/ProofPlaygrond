@@ -31,12 +31,29 @@ theorem cutSuffix_isFerrers (t : ℕ) : ∀ {p : List ℕ}, IsFerrers p → IsFe
       simp only [cutSuffix, IsFerrers]
       exact ⟨min_le_min hyx le_rfl, cutSuffix_isFerrers t htail⟩
 
+/-- Cutting a suffix preserves the number of rows. -/
+theorem cutSuffix_length (t : ℕ) : ∀ p : List ℕ,
+    (cutSuffix t p).length = p.length
+  | [] => by simp [cutSuffix]
+  | x :: xs => by simp [cutSuffix, cutSuffix_length t xs]
+
 /-- A bite never increases the first row. -/
 theorem bite_head_le (i t : ℕ) : ∀ p : List ℕ,
     (bite i t p).getD 0 0 ≤ p.getD 0 0
   | [] => by simp [bite]
   | x :: xs => by
       cases i <;> simp [bite, cutSuffix]
+
+/-- A bite preserves the number of rows. -/
+theorem bite_length (i t : ℕ) (p : List ℕ) :
+    (bite i t p).length = p.length := by
+  induction i generalizing p with
+  | zero =>
+      cases p <;> simp [bite, cutSuffix_length]
+  | succ i ih =>
+      cases p with
+      | nil => simp [bite]
+      | cons x xs => simp [bite, ih]
 
 /-- A bite preserves the Ferrers inequalities. -/
 theorem bite_isFerrers (t : ℕ) : ∀ i : ℕ, ∀ {p : List ℕ},
@@ -87,9 +104,28 @@ theorem move_preserves_position {p q : List ℕ}
   rcases hmove with ⟨i, t, _, _, hpoison, rfl⟩
   exact ⟨bite_isFerrers t i hferrers, bite_head_pos hpoisoned hpoison⟩
 
+/-- The finite symbolic-certificate universe: legal ten-row positions whose first row has width
+at most 42. -/
+def CertificateDomain (p : List ℕ) : Prop :=
+  IsPosition p ∧ p.length = 10 ∧ p.getD 0 0 ≤ 42
+
+/-- The concrete 10 × 42 certificate domain is closed under legal Chomp moves. -/
+theorem move_preserves_certificateDomain {p q : List ℕ}
+    (hp : CertificateDomain p) (hmove : Move p q) : CertificateDomain q := by
+  rcases hp with ⟨hpPosition, hpLength, hpHead⟩
+  rcases hmove with ⟨i, t, hi, ht, hpoison, rfl⟩
+  refine ⟨move_preserves_position hpPosition ⟨i, t, hi, ht, hpoison, rfl⟩, ?_, ?_⟩
+  · calc
+      (bite i t p).length = p.length := bite_length i t p
+      _ = 10 := hpLength
+  · exact (bite_head_le i t p).trans hpHead
+
 #print axioms cutSuffix_isFerrers
+#print axioms cutSuffix_length
+#print axioms bite_length
 #print axioms bite_isFerrers
 #print axioms bite_head_pos
 #print axioms move_preserves_position
+#print axioms move_preserves_certificateDomain
 
 end OeisA147983
