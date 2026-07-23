@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   exact:
-    runs-on: windows-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
@@ -36,44 +36,42 @@ jobs:
           lint: false
           use-mathlib-cache: true
       - name: Reject actual placeholders
-        shell: pwsh
         working-directory: target
+        shell: bash
         run: |
-          $matches = Get-ChildItem 'FormalConjectures/Arxiv/2508.10245/Geode5Proof' -Recurse -File |
-            Select-String -Pattern 'by\s+(sorry|admit)\b|^\s*(sorry|admit)\b'
-          $matches += Select-String -Path 'FormalConjectures/Arxiv/2508.10245/Geode5.lean' -Pattern 'by\s+(sorry|admit)\b|^\s*(sorry|admit)\b'
-          if ($matches) { $matches | ForEach-Object { Write-Host $_ }; exit 1 }
+          set -euo pipefail
+          ! grep -RInE 'by[[:space:]]+(sorry|admit)\b|^[[:space:]]*(sorry|admit)\b' \
+            FormalConjectures/Arxiv/2508.10245/Geode5Proof \
+            FormalConjectures/Arxiv/2508.10245/Geode5.lean
       - name: Compile exact final theorem
         id: compile
         continue-on-error: true
-        shell: pwsh
         working-directory: target
+        shell: bash
         run: |
-          lake env lean -DwarningAsError=true 'FormalConjectures/Arxiv/2508.10245/Geode5.lean' 2>&1 |
-            Tee-Object -FilePath "$env:RUNNER_TEMP/geode5-final.log"
-          exit $LASTEXITCODE
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2508.10245/Geode5.lean \
+            2>&1 | tee "$RUNNER_TEMP/geode5-final.log"
       - name: Report
         if: always()
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           OUTCOME: ${{ steps.compile.outcome }}
+        shell: bash
         run: |
-          $log = Join-Path $env:RUNNER_TEMP 'geode5-final.log'
-          $tail = if (Test-Path $log) { (Get-Content $log | Select-Object -Last 240) -join "`n" } else { '' }
-          @"
-          ## Geode5 immutable final audit
-
-          Target: ``DomTheDeveloper/formal-conjectures@89a8f3c8de74039ab989100c27a6bf24234556f8``
-          Module: ``FormalConjectures/Arxiv/2508.10245/Geode5.lean``
-          Result: **$env:OUTCOME**
-
-          ``````text
-          $tail
-          ``````
-          "@ | Set-Content "$env:RUNNER_TEMP/geode5-comment.md"
-          gh pr comment '${{ github.event.pull_request.number }}' --repo '${{ github.repository }}' --body-file "$env:RUNNER_TEMP/geode5-comment.md"
+          {
+            echo '## Geode5 immutable final audit'
+            echo
+            echo 'Target: `DomTheDeveloper/formal-conjectures@89a8f3c8de74039ab989100c27a6bf24234556f8`'
+            echo 'Module: `FormalConjectures/Arxiv/2508.10245/Geode5.lean`'
+            echo "Result: **${OUTCOME}**"
+            echo
+            echo '```text'
+            tail -n 240 "$RUNNER_TEMP/geode5-final.log" 2>/dev/null || true
+            echo '```'
+          } > "$RUNNER_TEMP/geode5-comment.md"
+          gh pr comment '${{ github.event.pull_request.number }}' --repo '${{ github.repository }}' --body-file "$RUNNER_TEMP/geode5-comment.md"
       - name: Enforce
         if: steps.compile.outcome != 'success'
-        shell: pwsh
         run: exit 1
