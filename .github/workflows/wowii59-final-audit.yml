@@ -68,6 +68,7 @@ jobs:
       - name: Compile exact counterexample with sufficient resources
         run: |
           set -o pipefail
+          ulimit -s unlimited
           "$HOME/.elan/bin/lake" env lean \
             -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
             FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean \
@@ -76,6 +77,7 @@ jobs:
       - name: Run terminal axiom audit
         run: |
           set -o pipefail
+          ulimit -s unlimited
           cat > WOWII59AxiomAudit.lean <<'EOF'
           import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
           #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59
