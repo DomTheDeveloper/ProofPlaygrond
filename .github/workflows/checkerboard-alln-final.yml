@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Final pinned audit of the integrated checkerboard all-n theorem at b30957c9.
+# Final pinned audit of the integrated checkerboard all-n theorem at 017258bc.
 
 name: Final checkerboard all-n audit
 
@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: b30957c9b86259159e00499851d8fc1816a48e4f
+          ref: 017258bcda2cd8240c9eeedf62be68fdf87839dc
           fetch-depth: 1
 
       - name: Record exact source
