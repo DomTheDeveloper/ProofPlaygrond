@@ -52,6 +52,11 @@ jobs:
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
+      - name: Build shared Formal Conjectures utilities
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
+
       - name: Reject placeholders and trust shortcuts
         run: |
           set -euo pipefail
