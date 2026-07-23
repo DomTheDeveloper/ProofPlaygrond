@@ -1,5 +1,13 @@
 import Mathlib
 
+/-!
+# Compact 6×6 checkerboard arithmetic certificates
+
+Proof developed by Dominic Dabish. ProofOrchestrator, using OpenAI GPT-5.6 Thinking,
+assisted with the mathematical argument, Lean formalization, and submission
+preparation. All formal claims are checked by the repository-pinned Lean compiler.
+-/
+
 namespace Checkerboard
 
 /-- Convert a Boolean selection bit to its natural indicator. -/
@@ -50,7 +58,7 @@ theorem n6p0_sat
   have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
   have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  bv_omega
+  omega
 
 /-- Integer certificate for the odd checkerboard color class on the 6-board. -/
 theorem n6p1_sat
@@ -97,7 +105,7 @@ theorem n6p1_sat
   have hx15 : bitNat x15 ≤ 1 := by cases x15 <;> simp [bitNat]
   have hx16 : bitNat x16 ≤ 1 := by cases x16 <;> simp [bitNat]
   have hx17 : bitNat x17 ≤ 1 := by cases x17 <;> simp [bitNat]
-  bv_omega
+  omega
 
 #print axioms n6p0_sat
 #print axioms n6p1_sat
