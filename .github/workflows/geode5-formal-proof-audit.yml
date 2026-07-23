@@ -1,6 +1,11 @@
 name: Geode5 formal proof audit
 
 on:
+  push:
+    branches: [geode5-formal-proof]
+    paths:
+      - 'proofs/geode5/**'
+      - '.github/workflows/geode5-formal-proof-audit.yml'
   pull_request:
     branches: [main]
     paths:
