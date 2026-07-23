@@ -1,5 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
+# Synchronization gate for the current agent/litt-most-unfair-proof tip.
 
 name: Litt most-unfair final audit
 
