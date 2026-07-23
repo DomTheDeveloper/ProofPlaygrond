@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Diagnostic pure-kernel bridge audit for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
+# Isolated arithmetic-certificate diagnostic for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact checkerboard bridge source
+      - name: Checkout exact checkerboard certificate source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
@@ -48,30 +48,40 @@ jobs:
           set -euo pipefail
           files=(Checkerboard/N6SATTest.lean Checkerboard/N6BridgeTest.lean)
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|bv_decide|bv_check|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
-            echo 'Forbidden placeholder or trust shortcut found in checkerboard bridge.' >&2
+            echo 'Forbidden placeholder or trust shortcut found in checkerboard certificate.' >&2
             exit 1
           fi
 
-      - name: Build bridge dependencies
+      - name: Build geometric dependency
         run: |
           set -euo pipefail
-          "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate Checkerboard.N6SATTest
+          "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate
 
-      - name: Compile both omega certificate bridges
-        id: compile
+      - name: Compile arithmetic certificate with transcript
+        id: sat
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-sat.log"
+
+      - name: Compile geometric bridge when certificate succeeds
+        id: bridge
+        if: steps.sat.outcome == 'success'
         continue-on-error: true
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
 
-      - name: Upload bridge transcript
+      - name: Upload all diagnostic transcripts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: checkerboard-n6-bridge-${{ github.run_id }}
+          name: checkerboard-n6-diagnostic-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/checkerboard-n6-sat.log
             ${{ runner.temp }}/checkerboard-n6-bridge.log
           if-no-files-found: warn
 
@@ -79,8 +89,10 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          test '${{ steps.compile.outcome }}' = 'success'
-          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-bridge.log"; then
+          test '${{ steps.sat.outcome }}' = 'success'
+          test '${{ steps.bridge.outcome }}' = 'success'
+          cat "$RUNNER_TEMP/checkerboard-n6-sat.log" "$RUNNER_TEMP/checkerboard-n6-bridge.log" > "$RUNNER_TEMP/checkerboard-n6-all.log"
+          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-all.log"; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
           fi
