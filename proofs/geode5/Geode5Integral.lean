@@ -21,8 +21,8 @@ import FormalConjectures.Arxiv.«2508.10245».Geode5Proof.MomentAlgebra
 
 The moment proof only needs integration of a polynomial in `t` from zero to one.
 We define that operation algebraically, coefficient by coefficient, over
-`Polynomial ℚ`. This avoids importing analytic integration and makes the
-integration-by-parts argument available over exact rational coefficients.
+`Polynomial ℚ`. The map is linear over the coefficient ring `Polynomial ℚ`, so
+polynomial coefficients in `y` factor through the integral exactly.
 -/
 
 namespace Arxiv.«2508.10245».Geode5Proof
@@ -35,23 +35,26 @@ abbrev QYPoly := Polynomial ℚ
 /-- Polynomials in `t` with coefficients in `QYPoly`. -/
 abbrev TQYPoly := Polynomial QYPoly
 
-/-- Multiplication by `1 / (n + 1)` on `QYPoly`. -/
-def integralWeight (n : ℕ) : QYPoly →ₗ[ℚ] QYPoly where
-  toFun a := ((n + 1 : ℚ)⁻¹) • a
-  map_add' a b := by simp [smul_add]
-  map_smul' c a := by simp [smul_smul, mul_comm]
+/-- Multiplication by the constant polynomial `1 / (n + 1)` on `QYPoly`. -/
+def integralWeight (n : ℕ) : QYPoly →ₗ[QYPoly] QYPoly where
+  toFun a := Polynomial.C ((n + 1 : ℚ)⁻¹) * a
+  map_add' a b := by simp [mul_add]
+  map_smul' c a := by
+    simp only [smul_eq_mul]
+    ring
 
 /-- Algebraic integral from zero to one in the variable `t`. -/
-def integral01 : TQYPoly →ₗ[ℚ] QYPoly :=
+def integral01 : TQYPoly →ₗ[QYPoly] QYPoly :=
   Polynomial.lsum integralWeight
 
 @[simp]
 theorem integralWeight_apply (n : ℕ) (a : QYPoly) :
-    integralWeight n a = ((n + 1 : ℚ)⁻¹) • a := rfl
+    integralWeight n a = Polynomial.C ((n + 1 : ℚ)⁻¹) * a := rfl
 
 @[simp]
 theorem integral01_monomial (n : ℕ) (a : QYPoly) :
-    integral01 (Polynomial.monomial n a) = ((n + 1 : ℚ)⁻¹) • a := by
+    integral01 (Polynomial.monomial n a) =
+      Polynomial.C ((n + 1 : ℚ)⁻¹) * a := by
   simp [integral01, integralWeight]
 
 /-- The algebraic fundamental theorem for polynomial derivatives. -/
@@ -66,7 +69,7 @@ theorem integral01_derivative (p : TQYPoly) :
       | succ n =>
           rw [Polynomial.derivative_monomial_succ, integral01_monomial]
           have hn : (n + 1 : ℚ) ≠ 0 := by positivity
-          simp [Polynomial.eval_monomial, Algebra.smul_def, hn, mul_comm]
+          simp [Polynomial.eval_monomial, hn, Polynomial.natCast_eq_C, mul_comm]
 
 #print axioms integral01_derivative
 
