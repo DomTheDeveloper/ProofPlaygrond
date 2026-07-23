@@ -4,9 +4,6 @@
 name: BMO 8 compile fix audit
 
 on:
-  push:
-    branches:
-      - audit/bmo8-compile-fix
   pull_request:
     branches:
       - main
@@ -63,7 +60,7 @@ jobs:
         working-directory: formal-conjectures
         run: |
           set -o pipefail
-          lake env lean -DwarningAsError=true FormalConjectures/Other/BeaverMathOlympiad8Proof.lean \
+          lake env lean --wfail FormalConjectures/Other/BeaverMathOlympiad8Proof.lean \
             2>&1 | tee BMO8Compile.log
 
       - name: Upload compiler log
