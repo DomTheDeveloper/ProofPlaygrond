@@ -1,0 +1,100 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: OEIS A343881 final Lean audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/oeis-a343881-final.yml'
+      - 'audits/oeis-a343881-final.trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oeis-a343881-final-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: warning-free proof and axiom audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout immutable proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 7db1d1a3347619a7c3f5d0662c43d77ed47e130e
+          fetch-depth: 1
+
+      - name: Confirm immutable source and toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee "$RUNNER_TEMP/a343881-resolved-sha.txt"
+          test "$(git rev-parse HEAD)" = "7db1d1a3347619a7c3f5d0662c43d77ed47e130e"
+          cat lean-toolchain
+
+      - name: Install repository-pinned Lean
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch Mathlib cache
+        run: "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject placeholders and trust shortcuts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' \
+              FormalConjectures/OEIS/343881.lean; then
+            echo 'Forbidden placeholder or trust shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Build exact A343881 proof module
+        shell: bash
+        run: |
+          set -o pipefail
+          : > "$RUNNER_TEMP/a343881-final.log"
+          "$HOME/.elan/bin/lake" build 'FormalConjectures.OEIS.«343881»' \
+            2>&1 | tee "$RUNNER_TEMP/a343881-final.log"
+
+      - name: Run terminal axiom audit
+        shell: bash
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/A343881AxiomAudit.lean" <<'EOF'
+          import FormalConjectures.OEIS.«343881»
+          #print axioms OeisA343881.conjecture
+          EOF
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/A343881AxiomAudit.lean" \
+            2>&1 | tee -a "$RUNNER_TEMP/a343881-final.log"
+
+      - name: Enforce final axiom policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a343881-final.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload final transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oeis-a343881-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/a343881-resolved-sha.txt
+            ${{ runner.temp }}/a343881-final.log
+            ${{ runner.temp }}/A343881AxiomAudit.lean
+          if-no-files-found: warn
