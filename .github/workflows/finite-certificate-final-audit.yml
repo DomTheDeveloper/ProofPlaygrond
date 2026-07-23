@@ -1,0 +1,116 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Finite certificate final audits
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/finite-certificate-final-audit.yml'
+      - 'audits/finite-certificates-final.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: WOWII 59 and convex VC2 kernel audits
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Install repository-pinned Lean launcher
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Checkout exact WOWII 59 proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 658a7c412991eb7fcd019d8ea67a4d5644f98add
+          path: wow59
+          fetch-depth: 1
+
+      - name: Restore WOWII 59 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            wow59/.lake/packages
+            wow59/.lake/build
+          key: wow59-${{ runner.os }}-${{ hashFiles('wow59/lean-toolchain', 'wow59/lake-manifest.json', 'wow59/lakefile.toml') }}
+          restore-keys: wow59-${{ runner.os }}-
+
+      - name: Audit WOWII 59
+        run: |
+          set -euo pipefail
+          cd wow59
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+          target='FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean'
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            echo 'Forbidden placeholder or trust shortcut found in WOWII 59 proof.' >&2
+            exit 1
+          fi
+          "$HOME/.elan/bin/lake" --wfail build FormalConjectures.WrittenOnTheWallII.GraphConjecture59 \
+            2>&1 | tee "$RUNNER_TEMP/wow59-audit.log"
+          cat > WOW59AxiomAudit.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
+          #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59
+          EOF
+          "$HOME/.elan/bin/lake" env lean WOW59AxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/wow59-audit.log"
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/wow59-audit.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency in WOWII 59.' >&2
+            exit 1
+          fi
+
+      - name: Checkout exact convex VC2 proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 9ab8a817f90a5dd8162a1ef9aee204af767cea90
+          path: vc2
+          fetch-depth: 1
+
+      - name: Restore convex VC2 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            vc2/.lake/packages
+            vc2/.lake/build
+          key: vc2-${{ runner.os }}-${{ hashFiles('vc2/lean-toolchain', 'vc2/lake-manifest.json', 'vc2/lakefile.toml') }}
+          restore-keys: vc2-${{ runner.os }}-
+
+      - name: Audit convex VC2 counterexample
+        run: |
+          set -euo pipefail
+          cd vc2
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+          target='FormalConjectures/Other/VCDimConvexCounterexample.lean'
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            echo 'Forbidden placeholder or trust shortcut found in convex VC2 proof.' >&2
+            exit 1
+          fi
+          "$HOME/.elan/bin/lake" --wfail build FormalConjectures.Other.VCDimConvexCounterexample \
+            2>&1 | tee "$RUNNER_TEMP/vc2-audit.log"
+          "$HOME/.elan/bin/lake" env lean "$target" \
+            2>&1 | tee -a "$RUNNER_TEMP/vc2-audit.log"
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/vc2-audit.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency in convex VC2 proof.' >&2
+            exit 1
+          fi
+
+      - name: Upload audit transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finite-certificate-final-audits-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/wow59-audit.log
+            ${{ runner.temp }}/vc2-audit.log
+          if-no-files-found: warn
