@@ -1,0 +1,74 @@
+name: A147983 low-area carrier audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a147983-low-area-carrier.yml'
+      - 'audits/a147983-low-area/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: a147983-low-area-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout DTD certificate sources
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: experiment/a147983-compact-export
+          path: dtd
+
+      - name: Build exact generators
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_export_p_ranks.cpp -o chomp_export_p_ranks
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_p_mdd_serialize.cpp -o chomp_p_mdd_serialize
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_compact_carrier.cpp -o chomp_compact_carrier
+
+      - name: Regenerate exact P stream and MDD
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v ./chomp_export_p_ranks 10 42 p10x42.bin > export.stdout 2> export.stderr
+          grep -F 'P=107342138 prefixes=3042311754 last_rank=15820013305' export.stderr
+          /usr/bin/time -v ./chomp_p_mdd_serialize p10x42.bin p10x42.mdd > mdd.stdout 2> mdd.stderr
+          grep -F 'words=107342138 total_nodes=16906422 total_transitions=96754877' mdd.stdout
+
+      - name: Measure low-area carrier
+        working-directory: dtd/ProofArtifacts/OEIS/A147983
+        run: |
+          set +e
+          /usr/bin/time -v ./chomp_compact_carrier p10x42.mdd 100000 low > carrier.stdout 2> carrier.stderr
+          status=$?
+          set -e
+          if [[ $status -ne 0 && $status -ne 3 ]]; then
+            cat carrier.stderr >&2
+            exit "$status"
+          fi
+          grep -E '^(COMPLETE|LIMIT) carrier=' carrier.stdout
+          cat carrier.stdout
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a147983-low-area-carrier
+          path: |
+            dtd/ProofArtifacts/OEIS/A147983/export.stderr
+            dtd/ProofArtifacts/OEIS/A147983/mdd.stdout
+            dtd/ProofArtifacts/OEIS/A147983/carrier.stdout
+            dtd/ProofArtifacts/OEIS/A147983/carrier.stderr
+          if-no-files-found: warn
