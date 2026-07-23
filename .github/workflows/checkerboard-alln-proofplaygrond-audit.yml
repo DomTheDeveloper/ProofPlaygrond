@@ -52,10 +52,10 @@ jobs:
             exit 1
           fi
 
-      - name: Compile bv_omega certificate bridge
+      - name: Build omega certificate bridge through Lake
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
+          "$HOME/.elan/bin/lake" build Checkerboard.N6BridgeTest \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
 
       - name: Enforce axiom policy
