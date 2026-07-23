@@ -1,3 +1,19 @@
+/-
+Copyright 2026 The Formal Conjectures Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-/
+
 import FormalConjectures.Util.ProblemImports
 
 /-!
@@ -6,7 +22,7 @@ import FormalConjectures.Util.ProblemImports
 The certificate producer is untrusted. A certificate contains finitely many nodes, interprets
 each node as an actual game position, and proves every edge it uses is a real move. At a
 losing-labelled node it must additionally prove that every real legal child is represented.
-Lean reconstructs the normal-play outcome proof by well-founded induction on a decreasing rank.
+Lean reconstructs the normal-play outcome proof by strong induction on a decreasing rank.
 -/
 
 namespace ChompKernel
@@ -69,26 +85,35 @@ An arbitrary real move from a losing node is brought into the finite certificate
 `losing_complete`. A winning node needs only its one certified reply. -/
 theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i : Fin n) :
     Outcome G.Move (C.pos i) (C.label i) := by
-  refine (measure_wf (fun i ↦ G.rank (C.pos i))).induction i ?_
-  intro i ih
-  cases hi : C.label i with
-  | false =>
-      have hv : ∀ j, j ∈ C.children i → C.label j = true := by
-        simpa [ValidAt, hi] using hvalid i
-      rw [hi]
-      exact Outcome.losing (fun q hq ↦ by
-        obtain ⟨j, hj, hpos⟩ := C.losing_complete i hi q hq
-        subst q
-        have hout := ih j (G.decreases (C.children_sound hj))
-        simpa [hv j hj] using hout)
-  | true =>
-      have hv : ∃ j, C.reply i = some j ∧ j ∈ C.children i ∧ C.label j = false := by
-        simpa [ValidAt, hi] using hvalid i
-      obtain ⟨j, _, hj, hlabel⟩ := hv
-      rw [hi]
-      exact Outcome.winning (C.children_sound hj) (by
-        have hout := ih j (G.decreases (C.children_sound hj))
-        simpa [hlabel] using hout)
+  have all : ∀ k : ℕ, ∀ i : Fin n, G.rank (C.pos i) = k →
+      Outcome G.Move (C.pos i) (C.label i) := by
+    intro k
+    induction k using Nat.strong_induction_on with
+    | h k ih =>
+        intro i hrank
+        cases hi : C.label i with
+        | false =>
+            have hv : ∀ j, j ∈ C.children i → C.label j = true := by
+              simpa [ValidAt, hi] using hvalid i
+            rw [hi]
+            exact Outcome.losing (fun q hq ↦ by
+              obtain ⟨j, hj, hpos⟩ := C.losing_complete i hi q hq
+              subst q
+              have hlt : G.rank (C.pos j) < k := by
+                simpa [← hrank] using G.decreases (C.children_sound hj)
+              have hout := ih _ hlt j rfl
+              simpa [hv j hj] using hout)
+        | true =>
+            have hv : ∃ j, C.reply i = some j ∧ j ∈ C.children i ∧ C.label j = false := by
+              simpa [ValidAt, hi] using hvalid i
+            obtain ⟨j, _, hj, hlabel⟩ := hv
+            rw [hi]
+            exact Outcome.winning (C.children_sound hj) (by
+              have hlt : G.rank (C.pos j) < k := by
+                simpa [← hrank] using G.decreases (C.children_sound hj)
+              have hout := ih _ hlt j rfl
+              simpa [hlabel] using hout)
+  exact all _ i rfl
 
 /-- A losing-labelled root of a valid certificate has a kernel-checked losing proof. -/
 theorem losing_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) {i : Fin n}
