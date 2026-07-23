@@ -134,10 +134,26 @@ theorem evenQuadratic_cost_zero (m : ℕ) (hm : 1 ≤ m) :
       if j.1 % 2 = 0 then evenCapExpr m j else 0) +
     (∑ j : Fin (2 * (2 * m) - 1),
       if j.1 % 2 = 1 then evenCapExpr m j else 0)) = _
-  rw [even_axis_sum,
-    parity_partition (fun j : Fin (2 * (2 * m) - 1) => evenCapExpr m j),
-    even_all_diag_sum m hm]
-  ring
+  rw [even_axis_sum]
+  have hpartition :=
+    parity_partition (fun j : Fin (2 * (2 * m) - 1) => evenCapExpr m j)
+  calc
+    2 * ((2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 0 then evenCapExpr m j else 0)) +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 1 then evenCapExpr m j else 0)) =
+      2 * (2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        ((∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 0 then evenCapExpr m j else 0) +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 1 then evenCapExpr m j else 0))) := by ring
+    _ = 2 * (2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        (∑ j : Fin (2 * (2 * m) - 1), evenCapExpr m j)) := by rw [hpartition]
+    _ = _ := by rw [even_all_diag_sum m hm]; ring
 
 /-- Same objective for the other color of an even board. -/
 theorem evenQuadratic_cost_one (m : ℕ) (hm : 1 ≤ m) :
@@ -157,7 +173,22 @@ theorem evenQuadratic_cost_one (m : ℕ) (hm : 1 ≤ m) :
   have hpartition :=
     parity_partition (fun j : Fin (2 * (2 * m) - 1) => evenCapExpr m j)
   rw [add_comm] at hpartition
-  rw [hpartition, even_all_diag_sum m hm]
-  ring
+  calc
+    2 * ((2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 1 then evenCapExpr m j else 0)) +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 0 then evenCapExpr m j else 0)) =
+      2 * (2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        ((∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 1 then evenCapExpr m j else 0) +
+        (∑ j : Fin (2 * (2 * m) - 1),
+          if j.1 % 2 = 0 then evenCapExpr m j else 0))) := by ring
+    _ = 2 * (2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        2 * (m : ℚ) * (4 * (m : ℚ) ^ 2 - 1) / 3 +
+        (∑ j : Fin (2 * (2 * m) - 1), evenCapExpr m j)) := by rw [hpartition]
+    _ = _ := by rw [even_all_diag_sum m hm]; ring
 
 end Checkerboard
