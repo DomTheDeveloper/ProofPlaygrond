@@ -4,6 +4,13 @@
 name: A263135 AXLE audit
 
 on:
+  push:
+    branches: [audit-run/a263135-6ad03f2a]
+    paths:
+      - '.github/workflows/a263135-axle-audit.yml'
+      - 'audits/axle_a263135.py'
+      - 'audits/axle_a263135_v2.py'
+      - 'audits/A263135.md'
   pull_request:
     branches: [audit-base/a263135-axle-6ad03f2a]
     paths:
