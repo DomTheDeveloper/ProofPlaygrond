@@ -1,4 +1,4 @@
-name: Chomp 10x42 exact audit
+name: Chomp 10x42 kernel certificate feasibility
 
 on:
   pull_request:
@@ -12,75 +12,85 @@ permissions:
   contents: read
 
 concurrency:
-  group: chomp-10x42-${{ github.event.pull_request.number || github.ref }}
+  group: chomp-10x42-kernel-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  exact-audit:
+  certificate-feasibility:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: proofs/chomp-10x42
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build both corrected exact solvers
+      - name: Build exact exporter and proof-DAG extractor
         run: |
           set -euo pipefail
           g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
-            chomp_three_openings.cpp -o chomp_scalar
+            chomp_export_p_ranks.cpp -o chomp_export_p_ranks
           g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
-            chomp_three_openings_fast.cpp -o chomp_fast
+            chomp_proof_dag.cpp -o chomp_proof_dag
 
-      - name: Run complete small-state-space cross-check
+      - name: Complete small certificate regression
         run: |
           set -euo pipefail
-          python3 bruteforce_crosscheck.py ./chomp_scalar | tee small-crosscheck.log
-          grep -F 'ALL SMALL EXACT CROSS-CHECKS PASSED' small-crosscheck.log
+          ./chomp_export_p_ranks 4 10 p4x10.bin 2> p4x10-export.log
+          ./chomp_proof_dag p4x10.bin 100000 10,8,8,7 | tee p4x10-dag.log
+          grep -F 'P=75 prefixes=285 last_rank=967' p4x10-export.log
+          grep -F 'COMPLETE nodes=470 P=58 N=412 edges=1306 maxFan=32' p4x10-dag.log
 
-      - name: Reproduce published 6x13 regression
+      - name: Export complete 10x42 P-rank database
         run: |
           set -euo pipefail
-          ./chomp_scalar 6 13 > regression.out 2> regression.err
-          grep -F '6x13 openings=2' regression.out
-          grep -F '(13,13,13,11,11,11)' regression.out
-          grep -F '(13,13,13,13,8,8)' regression.out
-          grep -F 'max=2 P=895 prefixes=8567' regression.out
+          /usr/bin/time -v ./chomp_export_p_ranks 10 42 p10x42.bin \
+            > p10x42-export.out 2> p10x42-export.log
+          test "$(stat -c%s p10x42.bin)" -gt 800000000
+          grep -E '^P=[0-9]+ prefixes=3042312350 last_rank=' p10x42-export.log
 
-      - name: Run complete corrected scalar computation
+      - name: Measure shared proof DAG up to two million nodes
         run: |
           set -euo pipefail
-          /usr/bin/time -v ./chomp_scalar 10 42 > scalar.out 2> scalar.err
+          set +e
+          /usr/bin/time -v ./chomp_proof_dag p10x42.bin 2000000 \
+            42,42,42,42,35,35,35,35,35,35 \
+            42,42,42,42,42,42,29,29,29,29 \
+            42,42,42,42,42,42,42,25,25,25 \
+            > p10x42-dag.out 2> p10x42-dag.log
+          status=$?
+          set -e
+          if [[ $status -ne 0 && $status -ne 3 ]]; then
+            cat p10x42-dag.log >&2
+            exit $status
+          fi
+          grep -E '^(COMPLETE|LIMIT) nodes=' p10x42-dag.out
 
-      - name: Run complete corrected bit-window computation
+      - name: Write feasibility summary
+        if: always()
         run: |
-          set -euo pipefail
-          /usr/bin/time -v ./chomp_fast 10 42 > fast.out 2> fast.err
+          {
+            echo '# Chomp 10x42 kernel-certificate feasibility'
+            echo
+            echo '## Full P database'
+            tail -n 20 p10x42-export.log 2>/dev/null || true
+            echo
+            echo '## Shared proof DAG'
+            cat p10x42-dag.out 2>/dev/null || true
+            tail -n 30 p10x42-dag.log 2>/dev/null || true
+          } | tee certificate-feasibility.md
 
-      - name: Compare full outputs and exact target
-        run: |
-          set -euo pipefail
-          cmp scalar.out fast.out
-          grep -F '10x42 openings=3' scalar.out
-          grep -F '(42,42,42,42,35,35,35,35,35,35)' scalar.out
-          grep -F '(42,42,42,42,42,42,29,29,29,29)' scalar.out
-          grep -F '(42,42,42,42,42,42,42,25,25,25)' scalar.out
-          grep -F 'max=3 P=107342138 prefixes=3042311754' scalar.out
-          grep -F 'FOUND at width 42' scalar.err
-          grep -F 'FOUND at width 42' fast.err
-
-      - name: Upload exact transcripts
+      - name: Upload feasibility report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: chomp-10x42-exact-audit
+          name: chomp-10x42-kernel-certificate-feasibility
           path: |
-            proofs/chomp-10x42/small-crosscheck.log
-            proofs/chomp-10x42/regression.out
-            proofs/chomp-10x42/regression.err
-            proofs/chomp-10x42/scalar.out
-            proofs/chomp-10x42/scalar.err
-            proofs/chomp-10x42/fast.out
-            proofs/chomp-10x42/fast.err
+            proofs/chomp-10x42/certificate-feasibility.md
+            proofs/chomp-10x42/p4x10-export.log
+            proofs/chomp-10x42/p4x10-dag.log
+            proofs/chomp-10x42/p10x42-export.out
+            proofs/chomp-10x42/p10x42-export.log
+            proofs/chomp-10x42/p10x42-dag.out
+            proofs/chomp-10x42/p10x42-dag.log
           if-no-files-found: warn
