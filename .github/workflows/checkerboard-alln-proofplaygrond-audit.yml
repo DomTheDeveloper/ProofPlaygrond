@@ -1,7 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused audit for compact n6 SAT source commit aa165e404a0319c272c2eb6cf76efa29e144b06c.
-# Retriggered after reopening the canonical audit PR.
+# Focused audit for pure BitVec n6 SAT source commit f7bb9301c63bad3e23121b90117c0df7b4f3a9d2.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -25,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: aa165e404a0319c272c2eb6cf76efa29e144b06c
+          ref: f7bb9301c63bad3e23121b90117c0df7b4f3a9d2
           fetch-depth: 1
 
       - name: Record exact commit
@@ -63,9 +62,7 @@ jobs:
           done
           exit 1
 
-      - name: Test compact n6 SAT certificate
-        id: sat
-        continue-on-error: true
+      - name: Test pure BitVec n6 SAT certificate
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
@@ -80,7 +77,3 @@ jobs:
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/checkerboard-alln.log
           if-no-files-found: warn
-
-      - name: Enforce focused result
-        if: always()
-        run: test '${{ steps.sat.outcome }}' = 'success'
