@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Reduced computable core audit for source commit 32b26acd3c091d444f5d1d80be9407dc4a6b1c3e.
+# Boolean-indicator core audit for source commit 7764705bb0cafd673bd8b830f2e57ca0b52d10c3.
 
 name: WOWII 59 final audit
 
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 32b26acd3c091d444f5d1d80be9407dc4a6b1c3e
+          ref: 7764705bb0cafd673bd8b830f2e57ca0b52d10c3
           fetch-depth: 1
 
       - name: Record exact commit
