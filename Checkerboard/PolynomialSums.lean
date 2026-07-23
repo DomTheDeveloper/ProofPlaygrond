@@ -27,7 +27,7 @@ theorem sum_range_quadratic_cap (N : ℕ) :
       2 * ((N : ℚ) ^ 2 - ((j : ℚ) - N) ^ 2)) =
       2 * (N : ℚ) * (2 * (N : ℚ) - 1) * (2 * (N : ℚ) + 1) / 3 := by
   have h := sum_range_affine_sq (2 * N + 1) (1 : ℚ) (-(N : ℚ))
-  push_cast at h ⊢
+  push_cast at h
   have hsum :
       (∑ j ∈ Finset.range (2 * N + 1), ((j : ℚ) - N) ^ 2) =
         ∑ j ∈ Finset.range (2 * N + 1),
@@ -38,11 +38,13 @@ theorem sum_range_quadratic_cap (N : ℕ) :
   calc
     (∑ j ∈ Finset.range (2 * N + 1),
       2 * ((N : ℚ) ^ 2 - ((j : ℚ) - N) ^ 2)) =
-        2 * ((2 * (N : ℚ) + 1) * (N : ℚ) ^ 2 -
-          ∑ j ∈ Finset.range (2 * N + 1),
-            ((j : ℚ) - N) ^ 2) := by
-          simp only [Finset.sum_sub_distrib, Finset.sum_mul,
-            Finset.sum_const, Finset.card_range, nsmul_eq_mul]
+        2 * (∑ j ∈ Finset.range (2 * N + 1),
+          ((N : ℚ) ^ 2 - ((j : ℚ) - N) ^ 2)) := by
+          rw [Finset.mul_sum]
+    _ = 2 * ((2 * (N : ℚ) + 1) * (N : ℚ) ^ 2 -
+          ∑ j ∈ Finset.range (2 * N + 1), ((j : ℚ) - N) ^ 2) := by
+          rw [Finset.sum_sub_distrib]
+          simp only [Finset.sum_const, Finset.card_range, nsmul_eq_mul]
           ring
     _ = 2 * (N : ℚ) * (2 * (N : ℚ) - 1) *
           (2 * (N : ℚ) + 1) / 3 := by
@@ -129,11 +131,15 @@ theorem odd_quadratic_cap_sum (m : ℕ) :
     (∑ r ∈ Finset.range (2 * m),
       2 * ((2 * (m : ℚ)) ^ 2 -
         (2 * (r : ℚ) + 1 - 2 * (m : ℚ)) ^ 2)) =
-        2 * ((2 * (m : ℚ)) * (2 * (m : ℚ)) ^ 2 -
+        2 * (∑ r ∈ Finset.range (2 * m),
+          ((2 * (m : ℚ)) ^ 2 -
+            (2 * (r : ℚ) + 1 - 2 * (m : ℚ)) ^ 2)) := by
+          rw [Finset.mul_sum]
+    _ = 2 * ((2 * (m : ℚ)) * (2 * (m : ℚ)) ^ 2 -
           ∑ r ∈ Finset.range (2 * m),
             (2 * (r : ℚ) + (1 - 2 * (m : ℚ))) ^ 2) := by
-          simp only [Finset.sum_sub_distrib, Finset.sum_mul,
-            Finset.sum_const, Finset.card_range, nsmul_eq_mul]
+          rw [Finset.sum_sub_distrib]
+          simp only [Finset.sum_const, Finset.card_range, nsmul_eq_mul]
           ring
     _ = 4 * (m : ℚ) * (8 * (m : ℚ) ^ 2 + 1) / 3 := by
       rw [h]
