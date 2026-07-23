@@ -1,0 +1,80 @@
+name: OEIS A147983 Chomp Lean audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/oeis-a147983-chomp-lean-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oeis-a147983-chomp-lean-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-module-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout immutable DTD source commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda
+
+      - name: Confirm immutable source
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "5fa4e5d2f63eefdba1b001cdce5d44c2ec8cabda"
+
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake exe cache get
+
+      - name: Compile exact Chomp module
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-lean.log
+
+      - name: Audit kernel-checkable helper declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >> FormalConjectures/OEIS/147983.lean <<'EOF'
+
+          #print axioms OeisA147983.child₁_is_legal_move
+          #print axioms OeisA147983.child₂_is_legal_move
+          #print axioms OeisA147983.child₃_is_legal_move
+          #print axioms OeisA147983.candidate_children_pairwise_distinct
+          #print axioms OeisA147983.three_openings_of_p_positions
+          EOF
+          lake lean FormalConjectures/OEIS/147983.lean 2>&1 | tee chomp-a147983-axioms.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' \
+              chomp-a147983-axioms.log; then
+            echo 'A kernel-checkable helper depends on a forbidden proof escape.' >&2
+            exit 1
+          fi
+
+      - name: Upload Lean transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oeis-a147983-chomp-lean-audit
+          path: |
+            chomp-a147983-lean.log
+            chomp-a147983-axioms.log
+          if-no-files-found: warn
