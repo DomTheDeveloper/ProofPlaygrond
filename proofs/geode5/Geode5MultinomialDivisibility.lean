@@ -20,10 +20,9 @@ import FormalConjectures.Arxiv.«2508.10245».Geode5Proof.IntegralityReduction
 /-!
 # Multinomial divisibility for the Geode hyper-Catalan quotient
 
-This avoids formalizing the full cycle lemma. For every symbol `a`, the total
-word length divides `count a * multinomial`. The Geode counts satisfy an explicit
-Bézout relation with coefficient one, so the word length divides the
-multinomial coefficient itself.
+For every symbol `a`, the total word length divides
+`count a * multinomial`. The Geode counts then supply an explicit coefficient-one
+linear relation, so the word length divides the multinomial coefficient itself.
 -/
 
 namespace Arxiv.«2508.10245».Geode5Proof
@@ -36,41 +35,36 @@ theorem sum_dvd_apply_mul_multinomial {α : Type*} [DecidableEq α]
     (∑ i ∈ s, f i) ∣ f a * Nat.multinomial s f := by
   by_cases hfa : f a = 0
   · simp [hfa]
-  obtain ⟨k, hk⟩ := Nat.exists_eq_succ_of_ne_zero hfa
-  let r := ∑ i ∈ s.erase a, f i
-  have hsum : ∑ i ∈ s, f i = (k + 1) + r := by
-    calc
-      ∑ i ∈ s, f i = ∑ i ∈ insert a (s.erase a), f i := by
-        rw [Finset.insert_erase ha]
-      _ = f a + ∑ i ∈ s.erase a, f i := by
-        rw [Finset.sum_insert (Finset.notMem_erase a s)]
-      _ = (k + 1) + r := by rw [hk]
-  have hmulti :
-      Nat.multinomial s f =
-        ((k + 1) + r).choose (k + 1) *
-          Nat.multinomial (s.erase a) f := by
-    calc
-      Nat.multinomial s f =
-          Nat.multinomial (insert a (s.erase a)) f := by
-            rw [Finset.insert_erase ha]
-      _ = (f a + ∑ i ∈ s.erase a, f i).choose (f a) *
-          Nat.multinomial (s.erase a) f := by
-            rw [Nat.multinomial_insert (Finset.notMem_erase a s)]
-      _ = ((k + 1) + r).choose (k + 1) *
-          Nat.multinomial (s.erase a) f := by rw [hk]
-  refine ⟨(k + r).choose k * Nat.multinomial (s.erase a) f, ?_⟩
-  rw [hsum, hk, hmulti]
-  have hchoose := Nat.add_one_mul_choose_eq (k + r) k
+  let g := Function.update f a (f a - 1)
+  have hfa_pos : 0 < f a := Nat.pos_of_ne_zero hfa
+  have hga : g a + 1 = f a := by
+    simp [g, Nat.sub_add_cancel hfa_pos]
+  have hupdate : Function.update g a (g a).succ = f := by
+    funext x
+    by_cases hxa : x = a
+    · subst x
+      simp [hga]
+    · simp [g, hxa]
+  have hsum_erase :
+      ∑ x ∈ s.erase a, g x = ∑ x ∈ s.erase a, f x := by
+    apply Finset.sum_congr rfl
+    intro x hx
+    have hxa : x ≠ a := ne_of_mem_erase hx
+    simp [g, hxa]
+  have hsum :
+      (∑ x ∈ s, g x).succ = ∑ x ∈ s, f x := by
+    rw [← Finset.sum_erase_add _ ha, ← Finset.sum_erase_add _ ha]
+    rw [hsum_erase]
+    omega
+  have hmul := Nat.succ_mul_multinomial (s := s) (f := g) ha
+  refine ⟨Nat.multinomial s g, ?_⟩
   calc
-    (k + 1) *
-        (((k + 1) + r).choose (k + 1) *
-          Nat.multinomial (s.erase a) f) =
-      (((k + r) + 1).choose (k + 1) * (k + 1)) *
-        Nat.multinomial (s.erase a) f := by ring
-    _ = (((k + r) + 1) * (k + r).choose k) *
-        Nat.multinomial (s.erase a) f := by rw [← hchoose]
-    _ = ((k + 1) + r) *
-        ((k + r).choose k * Nat.multinomial (s.erase a) f) := by ring
+    f a * Nat.multinomial s f =
+        (g a).succ *
+          Nat.multinomial s (Function.update g a (g a).succ) := by
+            rw [hupdate]
+    _ = (∑ x ∈ s, g x).succ * Nat.multinomial s g := hmul.symm
+    _ = (∑ x ∈ s, f x) * Nat.multinomial s g := by rw [hsum]
 
 /-- The six symbols in the Raney-word interpretation. -/
 inductive HyperLetter
