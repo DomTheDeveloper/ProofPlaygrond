@@ -95,7 +95,6 @@ theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i 
         | false =>
             have hv : ∀ j, j ∈ C.children i → C.label j = true := by
               simpa [ValidAt, hi] using hvalid i
-            rw [hi]
             exact Outcome.losing (fun q hq ↦ by
               obtain ⟨j, hj, hpos⟩ := C.losing_complete i hi q hq
               subst q
@@ -107,7 +106,6 @@ theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i 
             have hv : ∃ j, C.reply i = some j ∧ j ∈ C.children i ∧ C.label j = false := by
               simpa [ValidAt, hi] using hvalid i
             obtain ⟨j, _, hj, hlabel⟩ := hv
-            rw [hi]
             exact Outcome.winning (C.children_sound hj) (by
               have hlt : G.rank (C.pos j) < k := by
                 simpa [← hrank] using G.decreases (C.children_sound hj)
