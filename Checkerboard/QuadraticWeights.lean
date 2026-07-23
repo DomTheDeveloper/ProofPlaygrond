@@ -52,7 +52,12 @@ private theorem evenCap_nonneg (m : ℕ) (hm : 1 ≤ m)
   have hj0 : (0 : ℚ) ≤ j.1 := by positivity
   have hjmax : (j.1 : ℚ) ≤ 2 * ((2 * m : ℚ) - 1) := by
     have hjmaxNat : j.1 ≤ 2 * (2 * m - 1) := by omega
-    exact_mod_cast hjmaxNat
+    have htwo : 1 ≤ 2 * m := by omega
+    calc
+      (j.1 : ℚ) ≤ ((2 * (2 * m - 1) : ℕ) : ℚ) := by
+        exact_mod_cast hjmaxNat
+      _ = 2 * ((2 * m : ℚ) - 1) := by
+        norm_num [Nat.cast_sub htwo]
   have hprod : 0 ≤ (j.1 : ℚ) *
       (2 * ((2 * m : ℚ) - 1) - j.1) :=
     mul_nonneg hj0 (sub_nonneg.mpr hjmax)
@@ -131,11 +136,12 @@ theorem evenQuadratic_coverage (m parity : ℕ) (hp : parity = 0 ∨ parity = 1)
     rcases hp with rfl | rfl <;>
       simp [differenceIndex, InColor] at hcolor ⊢ <;> omega
   have hy : p.2.1 ≤ 2 * m - 1 := by omega
+  have hmtwo : 1 ≤ m * 2 := by omega
   unfold fourCoverage evenQuadraticWeights
   dsimp
   rw [if_pos hsum, if_pos hdiff]
   simp only [evenCap, sumIndex, differenceIndex]
-  push_cast [Nat.cast_sub hy]
+  push_cast [Nat.cast_sub hy, Nat.cast_sub hmtwo]
   ring
 
 end Checkerboard
