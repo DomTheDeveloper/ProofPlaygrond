@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Isolated arithmetic-certificate diagnostic for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
+# Trust-free arithmetic and bridge audit for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -57,42 +57,34 @@ jobs:
           set -euo pipefail
           "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate
 
-      - name: Compile arithmetic certificate with transcript
-        id: sat
-        continue-on-error: true
+      - name: Compile arithmetic certificate
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-sat.log"
 
-      - name: Compile geometric bridge when certificate succeeds
-        id: bridge
-        if: steps.sat.outcome == 'success'
-        continue-on-error: true
+      - name: Compile both geometric bridges
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
 
-      - name: Upload all diagnostic transcripts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkerboard-n6-diagnostic-${{ github.run_id }}
-          path: |
-            ${{ runner.temp }}/resolved-sha.txt
-            ${{ runner.temp }}/checkerboard-n6-sat.log
-            ${{ runner.temp }}/checkerboard-n6-bridge.log
-          if-no-files-found: warn
-
-      - name: Enforce result and axiom policy
-        if: always()
+      - name: Enforce axiom policy
         run: |
           set -euo pipefail
-          test '${{ steps.sat.outcome }}' = 'success'
-          test '${{ steps.bridge.outcome }}' = 'success'
           cat "$RUNNER_TEMP/checkerboard-n6-sat.log" "$RUNNER_TEMP/checkerboard-n6-bridge.log" > "$RUNNER_TEMP/checkerboard-n6-all.log"
           if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-all.log"; then
             echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
             exit 1
           fi
+
+      - name: Upload certificate transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-n6-certificate-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/checkerboard-n6-sat.log
+            ${{ runner.temp }}/checkerboard-n6-bridge.log
+          if-no-files-found: warn
