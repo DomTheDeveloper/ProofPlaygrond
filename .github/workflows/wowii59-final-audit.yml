@@ -1,0 +1,95 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: WOWII 59 final audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wowii59-final-audit.yml'
+      - 'audits/wowii59-final.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact repaired proof source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 0ad6ef14de9e3d021b25e489652b8ca7da17d67a
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Lean build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: wow59-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: wow59-${{ runner.os }}-
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject proof holes and trust shortcuts
+        run: |
+          set -euo pipefail
+          target='FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean'
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            echo 'Forbidden placeholder or trust shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Build exact counterexample module
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build FormalConjectures.WrittenOnTheWallII.GraphConjecture59 \
+            2>&1 | tee "$RUNNER_TEMP/wowii59-final.log"
+
+      - name: Run terminal axiom audit
+        run: |
+          set -o pipefail
+          cat > WOWII59AxiomAudit.lean <<'EOF'
+          import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
+          #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59_false
+          EOF
+          "$HOME/.elan/bin/lake" env lean WOWII59AxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/wowii59-final.log"
+
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/wowii59-final.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowii59-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/wowii59-final.log
+          if-no-files-found: warn
