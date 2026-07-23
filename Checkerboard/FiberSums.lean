@@ -23,15 +23,20 @@ def fiberCard (s : Finset α) (f : α → β) (b : β) : ℕ :=
     fiberCard ∅ f b = 0 := by
   simp [fiberCard]
 
-/-- Every element of a finite set belongs to exactly one fiber. -/
-theorem sum_fiberCard [Fintype β] (s : Finset α) (f : α → β) :
-    ∑ b : β, fiberCard s f b = s.card := by
+private theorem fiberCard_mul_eq_sum [CommSemiring R]
+    (s : Finset α) (f : α → β) (b : β) (g : β → R) :
+    (fiberCard s f b : R) * g b =
+      ∑ a ∈ s, if f a = b then g b else 0 := by
   classical
   induction s using Finset.induction_on with
-  | empty => simp
+  | empty => simp [fiberCard]
   | @insert a s ha ih =>
-      simp only [fiberCard, Finset.filter_insert]
-      simp [ha, ih]
+      by_cases h : f a = b
+      · have hnot : a ∉ s.filter fun x => f x = b := by
+          intro hmem
+          exact ha (Finset.mem_of_mem_filter hmem)
+        simp [fiberCard, ha, h, hnot, ih, add_mul]
+      · simp [fiberCard, ha, h, ih]
 
 /-- Weighted double counting over all fibers. -/
 theorem sum_fiberCard_mul [Fintype β] [CommSemiring R]
@@ -39,11 +44,23 @@ theorem sum_fiberCard_mul [Fintype β] [CommSemiring R]
     ∑ b : β, (fiberCard s f b : R) * g b =
       ∑ a ∈ s, g (f a) := by
   classical
-  induction s using Finset.induction_on with
-  | empty => simp [fiberCard]
-  | @insert a s ha ih =>
-      simp only [fiberCard, Finset.filter_insert]
-      simp [ha, ih, add_mul]
+  calc
+    ∑ b : β, (fiberCard s f b : R) * g b =
+        ∑ b : β, ∑ a ∈ s, if f a = b then g b else 0 := by
+          apply Finset.sum_congr rfl
+          intro b _
+          exact fiberCard_mul_eq_sum s f b g
+    _ = ∑ a ∈ s, ∑ b : β, if f a = b then g b else 0 := by
+          rw [Finset.sum_comm]
+    _ = ∑ a ∈ s, g (f a) := by
+          apply Finset.sum_congr rfl
+          intro a _
+          simp
+
+/-- Every element of a finite set belongs to exactly one fiber. -/
+theorem sum_fiberCard [Fintype β] (s : Finset α) (f : α → β) :
+    ∑ b : β, fiberCard s f b = s.card := by
+  simpa using sum_fiberCard_mul (R := ℕ) s f (fun _ => 1)
 
 /-- Unweighted point count as the sum of all fiber counts, cast to a semiring. -/
 theorem sum_fiberCard_cast [Fintype β] [CommSemiring R]
