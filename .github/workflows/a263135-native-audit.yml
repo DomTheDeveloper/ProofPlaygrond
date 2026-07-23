@@ -25,11 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
-      - name: Checkout exact repaired A263135 proof source
+      - name: Checkout current A263135 proof branch
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 6ad03f2a0fa5de81c0ed08fd0fc38a42f12513b7
+          ref: agent/solve-oeis-a263135
           path: formal-conjectures
 
       - name: Install pinned Lean
