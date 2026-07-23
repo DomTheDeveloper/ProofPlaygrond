@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 212f254aeddb8f01c1f8826ed4b96f7133e1ed34
+          ref: 266ee2a010169a30ab474a2d67a658df657e0c9f
           fetch-depth: 1
 
       - name: Record exact commit
