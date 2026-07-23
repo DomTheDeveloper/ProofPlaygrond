@@ -101,4 +101,8 @@ theorem winning_of_valid (C : Certificate G) (hvalid : ∀ s, C.ValidAt s) {s : 
 end Certificate
 end RankedGame
 
+#print axioms RankedGame.Certificate.outcome_of_valid
+#print axioms RankedGame.Certificate.losing_of_valid
+#print axioms RankedGame.Certificate.winning_of_valid
+
 end ChompKernel
