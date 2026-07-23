@@ -1,13 +1,18 @@
 import Checkerboard.FourCertificate
+import Checkerboard.N6SATTest
 
 /-!
 # The final 6×6 base cases
 
-The uniform quadratic cover is sharp at value nine on the 6-board, so an
+The uniform quadratic cover does not exclude nine points on the 6-board, so an
 integrality argument is required. Each color class has eighteen points. We
-transport an arbitrary monochromatic set to eighteen Boolean variables, and
-an exact finite kernel decision checks that row, column, and slope `±1`
-capacities already force at most eight selected points.
+transport an arbitrary monochromatic set to eighteen Boolean variables, derive
+explicit row, column, and slope `±1` capacity inequalities, and discharge the
+resulting Presburger certificates with `omega`.
+
+Proof developed by Dominic Dabish. ProofOrchestrator, using OpenAI GPT-5.6 Thinking,
+assisted with the mathematical argument, Lean formalization, and submission
+preparation. All formal claims are checked by the repository-pinned Lean compiler.
 -/
 
 namespace Checkerboard
@@ -152,14 +157,32 @@ private theorem n6p0_boolean_bound :
         (Finset.univ.filter fun i =>
           x i = true ∧ OnLine line (n6p0Point i)).card ≤ 2) →
       (Finset.univ.filter fun i => x i = true).card ≤ 8 := by
-  letI : DecidablePred (fun x : Fin 18 → Bool =>
-      (∀ line : PrincipalLine 6,
-        (Finset.univ.filter fun i =>
-          x i = true ∧ OnLine line (n6p0Point i)).card ≤ 2) →
-      (Finset.univ.filter fun i => x i = true).card ≤ 8) := by
-    intro x
-    infer_instance
-  exact of_decide_eq_true rfl
+  intro x hline
+  have h0 := hline (LineFamily.row, ⟨0, by decide⟩)
+  have h1 := hline (LineFamily.row, ⟨1, by decide⟩)
+  have h2 := hline (LineFamily.row, ⟨2, by decide⟩)
+  have h3 := hline (LineFamily.row, ⟨3, by decide⟩)
+  have h4 := hline (LineFamily.row, ⟨4, by decide⟩)
+  have h5 := hline (LineFamily.row, ⟨5, by decide⟩)
+  have h6 := hline (LineFamily.column, ⟨0, by decide⟩)
+  have h7 := hline (LineFamily.column, ⟨2, by decide⟩)
+  have h8 := hline (LineFamily.column, ⟨4, by decide⟩)
+  have h9 := hline (LineFamily.column, ⟨1, by decide⟩)
+  have h10 := hline (LineFamily.column, ⟨3, by decide⟩)
+  have h11 := hline (LineFamily.column, ⟨5, by decide⟩)
+  have h12 := hline (LineFamily.sum, ⟨2, by decide⟩)
+  have h13 := hline (LineFamily.sum, ⟨4, by decide⟩)
+  have h14 := hline (LineFamily.sum, ⟨6, by decide⟩)
+  have h15 := hline (LineFamily.sum, ⟨8, by decide⟩)
+  have h16 := hline (LineFamily.difference, ⟨5, by decide⟩)
+  have h17 := hline (LineFamily.difference, ⟨3, by decide⟩)
+  have h18 := hline (LineFamily.difference, ⟨7, by decide⟩)
+  norm_num [n6p0Point, OnLine, lineValue, bitNat] at
+    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  exact n6p0_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
+    (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
+    (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
+    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
 
 private theorem n6p1_boolean_bound :
     ∀ x : Fin 18 → Bool,
@@ -167,14 +190,32 @@ private theorem n6p1_boolean_bound :
         (Finset.univ.filter fun i =>
           x i = true ∧ OnLine line (n6p1Point i)).card ≤ 2) →
       (Finset.univ.filter fun i => x i = true).card ≤ 8 := by
-  letI : DecidablePred (fun x : Fin 18 → Bool =>
-      (∀ line : PrincipalLine 6,
-        (Finset.univ.filter fun i =>
-          x i = true ∧ OnLine line (n6p1Point i)).card ≤ 2) →
-      (Finset.univ.filter fun i => x i = true).card ≤ 8) := by
-    intro x
-    infer_instance
-  exact of_decide_eq_true rfl
+  intro x hline
+  have h0 := hline (LineFamily.row, ⟨0, by decide⟩)
+  have h1 := hline (LineFamily.row, ⟨1, by decide⟩)
+  have h2 := hline (LineFamily.row, ⟨2, by decide⟩)
+  have h3 := hline (LineFamily.row, ⟨3, by decide⟩)
+  have h4 := hline (LineFamily.row, ⟨4, by decide⟩)
+  have h5 := hline (LineFamily.row, ⟨5, by decide⟩)
+  have h6 := hline (LineFamily.column, ⟨1, by decide⟩)
+  have h7 := hline (LineFamily.column, ⟨3, by decide⟩)
+  have h8 := hline (LineFamily.column, ⟨5, by decide⟩)
+  have h9 := hline (LineFamily.column, ⟨0, by decide⟩)
+  have h10 := hline (LineFamily.column, ⟨2, by decide⟩)
+  have h11 := hline (LineFamily.column, ⟨4, by decide⟩)
+  have h12 := hline (LineFamily.sum, ⟨3, by decide⟩)
+  have h13 := hline (LineFamily.sum, ⟨5, by decide⟩)
+  have h14 := hline (LineFamily.sum, ⟨7, by decide⟩)
+  have h15 := hline (LineFamily.difference, ⟨4, by decide⟩)
+  have h16 := hline (LineFamily.difference, ⟨2, by decide⟩)
+  have h17 := hline (LineFamily.difference, ⟨6, by decide⟩)
+  have h18 := hline (LineFamily.difference, ⟨8, by decide⟩)
+  norm_num [n6p1Point, OnLine, lineValue, bitNat] at
+    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  exact n6p1_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
+    (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
+    (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
+    h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
 
 /-- `D_mono(6,0) ≤ 8`. -/
 theorem n6_zero_upper (s : Finset (Point 6))
