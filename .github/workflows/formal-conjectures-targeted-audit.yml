@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   statuses: write
 
 concurrency:
@@ -90,6 +91,58 @@ jobs:
           name: targeted-formal-conjectures-transcript
           path: target/targeted-formal-conjectures-audit.log
           if-no-files-found: warn
+
+      - name: Publish diagnostic excerpt
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          TARGET_REPOSITORY: ${{ steps.target.outputs.repository }}
+          TARGET_COMMIT: ${{ steps.target.outputs.commit_sha }}
+          TARGET_MODULE: ${{ steps.target.outputs.module }}
+          TARGET_SOURCE: ${{ steps.target.outputs.source_file }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'target/targeted-formal-conjectures-audit.log';
+            let log = '';
+            try { log = fs.readFileSync(path, 'utf8'); } catch (_) {}
+            const lines = log.split(/\r?\n/);
+            const selected = new Set();
+            for (let i = 0; i < lines.length; i++) {
+              if (/error:|unsolved goals|failed to build|declaration uses 'sorry'|unknown identifier|type mismatch/i.test(lines[i])) {
+                for (let j = Math.max(0, i - 5); j <= Math.min(lines.length - 1, i + 8); j++) selected.add(j);
+              }
+            }
+            let excerpt;
+            if (selected.size) {
+              excerpt = [...selected].sort((a, b) => a - b).map(i => lines[i]).join('\n');
+            } else {
+              excerpt = lines.slice(-160).join('\n');
+            }
+            excerpt = excerpt.slice(-50000);
+            const body = [
+              '# Targeted Formal Conjectures audit',
+              '',
+              `- **Result:** ${process.env.JOB_STATUS}`,
+              `- **Repository:** \`${process.env.TARGET_REPOSITORY}\``,
+              `- **Commit:** \`${process.env.TARGET_COMMIT}\``,
+              `- **Module:** \`${process.env.TARGET_MODULE}\``,
+              `- **Source:** \`${process.env.TARGET_SOURCE}\``,
+              `- **Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              '## Compiler excerpt',
+              '',
+              '```text',
+              excerpt || '(no compiler log was produced)',
+              '```'
+            ].join('\n');
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 74,
+              body
+            });
 
   report:
     name: Publish machine-readable result
