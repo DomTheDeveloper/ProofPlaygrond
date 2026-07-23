@@ -4,8 +4,8 @@
 name: A263135 AXLE audit
 
 on:
-  pull_request:
-    branches: [audit-base/a263135-axle-6ad03f2a]
+  push:
+    branches: [audit-run/a263135-base-current]
     paths:
       - '.github/workflows/a263135-axle-audit.yml'
       - 'audits/axle_a263135.py'
@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: a263135-axle-current-${{ github.event.pull_request.number || github.ref }}
+  group: a263135-axle-current-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
