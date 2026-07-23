@@ -1,6 +1,12 @@
 name: A263135 native Lean audit
 
 on:
+  push:
+    branches:
+      - audit-run/a263135-6ad03f2a
+    paths:
+      - '.github/workflows/a263135-native-audit.yml'
+      - 'audits/A263135.md'
   pull_request:
     paths:
       - '.github/workflows/a263135-native-audit.yml'
