@@ -73,6 +73,27 @@ private def chosenOnLine (point : Fin 18 → Point 6)
     (s : Finset (Point 6)) (line : PrincipalLine 6) : Finset (Fin 18) :=
   Finset.univ.filter fun i => point i ∈ s ∧ OnLine line (point i)
 
+private theorem card_filter_bool {α : Type*} (s : Finset α) (x : α → Bool) :
+    (s.filter fun i => x i = true).card = ∑ i in s, bitNat (x i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      cases hxa : x a <;> simp [ha, ih, hxa, bitNat]
+
+private theorem card_filter_bool_and {α : Type*} (s : Finset α)
+    (x : α → Bool) (p : α → Prop) [DecidablePred p] :
+    (s.filter fun i => x i = true ∧ p i).card =
+      ∑ i in s.filter p, bitNat (x i) := by
+  classical
+  have hfilter :
+      s.filter (fun i => x i = true ∧ p i) =
+        (s.filter p).filter (fun i => x i = true) := by
+    ext i
+    simp [and_comm]
+  rw [hfilter]
+  exact card_filter_bool (s.filter p) x
+
 private theorem chosenIndices_image
     {parity : ℕ} (point : Fin 18 → Point 6)
     (hsurj : ∀ p : Point 6, InColor parity p → ∃ i, point i = p)
@@ -177,7 +198,10 @@ private theorem n6p0_boolean_bound :
   have h16 := hline (LineFamily.difference, ⟨5, by decide⟩)
   have h17 := hline (LineFamily.difference, ⟨3, by decide⟩)
   have h18 := hline (LineFamily.difference, ⟨7, by decide⟩)
-  norm_num [n6p0Point, OnLine, lineValue, bitNat] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  rw [card_filter_bool_and] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
+  norm_num [n6p0Point, OnLine, lineValue] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
+  rw [card_filter_bool]
+  norm_num
   exact n6p0_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
     (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
     (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
@@ -209,7 +233,10 @@ private theorem n6p1_boolean_bound :
   have h16 := hline (LineFamily.difference, ⟨2, by decide⟩)
   have h17 := hline (LineFamily.difference, ⟨6, by decide⟩)
   have h18 := hline (LineFamily.difference, ⟨8, by decide⟩)
-  norm_num [n6p1Point, OnLine, lineValue, bitNat] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18 ⊢
+  rw [card_filter_bool_and] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
+  norm_num [n6p1Point, OnLine, lineValue] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 h18
+  rw [card_filter_bool]
+  norm_num
   exact n6p1_sat (x 0) (x 1) (x 2) (x 3) (x 4) (x 5)
     (x 6) (x 7) (x 8) (x 9) (x 10) (x 11)
     (x 12) (x 13) (x 14) (x 15) (x 16) (x 17)
