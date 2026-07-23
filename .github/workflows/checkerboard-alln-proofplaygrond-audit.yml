@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused audit for kernel-only n6 source commit ddac364bedbd748af9a4b3c3f8643ee3f65e5f7d.
+# Full all-n audit for kernel-only source commit ddac364bedbd748af9a4b3c3f8643ee3f65e5f7d.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact omega-certificate source
+      - name: Checkout exact repaired all-n source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
@@ -62,13 +62,32 @@ jobs:
           done
           exit 1
 
-      - name: Compile kernel-only n6 certificate
+      - name: Reject proof holes and trust shortcuts
+        run: |
+          set -euo pipefail
+          files=(Checkerboard.lean Checkerboard/*.lean)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
+            echo 'Forbidden placeholder or trust shortcut found in checkerboard proof chain.' >&2
+            exit 1
+          fi
+
+      - name: Build exact all-n library
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
+          "$HOME/.elan/bin/lake" build Checkerboard \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-alln.log"
 
-      - name: Enforce axiom policy
+      - name: Run terminal axiom audit
+        run: |
+          set -o pipefail
+          cat > CheckerboardAllNAxiomAudit.lean <<'EOF'
+          import Checkerboard.AllNTheorem
+          #print axioms Checkerboard.checkerboard_upper_all_n
+          EOF
+          "$HOME/.elan/bin/lake" env lean CheckerboardAllNAxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/checkerboard-alln.log"
+
+      - name: Enforce final axiom policy
         run: |
           set -euo pipefail
           if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-alln.log"; then
@@ -76,11 +95,11 @@ jobs:
             exit 1
           fi
 
-      - name: Upload focused transcript
+      - name: Upload full transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: checkerboard-n6-omega-${{ github.run_id }}
+          name: checkerboard-alln-full-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/checkerboard-alln.log
