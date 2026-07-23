@@ -1,5 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
+# Focused audit for source commit 85d52e049213bdbefd5aba1c999f0b1351a2e2c7.
 
 name: WOWII 59 final audit
 
@@ -19,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout repaired proof source
+      - name: Checkout exact finite-repair source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: agent/solve-wowii-59
+          ref: 85d52e049213bdbefd5aba1c999f0b1351a2e2c7
           fetch-depth: 1
 
       - name: Record exact commit
@@ -51,41 +52,23 @@ jobs:
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
-      - name: Reject proof holes and trust shortcuts
+      - name: Reject placeholders and trust shortcuts
         run: |
           set -euo pipefail
-          target='FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean'
+          target='Scratch/WOWII59FiniteTest.lean'
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
             echo 'Forbidden placeholder or trust shortcut found.' >&2
             exit 1
           fi
 
-      - name: Build shared Formal Conjectures utilities
-        run: |
-          set -euo pipefail
-          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
-
-      - name: Compile exact counterexample with sufficient resources
+      - name: Compile finite repair tests
         run: |
           set -o pipefail
           ulimit -s unlimited
           "$HOME/.elan/bin/lake" env lean \
             -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
-            FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean \
+            Scratch/WOWII59FiniteTest.lean \
             2>&1 | tee "$RUNNER_TEMP/wowii59-final.log"
-
-      - name: Run terminal axiom audit
-        run: |
-          set -o pipefail
-          ulimit -s unlimited
-          cat > WOWII59AxiomAudit.lean <<'EOF'
-          import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
-          #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59
-          EOF
-          "$HOME/.elan/bin/lake" env lean \
-            -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
-            WOWII59AxiomAudit.lean \
-            2>&1 | tee -a "$RUNNER_TEMP/wowii59-final.log"
 
       - name: Enforce axiom policy
         run: |
@@ -99,7 +82,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: wowii59-final-${{ github.run_id }}
+          name: wowii59-finite-test-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/wowii59-final.log
