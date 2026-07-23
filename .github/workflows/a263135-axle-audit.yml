@@ -62,27 +62,64 @@ jobs:
           echo "A263135_AXLE_STATUS=$status" >> "$GITHUB_ENV"
           exit 0
 
-      - name: Publish AXLE transcript to audit branch
+      - name: Publish concise AXLE result to audit branch
         if: always() && github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
           proof_sha=$(git -C formal-conjectures rev-parse HEAD 2>/dev/null || echo unknown)
-          {
-            echo "Proof commit: $proof_sha"
-            echo "AXLE status: ${A263135_AXLE_STATUS:-setup-failed}"
-            echo
-            cat "$RUNNER_TEMP/a263135-axle-console.log" 2>/dev/null || true
-            echo
-            echo "--- AXLE JSON ---"
-            cat "$RUNNER_TEMP/a263135-axle.json" 2>/dev/null || true
-          } > playground/audits/A263135_AXLE.log
+          export PROOF_SHA="$proof_sha"
+          export AXLE_STATUS="${A263135_AXLE_STATUS:-setup-failed}"
+          export AXLE_JSON="$RUNNER_TEMP/a263135-axle.json"
+          export AXLE_CONSOLE="$RUNNER_TEMP/a263135-axle-console.log"
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          out = Path('playground/audits/A263135_AXLE_SUMMARY.log')
+          lines = [
+              f"Proof commit: {os.environ['PROOF_SHA']}",
+              f"AXLE status: {os.environ['AXLE_STATUS']}",
+              "",
+          ]
+          path = Path(os.environ['AXLE_JSON'])
+          if path.exists():
+              data = json.loads(path.read_text())
+              lines.append(f"okay: {data.get('okay')}")
+              errors = data.get('lean_messages', {}).get('errors', [])
+              warnings = data.get('lean_messages', {}).get('warnings', [])
+              tool_errors = data.get('tool_messages', {}).get('errors', [])
+              failed = data.get('failed_declarations', [])
+              lines.extend([
+                  f"lean errors: {len(errors)}",
+                  f"lean warnings: {len(warnings)}",
+                  f"tool errors: {len(tool_errors)}",
+                  f"failed declarations: {len(failed)}",
+                  "",
+              ])
+              for label, values in (
+                  ('LEAN ERROR', errors),
+                  ('TOOL ERROR', tool_errors),
+                  ('FAILED DECLARATION', failed),
+              ):
+                  for index, value in enumerate(values, 1):
+                      lines.append(f"--- {label} {index} ---")
+                      lines.append(str(value))
+                      lines.append("")
+          else:
+              lines.append('AXLE JSON was not produced.')
+              console = Path(os.environ['AXLE_CONSOLE'])
+              if console.exists():
+                  lines.append(console.read_text()[-20000:])
+          out.write_text('\n'.join(lines))
+          PY
           cd playground
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add audits/A263135_AXLE.log
+          git add audits/A263135_AXLE_SUMMARY.log
           if ! git diff --cached --quiet; then
-            git commit -m "audit(A263135): publish AXLE transcript"
+            git commit -m "audit(A263135): publish concise AXLE result"
             git push origin HEAD:audit-run/a263135-6ad03f2a
           fi
 
