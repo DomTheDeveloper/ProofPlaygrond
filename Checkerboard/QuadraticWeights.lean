@@ -137,11 +137,16 @@ theorem evenQuadratic_coverage (m parity : ℕ) (hp : parity = 0 ∨ parity = 1)
       simp [differenceIndex, InColor] at hcolor ⊢ <;> omega
   have hy : p.2.1 ≤ 2 * m - 1 := by omega
   have hmtwo : 1 ≤ m * 2 := by omega
+  have hcast : (((m * 2 - 1 : ℕ) : ℚ)) = 2 * (m : ℚ) - 1 := by
+    rw [Nat.cast_sub hmtwo]
+    norm_num
+    ring
   unfold fourCoverage evenQuadraticWeights
   dsimp
   rw [if_pos hsum, if_pos hdiff]
   simp only [evenCap, sumIndex, differenceIndex]
-  push_cast [Nat.cast_sub hy, Nat.cast_sub hmtwo]
-  ring_nf
+  push_cast [Nat.cast_sub hy]
+  rw [hcast]
+  ring
 
 end Checkerboard
