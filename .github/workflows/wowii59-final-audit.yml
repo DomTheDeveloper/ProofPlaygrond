@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact repaired proof source
+      - name: Checkout repaired proof source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 658a7c412991eb7fcd019d8ea67a4d5644f98add
+          ref: agent/solve-wowii-59
           fetch-depth: 1
 
       - name: Record exact commit
