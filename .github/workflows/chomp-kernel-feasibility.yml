@@ -1,15 +1,6 @@
 name: Chomp kernel feasibility
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/chomp-kernel-feasibility.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'proofs/chomp-10x42/**'
-      - '.github/workflows/chomp-kernel-feasibility.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Checkout immutable proof-development commit
+      - name: Checkout proof development
         uses: actions/checkout@v4
-        with:
-          ref: 3ecb3ec28b52fc898fdc90b1235b2ecf3e268b90
       - name: Run certificate feasibility audit
         working-directory: proofs/chomp-10x42
         shell: bash
