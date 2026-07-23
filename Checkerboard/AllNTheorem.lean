@@ -19,11 +19,7 @@ theorem checkerboard_upper_all_n {n parity : ℕ}
     rcases hp with rfl | rfl
     · exact n6_zero_upper s hcolor hntil
     · exact n6_one_upper s hcolor hntil
-  · apply checkerboard_upper_from_seven (n := n) (parity := parity)
-    · omega
-    · exact hp
-    · exact s
-    · exact hcolor
-    · exact hntil
+  · exact checkerboard_upper_from_seven (n := n) (parity := parity)
+      (s := s) (by omega) hp hcolor hntil
 
 end Checkerboard
