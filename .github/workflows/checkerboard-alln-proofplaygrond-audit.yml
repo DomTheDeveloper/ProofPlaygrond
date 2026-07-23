@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: d59a5abcbdca0a41f874b5a8b568e32ea8a29dfe
+          ref: 0a9bbc29df42110e9a4cc72e0591a60d6df554c6
           fetch-depth: 1
 
       - name: Record exact commit
