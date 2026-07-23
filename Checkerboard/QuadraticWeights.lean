@@ -142,6 +142,6 @@ theorem evenQuadratic_coverage (m parity : ℕ) (hp : parity = 0 ∨ parity = 1)
   rw [if_pos hsum, if_pos hdiff]
   simp only [evenCap, sumIndex, differenceIndex]
   push_cast [Nat.cast_sub hy, Nat.cast_sub hmtwo]
-  ring
+  ring_nf
 
 end Checkerboard
