@@ -1,0 +1,109 @@
+# Copyright 2026 Dominic Dabish
+
+name: W320 exact SAT search
+
+on:
+  push:
+    branches: [experiment/w320-exact-sat]
+
+permissions:
+  contents: read
+
+jobs:
+  solve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout experiment
+        uses: actions/checkout@v4
+
+      - name: Build pinned Kissat and DRAT-trim
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 --branch rel-4.0.4 https://github.com/arminbiere/kissat.git /tmp/kissat
+          cd /tmp/kissat
+          ./configure
+          make -j2
+          /tmp/kissat/build/kissat --version
+
+          git clone https://github.com/marijnheule/drat-trim.git /tmp/drat-trim
+          cd /tmp/drat-trim
+          git checkout 2e3b2dc0ecf938addbd779d42877b6ed69d9a985
+          make -j2
+
+      - name: Generate exact CNFs
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p results
+          python3 experiments/w320_exact/generate_and_verify.py generate --n 388 --output results/w320_388.cnf | tee results/generate_388.log
+          python3 experiments/w320_exact/generate_and_verify.py generate --n 389 --output results/w320_389.cnf | tee results/generate_389.log
+
+      - name: Sanity-check known satisfiable N=388 instance
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          /tmp/kissat/build/kissat -s results/w320_388.cnf 2>&1 | tee results/kissat_388.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          test "$rc" -eq 10
+          python3 experiments/w320_exact/generate_and_verify.py verify-model \
+            --n 388 --log results/kissat_388.log --output results/model_388.txt \
+            | tee results/verify_388.log
+
+      - name: Decide N=389 and certify the result
+        id: decide
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          timeout 18000 /tmp/kissat/build/kissat --no-binary -s \
+            results/w320_389.cnf results/w320_389.drat \
+            2>&1 | tee results/kissat_389.log
+          rc=${PIPESTATUS[0]}
+          set -e
+
+          echo "solver_exit=$rc" | tee results/result.txt
+          if [ "$rc" -eq 10 ]; then
+            echo "SAT: W(3,20) is greater than 389" | tee -a results/result.txt
+            python3 experiments/w320_exact/generate_and_verify.py verify-model \
+              --n 389 --log results/kissat_389.log --output results/model_389.txt \
+              | tee results/verify_389.log
+            echo "result=SAT" >> "$GITHUB_OUTPUT"
+          elif [ "$rc" -eq 20 ]; then
+            echo "UNSAT reported; independently checking DRAT proof" | tee -a results/result.txt
+            /tmp/drat-trim/drat-trim results/w320_389.cnf results/w320_389.drat -t 20000 \
+              2>&1 | tee results/drat_check.log
+            grep -q "VERIFIED" results/drat_check.log
+            echo "UNSAT VERIFIED: W(3,20) = 389 together with the verified N=388 coloring" \
+              | tee -a results/result.txt
+            echo "result=UNSAT" >> "$GITHUB_OUTPUT"
+          elif [ "$rc" -eq 124 ]; then
+            echo "TIMEOUT: exact status unresolved in this run" | tee -a results/result.txt
+            echo "result=TIMEOUT" >> "$GITHUB_OUTPUT"
+            exit 124
+          else
+            echo "Unexpected solver exit code $rc" | tee -a results/result.txt
+            exit "$rc"
+          fi
+
+      - name: Compress proof if produced
+        if: always()
+        shell: bash
+        run: |
+          if [ -s results/w320_389.drat ]; then
+            zstd -T0 -19 --rm results/w320_389.drat || true
+          fi
+          sha256sum results/* > results/SHA256SUMS.txt || true
+          du -h results/* | sort -h | tee results/SIZES.txt || true
+
+      - name: Upload exact-search artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w320-exact-sat-${{ github.sha }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 30
