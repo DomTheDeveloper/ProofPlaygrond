@@ -1,6 +1,10 @@
 name: Targeted Formal Conjectures Lean audit
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'audits/formal-conjectures-target.env'
   pull_request:
     branches: [main]
     paths:
