@@ -34,7 +34,10 @@ private theorem fiberCard_mul_eq_sum [CommSemiring R]
           · simp [hxa]
         rw [fiberCard, hfilter]
         rw [Finset.sum_insert ha, if_pos h]
-        simp [hnot, ih, add_mul]
+        simp only [Finset.card_insert_of_notMem hnot, Nat.cast_add, Nat.cast_one,
+          add_mul, one_mul]
+        rw [ih]
+        ac_rfl
       · have hfilter : (insert a s).filter (fun x => f x = b) =
             s.filter fun x => f x = b := by
           ext x
