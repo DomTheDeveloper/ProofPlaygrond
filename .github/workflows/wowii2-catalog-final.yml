@@ -25,7 +25,7 @@ jobs:
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 1a297b6e201c7cbaf462ef9e4d32b67a4f955e25
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Record exact commit
         run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
