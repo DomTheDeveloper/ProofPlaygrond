@@ -57,13 +57,16 @@ theorem isPPosition_of_losing {p : List ℕ}
   exact ⟨kernelPSet, kernelPSet_isPSet, hp, hlosing⟩
 
 @[category test, AMS 5]
-theorem child₁_is_position : IsPosition child₁ := by decide
+theorem child₁_is_position : IsPosition child₁ := by
+  norm_num [IsPosition, IsFerrers, child₁]
 
 @[category test, AMS 5]
-theorem child₂_is_position : IsPosition child₂ := by decide
+theorem child₂_is_position : IsPosition child₂ := by
+  norm_num [IsPosition, IsFerrers, child₂]
 
 @[category test, AMS 5]
-theorem child₃_is_position : IsPosition child₃ := by decide
+theorem child₃_is_position : IsPosition child₃ := by
+  norm_num [IsPosition, IsFerrers, child₃]
 
 /-- Three kernel losing proofs discharge the catalog theorem without any external axiom. -/
 theorem three_openings_of_losing
