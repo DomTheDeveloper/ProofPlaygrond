@@ -58,8 +58,25 @@ jobs:
         run: lake build FormalConjectures.Other.BeaverMathOlympiad
 
       - name: Compile exact proof with warnings fatal
+        id: compile
+        continue-on-error: true
         working-directory: formal-conjectures
-        run: lake env lean -DwarningAsError=true FormalConjectures/Other/BeaverMathOlympiad8Proof.lean
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true FormalConjectures/Other/BeaverMathOlympiad8Proof.lean \
+            2>&1 | tee BMO8Compile.log
+
+      - name: Upload compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bmo8-compiler-log
+          path: formal-conjectures/BMO8Compile.log
+          if-no-files-found: error
+
+      - name: Require warnings-clean compilation
+        if: steps.compile.outcome != 'success'
+        run: exit 1
 
       - name: Print theorem axioms
         working-directory: formal-conjectures
