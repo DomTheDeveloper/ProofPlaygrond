@@ -41,7 +41,9 @@ theorem bite_head_le (i t : ℕ) : ∀ p : List ℕ,
 /-- A bite preserves the Ferrers inequalities. -/
 theorem bite_isFerrers (t : ℕ) : ∀ i : ℕ, ∀ {p : List ℕ},
     IsFerrers p → IsFerrers (bite i t p)
-  | 0, p, h => by
+  | 0, [], h => by
+      simp [IsFerrers] at h
+  | 0, x :: xs, h => by
       simpa [bite] using cutSuffix_isFerrers t h
   | i + 1, [], h => by
       simp [IsFerrers] at h
