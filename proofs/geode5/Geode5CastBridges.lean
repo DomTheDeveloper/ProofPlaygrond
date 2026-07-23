@@ -40,7 +40,7 @@ theorem multinomial4_denominator_dvd (a b c d : ℕ) :
     Nat.factorial a * Nat.factorial b * Nat.factorial c * Nat.factorial d ∣
       Nat.factorial (a + b + c + d) := by
   simpa [fourCounts, mul_assoc, add_assoc, add_comm, add_left_comm] using
-    (Nat.multinomial_dvd_factorial (s := Finset.univ) (fourCounts a b c d))
+    (Nat.prod_factorial_dvd_factorial_sum Finset.univ (fourCounts a b c d))
 
 /-- Cast of `multinomial4` equals the exact rational factorial quotient. -/
 theorem cast_multinomial4_eq_qMultinomial4 (a b c d : ℕ) :
@@ -67,9 +67,9 @@ theorem cast_geode5Diagonal_eq_qGeode5Diagonal (n : ℕ) :
   apply Finset.sum_congr rfl
   intro j₂ hj₂
   apply Finset.sum_congr rfl
-  intro _ _
+  intro j₃ hj₃
   apply Finset.sum_congr rfl
-  intro _ _
+  intro j₄ hj₄
   apply Finset.sum_congr rfl
   intro j₅ hj₅
   rw [cast_multinomial4_eq_qMultinomial4,
