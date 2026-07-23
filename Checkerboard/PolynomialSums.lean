@@ -28,6 +28,13 @@ theorem sum_range_quadratic_cap (N : ℕ) :
       2 * (N : ℚ) * (2 * (N : ℚ) - 1) * (2 * (N : ℚ) + 1) / 3 := by
   have h := sum_range_affine_sq (2 * N + 1) (1 : ℚ) (-(N : ℚ))
   push_cast at h ⊢
+  have hsum :
+      (∑ j ∈ Finset.range (2 * N + 1), ((j : ℚ) - N) ^ 2) =
+        ∑ j ∈ Finset.range (2 * N + 1),
+          ((1 : ℚ) * (j : ℚ) + (-(N : ℚ))) ^ 2 := by
+    apply Finset.sum_congr rfl
+    intro j _
+    ring
   calc
     (∑ j ∈ Finset.range (2 * N + 1),
       2 * ((N : ℚ) ^ 2 - ((j : ℚ) - N) ^ 2)) =
@@ -39,7 +46,7 @@ theorem sum_range_quadratic_cap (N : ℕ) :
           ring
     _ = 2 * (N : ℚ) * (2 * (N : ℚ) - 1) *
           (2 * (N : ℚ) + 1) / 3 := by
-          rw [h]
+          rw [hsum, h]
           ring
 
 /-- Extract the even-indexed terms from a range of even length. -/
@@ -90,18 +97,20 @@ theorem even_quadratic_cap_sum (m : ℕ) :
   rw [show 4 * m + 1 = 2 * (2 * m) + 1 by omega,
     sum_range_even_terms_succ]
   push_cast
-  convert (show
-    (4 : ℚ) *
-      (∑ r ∈ Finset.range (2 * m + 1),
-        2 * ((m : ℚ) ^ 2 - ((r : ℚ) - m) ^ 2)) =
-      8 * (m : ℚ) * (2 * (m : ℚ) - 1) *
-        (2 * (m : ℚ) + 1) / 3 by rw [h]; ring) using 1
-  · apply Finset.sum_congr rfl
-    intro r hr
-    rw [dif_pos]
-    · push_cast
-      ring
-    · omega
+  calc
+    (∑ r ∈ Finset.range (2 * m + 1),
+      2 * ((2 * (m : ℚ)) ^ 2 -
+        (2 * (r : ℚ) - 2 * (m : ℚ)) ^ 2)) =
+        4 * (∑ r ∈ Finset.range (2 * m + 1),
+          2 * ((m : ℚ) ^ 2 - ((r : ℚ) - m) ^ 2)) := by
+          rw [Finset.mul_sum]
+          apply Finset.sum_congr rfl
+          intro r _
+          ring
+    _ = 8 * (m : ℚ) * (2 * (m : ℚ) - 1) *
+          (2 * (m : ℚ) + 1) / 3 := by
+          rw [h]
+          ring
 
 /-- Odd offsets in the quadratic cap on `-2m, …, 2m`. -/
 theorem odd_quadratic_cap_sum (m : ℕ) :
@@ -114,15 +123,15 @@ theorem odd_quadratic_cap_sum (m : ℕ) :
     sum_range_odd_terms_succ]
   have h := sum_range_affine_sq (2 * m) (2 : ℚ)
     (1 - 2 * (m : ℚ))
-  push_cast at h ⊢
+  push_cast at h
+  simp_rw [Nat.cast_add, Nat.cast_mul, Nat.cast_one]
   calc
     (∑ r ∈ Finset.range (2 * m),
       2 * ((2 * (m : ℚ)) ^ 2 -
-        (((2 * r + 1 : ℕ) : ℚ) - 2 * (m : ℚ)) ^ 2)) =
+        (2 * (r : ℚ) + 1 - 2 * (m : ℚ)) ^ 2)) =
         2 * ((2 * (m : ℚ)) * (2 * (m : ℚ)) ^ 2 -
           ∑ r ∈ Finset.range (2 * m),
             (2 * (r : ℚ) + (1 - 2 * (m : ℚ))) ^ 2) := by
-          push_cast
           simp only [Finset.sum_sub_distrib, Finset.sum_mul,
             Finset.sum_const, Finset.card_range, nsmul_eq_mul]
           ring
