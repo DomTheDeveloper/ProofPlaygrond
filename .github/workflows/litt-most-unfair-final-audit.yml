@@ -1,0 +1,99 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Litt most-unfair final audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/litt-most-unfair-final-audit.yml'
+      - 'audits/litt-most-unfair-final.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: exact Lean proof and finite replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact proof source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: f036e066184e623b8eeb3985be2682537272ce04
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Lean build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: litt-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: litt-${{ runner.os }}-
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject proof holes and trust shortcuts
+        run: |
+          set -euo pipefail
+          files=(FormalConjectures/Other/LittMostUnfairBet*.lean)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
+            echo 'Forbidden placeholder or trust shortcut found in Litt proof chain.' >&2
+            exit 1
+          fi
+
+      - name: Replay exact finite audit through length ten
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_litt_most_unfair.py \
+            2>&1 | tee "$RUNNER_TEMP/litt-finite-audit.log"
+
+      - name: Build terminal Lean module
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" --wfail build FormalConjectures.Other.LittMostUnfairBet \
+            2>&1 | tee "$RUNNER_TEMP/litt-lean-audit.log"
+
+      - name: Run terminal axiom audit
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean FormalConjectures/Other/LittMostUnfairBet.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/litt-lean-audit.log"
+
+      - name: Enforce final axiom policy
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/litt-lean-audit.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload audit transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: litt-most-unfair-final-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/litt-finite-audit.log
+            ${{ runner.temp }}/litt-lean-audit.log
+          if-no-files-found: warn
