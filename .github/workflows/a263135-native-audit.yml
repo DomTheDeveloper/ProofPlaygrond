@@ -52,6 +52,29 @@ jobs:
             exit 1
           fi
 
+      - name: Register every A263135 proof module
+        working-directory: formal-conjectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          lakefile = Path('lakefile.toml')
+          text = lakefile.read_text()
+          modules = sorted(
+              'Scratch.' + path.stem
+              for path in Path('Scratch').glob('A263135*.lean')
+          )
+          old = 'globs = ["Scratch.A263135Audit"]'
+          if old not in text:
+              raise SystemExit('focused A263135 library declaration not found')
+          text = text.replace(old, 'globs = ' + json.dumps(modules), 1)
+          lakefile.write_text(text)
+          print(f'Registered {len(modules)} A263135 modules')
+          PY
+
       - name: Compile exact theorem and print axioms
         working-directory: formal-conjectures
         shell: bash
