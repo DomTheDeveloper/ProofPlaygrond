@@ -15,7 +15,6 @@ section
 
 variable {α β R : Type*} [DecidableEq α] [DecidableEq β]
 
-/-- Cardinality of one fiber of `f` inside `s`. -/
 def fiberCard (s : Finset α) (f : α → β) (b : β) : ℕ :=
   (s.filter fun a => f a = b).card
 
@@ -34,11 +33,22 @@ private theorem fiberCard_mul_eq_sum [CommSemiring R]
       by_cases h : f a = b
       · have hnot : a ∉ s.filter fun x => f x = b := by
           intro hmem
-          exact ha (Finset.mem_of_mem_filter hmem)
-        simp [fiberCard, ha, h, hnot, ih, add_mul]
-      · simp [fiberCard, ha, h, ih]
+          exact ha (Finset.mem_filter.mp hmem).1
+        have hfilter : (insert a s).filter (fun x => f x = b) =
+            insert a (s.filter fun x => f x = b) := by
+          ext x
+          simp [h]
+        rw [fiberCard, hfilter, Finset.card_insert hnot, Nat.cast_add, add_mul]
+        rw [Finset.sum_insert ha, if_pos h]
+        exact congrArg (fun z => g b + z) ih
+      · have hfilter : (insert a s).filter (fun x => f x = b) =
+            s.filter fun x => f x = b := by
+          ext x
+          simp [h]
+        rw [fiberCard, hfilter]
+        rw [Finset.sum_insert ha, if_neg h]
+        exact ih
 
-/-- Weighted double counting over all fibers. -/
 theorem sum_fiberCard_mul [Fintype β] [CommSemiring R]
     (s : Finset α) (f : α → β) (g : β → R) :
     ∑ b : β, (fiberCard s f b : R) * g b =
@@ -57,18 +67,15 @@ theorem sum_fiberCard_mul [Fintype β] [CommSemiring R]
           intro a _
           simp
 
-/-- Every element of a finite set belongs to exactly one fiber. -/
 theorem sum_fiberCard [Fintype β] (s : Finset α) (f : α → β) :
     ∑ b : β, fiberCard s f b = s.card := by
   simpa using sum_fiberCard_mul (R := ℕ) s f (fun _ => 1)
 
-/-- Unweighted point count as the sum of all fiber counts, cast to a semiring. -/
 theorem sum_fiberCard_cast [Fintype β] [CommSemiring R]
     (s : Finset α) (f : α → β) :
     ∑ b : β, (fiberCard s f b : R) = (s.card : R) := by
   simpa using sum_fiberCard_mul (R := R) s f (fun _ => 1)
 
-/-- A pointwise bound on fiber cardinalities sums to a global bound. -/
 theorem card_le_sum_capacity [Fintype β]
     (s : Finset α) (f : α → β) (capacity : β → ℕ)
     (hcapacity : ∀ b, fiberCard s f b ≤ capacity b) :
@@ -76,7 +83,6 @@ theorem card_le_sum_capacity [Fintype β]
   rw [← sum_fiberCard s f]
   exact Finset.sum_le_sum fun b _ => hcapacity b
 
-/-- Real first moment of natural deficits. -/
 theorem sum_defect_mul [Fintype β]
     (s : Finset α) (f : α → β) (capacity : β → ℕ)
     (coordinate : β → ℝ)
@@ -97,7 +103,6 @@ theorem sum_defect_mul [Fintype β]
           ∑ a ∈ s, coordinate (f a) := by
           rw [sum_fiberCard_mul]
 
-/-- Real second moment of natural deficits. -/
 theorem sum_defect_mul_sq [Fintype β]
     (s : Finset α) (f : α → β) (capacity : β → ℕ)
     (coordinate : β → ℝ)
