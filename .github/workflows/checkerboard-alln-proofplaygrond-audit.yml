@@ -1,0 +1,95 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Checkerboard all-n ProofPlaygrond audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/checkerboard-alln-proofplaygrond-audit.yml'
+      - 'audits/checkerboard-alln-proofplaygrond.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact migrated proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/ProofPlaygrond
+          ref: 8fc0535a3677bebdfbb16a699e2897da9958ec90
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Lean build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: checkerboard-alln-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: checkerboard-alln-${{ runner.os }}-
+
+      - name: Restore pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Reject proof holes and trust shortcuts
+        run: |
+          set -euo pipefail
+          files=(Checkerboard/*.lean)
+          if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
+            echo 'Forbidden placeholder or trust shortcut found in checkerboard proof chain.' >&2
+            exit 1
+          fi
+
+      - name: Compile exact all-n theorem
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean Checkerboard/AllNTheorem.lean \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-alln.log"
+
+      - name: Run terminal axiom audit
+        run: |
+          set -o pipefail
+          cat > CheckerboardAllNAxiomAudit.lean <<'EOF'
+          import Checkerboard.AllNTheorem
+          #print axioms Checkerboard.checkerboard_upper_all_n
+          EOF
+          "$HOME/.elan/bin/lake" env lean CheckerboardAllNAxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/checkerboard-alln.log"
+
+      - name: Enforce final axiom policy
+        run: |
+          set -euo pipefail
+          if grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-alln.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkerboard-alln-proofplaygrond-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/checkerboard-alln.log
+          if-no-files-found: warn
