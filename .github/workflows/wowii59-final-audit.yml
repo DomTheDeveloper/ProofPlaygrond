@@ -60,10 +60,17 @@ jobs:
             exit 1
           fi
 
-      - name: Build exact counterexample module
+      - name: Build shared Formal Conjectures utilities
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
+
+      - name: Compile exact counterexample with sufficient resources
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" build FormalConjectures.WrittenOnTheWallII.GraphConjecture59 \
+          "$HOME/.elan/bin/lake" env lean \
+            -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
+            FormalConjectures/WrittenOnTheWallII/GraphConjecture59.lean \
             2>&1 | tee "$RUNNER_TEMP/wowii59-final.log"
 
       - name: Run terminal axiom audit
@@ -73,7 +80,9 @@ jobs:
           import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
           #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59
           EOF
-          "$HOME/.elan/bin/lake" env lean WOWII59AxiomAudit.lean \
+          "$HOME/.elan/bin/lake" env lean \
+            -DmaxHeartbeats=0 -DmaxRecDepth=1000000 \
+            WOWII59AxiomAudit.lean \
             2>&1 | tee -a "$RUNNER_TEMP/wowii59-final.log"
 
       - name: Enforce axiom policy
