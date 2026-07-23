@@ -1,0 +1,66 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: BMO 8 compile fix audit
+
+on:
+  push:
+    branches:
+      - audit/bmo8-compile-fix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bmo8-compile-fix-audit
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: warnings-clean Lean audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout proof source
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 6354d4874306cddcb18af628a9e5a1c12686f92d
+          path: formal-conjectures
+
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v1.4.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Get pinned Mathlib cache
+        working-directory: formal-conjectures
+        run: |
+          lake exe cache unpack || true
+          lake exe cache get
+
+      - name: Reject placeholders
+        working-directory: formal-conjectures
+        run: |
+          if grep -nE '\b(sorry|admit)\b' FormalConjectures/Other/BeaverMathOlympiad8Proof.lean; then
+            echo 'BMO 8 proof contains a placeholder.' >&2
+            exit 1
+          fi
+
+      - name: Build proof with warnings fatal
+        working-directory: formal-conjectures
+        run: lake --wfail build FormalConjectures.Other.BeaverMathOlympiad8Proof
+
+      - name: Print theorem axioms
+        working-directory: formal-conjectures
+        run: |
+          cp FormalConjectures/Other/BeaverMathOlympiad8Proof.lean BMO8ProofAudit.lean
+          printf '\n#print axioms BeaverMathOlympiad.beaver_math_olympiad_problem_8_positive\n#print axioms BeaverMathOlympiad.beaver_math_olympiad_problem_8_solved\n' >> BMO8ProofAudit.lean
+          lake env lean BMO8ProofAudit.lean 2>&1 | tee BMO8ProofAudit.log
+          if grep -q 'sorryAx' BMO8ProofAudit.log; then
+            echo 'BMO 8 theorem depends on sorryAx.' >&2
+            exit 1
+          fi
