@@ -46,9 +46,11 @@ jobs:
           mkdir -p "$dst/data"
           cp controller/proofs/geode5/Geode5CRT.lean "$dst/CRT.lean"
           cp controller/proofs/geode5/Geode5MomentAlgebra.lean "$dst/MomentAlgebra.lean"
+          cp controller/proofs/geode5/Geode5Integral.lean "$dst/Integral.lean"
           cp controller/proofs/geode5/data/G5_1000.txt "$dst/data/G5_1000.txt"
           cp controller/proofs/geode5/data/residues_480.txt "$dst/data/residues_480.txt"
-          test -z "$(grep -nE '\b(sorry|admit)\b' "$dst/CRT.lean" "$dst/MomentAlgebra.lean" || true)"
+          test -z "$(grep -nE '\b(sorry|admit)\b' \
+            "$dst/CRT.lean" "$dst/MomentAlgebra.lean" "$dst/Integral.lean" || true)"
 
       - name: Install Lean 4.27
         shell: bash
@@ -72,6 +74,15 @@ jobs:
             FormalConjectures/Arxiv/2508.10245/Geode5Proof/MomentAlgebra.lean \
             2>&1 | tee geode5-moment-audit.log
 
+      - name: Compile algebraic integral layer
+        working-directory: target
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2508.10245/Geode5Proof/Integral.lean \
+            2>&1 | tee geode5-integral-audit.log
+
       - name: Compile CRT certificate
         working-directory: target
         shell: bash
@@ -88,5 +99,6 @@ jobs:
           name: geode5-proof-audit
           path: |
             target/geode5-moment-audit.log
+            target/geode5-integral-audit.log
             target/geode5-crt-audit.log
           if-no-files-found: warn
