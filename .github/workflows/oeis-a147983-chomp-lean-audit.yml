@@ -51,6 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           lake exe cache get
+          lake build FormalConjecturesUtil
 
       - name: Compile exact canonical Chomp catalog module
         shell: bash
