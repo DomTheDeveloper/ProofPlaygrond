@@ -60,7 +60,7 @@ jobs:
         working-directory: formal-conjectures
         run: |
           set -o pipefail
-          lake env lean --wfail FormalConjectures/Other/BeaverMathOlympiad8Proof.lean \
+          lake env lean -E warning FormalConjectures/Other/BeaverMathOlympiad8Proof.lean \
             2>&1 | tee BMO8Compile.log
 
       - name: Upload compiler log
