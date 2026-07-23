@@ -63,8 +63,10 @@ def lineValue {n : ℕ} (family : LineFamily) (p : Point n) : ℤ :=
 def OnLine {n : ℕ} (line : PrincipalLine n) (p : Point n) : Prop :=
   lineValue line.1 p = line.2.1
 
-instance {n : ℕ} (line : PrincipalLine n) : DecidablePred (OnLine line) :=
-  fun _ => inferInstance
+instance {n : ℕ} (line : PrincipalLine n) : DecidablePred (OnLine line) := by
+  intro p
+  unfold OnLine
+  infer_instance
 
 /-- Three points on one principal line are Euclidean-collinear. -/
 theorem principal_collinear {n : ℕ} {line : PrincipalLine n}
@@ -139,8 +141,12 @@ private theorem sum_indicator_eq_card_filter {α : Type*} [DecidableEq α]
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
-      by_cases hP : P a <;>
-        simp [ha, hP, ih, Nat.add_mul]
+      by_cases hP : P a
+      · have hnot : a ∉ s.filter P := by
+          intro hmem
+          exact ha (Finset.mem_of_mem_filter hmem)
+        simp [ha, hP, hnot, ih, Nat.add_mul, Nat.add_comm]
+      · simp [ha, hP, ih]
 
 private theorem double_count {n : ℕ} (s : Finset (Point n))
     (weight : PrincipalLine n → ℕ) :
