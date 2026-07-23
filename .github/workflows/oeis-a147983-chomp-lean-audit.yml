@@ -65,14 +65,17 @@ jobs:
         run: |
           set -euo pipefail
           cp ../playground/proofs/chomp-10x42/lean/KernelCertificate.lean ./ChompKernelCertificate.lean
+          cp ../playground/proofs/chomp-10x42/lean/KernelPSet.lean ./ChompKernelPSet.lean
           cp ../playground/proofs/chomp-10x42/lean/MDDCertificate.lean ./ChompMDDCertificate.lean
           cp ../playground/proofs/chomp-10x42/lean/ChompRank.lean ./ChompRank.lean
           lake lean ChompKernelCertificate.lean 2>&1 | tee chomp-kernel-certificate.log
+          lake lean ChompKernelPSet.lean 2>&1 | tee chomp-kernel-pset.log
           lake lean ChompMDDCertificate.lean 2>&1 | tee chomp-mdd-certificate.log
           lake lean ChompRank.lean 2>&1 | tee chomp-rank.log
           if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool|sorryAx' \
-              ChompKernelCertificate.lean ChompMDDCertificate.lean ChompRank.lean \
-              chomp-kernel-certificate.log chomp-mdd-certificate.log chomp-rank.log; then
+              ChompKernelCertificate.lean ChompKernelPSet.lean ChompMDDCertificate.lean ChompRank.lean \
+              chomp-kernel-certificate.log chomp-kernel-pset.log \
+              chomp-mdd-certificate.log chomp-rank.log; then
             echo 'Forbidden placeholder or trust escape in kernel certificate development.' >&2
             exit 1
           fi
@@ -85,6 +88,7 @@ jobs:
           path: |
             formal-conjectures/chomp-a147983-lean.log
             formal-conjectures/chomp-kernel-certificate.log
+            formal-conjectures/chomp-kernel-pset.log
             formal-conjectures/chomp-mdd-certificate.log
             formal-conjectures/chomp-rank.log
           if-no-files-found: warn
