@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - audit/bmo8-compile-fix
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
