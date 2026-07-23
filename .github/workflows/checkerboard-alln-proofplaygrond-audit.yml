@@ -72,16 +72,16 @@ jobs:
       - name: Reject proof holes and trust shortcuts
         run: |
           set -euo pipefail
-          files=(Checkerboard/*.lean)
+          files=(Checkerboard.lean Checkerboard/*.lean)
           if grep -nE '\b(sorry|admit|native_decide|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${files[@]}"; then
             echo 'Forbidden placeholder or trust shortcut found in checkerboard proof chain.' >&2
             exit 1
           fi
 
-      - name: Compile exact all-n theorem
+      - name: Build exact all-n library
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean Checkerboard/AllNTheorem.lean \
+          "$HOME/.elan/bin/lake" build Checkerboard \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-alln.log"
 
       - name: Run terminal axiom audit
