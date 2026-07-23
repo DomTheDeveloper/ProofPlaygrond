@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 0ad6ef14de9e3d021b25e489652b8ca7da17d67a
+          ref: 658a7c412991eb7fcd019d8ea67a4d5644f98add
           fetch-depth: 1
 
       - name: Record exact commit
@@ -71,7 +71,7 @@ jobs:
           set -o pipefail
           cat > WOWII59AxiomAudit.lean <<'EOF'
           import FormalConjectures.WrittenOnTheWallII.GraphConjecture59
-          #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59_false
+          #print axioms WrittenOnTheWallII.GraphConjecture59.conjecture59
           EOF
           "$HOME/.elan/bin/lake" env lean WOWII59AxiomAudit.lean \
             2>&1 | tee -a "$RUNNER_TEMP/wowii59-final.log"
