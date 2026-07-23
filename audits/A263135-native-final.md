@@ -1,13 +1,19 @@
-# OEIS A263135 native final audit
+# OEIS A263135 clean submission audit
 
-The promoted canonical honeycomb-contact proof is pinned to immutable Formal Conjectures commit `cb8de9921fc62810991a0384ee412cfed0ad8e7c`.
+The complete proof is frozen at `DomTheDeveloper/formal-conjectures@cb8de9921fc62810991a0384ee412cfed0ad8e7c`.
 
-The audit checks the exact catalog declaration `OeisA263135.conjecture`, not merely the auxiliary theorem used during development. It:
+The full proof chain and canonical theorem passed pinned Lean verification in run `29988298559`. The terminal axiom report for `OeisA263135.conjecture` is exactly:
 
-- rejects placeholders and trust shortcuts across the complete `Scratch/A263135*.lean` chain and both canonical A263135 files;
-- builds the complete `A263135ScratchAudit` module chain;
-- executes `Scratch/A263135Audit.lean`;
-- prints the axiom dependencies of `OeisA263135.conjecture`;
-- rejects `sorryAx`, `Lean.trustCompiler`, `Lean.ofReduce`, and `Lean.ofReduceBool`.
+- `propext`;
+- `Classical.choice`;
+- `Quot.sound`.
 
-The underlying proof chain previously passed all gates in run `29987594607`, with dependencies `[propext, Classical.choice, Quot.sound]`. The promoted catalog theorem preserves the original statement and delegates to that verified theorem. The finite two-vertex base case uses kernel reduction with `decide`, not `native_decide` or compiler trust.
+The current workflow audits the GDM-facing branch at `e1f22c58af222484dbcecf3fbd2f0a9301e5a5a1`. It requires:
+
+- exactly two commits after current GDM base `8eda3cc8ebd281bf7efa1c435a19ca6b87c6f4ff`;
+- exactly one changed file, `FormalConjectures/OEIS/263135.lean`;
+- a clean `git diff --check` result;
+- `research solved` metadata and an immutable Lean proof link;
+- a successful pinned build of `FormalConjectures.OEIS.263135`.
+
+The statement and solution metadata are intentionally separate commits.
