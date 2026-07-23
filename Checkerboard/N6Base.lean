@@ -17,6 +17,8 @@ preparation. All formal claims are checked by the repository-pinned Lean compile
 
 namespace Checkerboard
 
+open scoped BigOperators
+
 set_option maxHeartbeats 0
 set_option maxRecDepth 1000000
 
