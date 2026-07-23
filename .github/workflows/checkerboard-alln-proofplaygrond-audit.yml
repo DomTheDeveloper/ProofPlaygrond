@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact migrated proof
+      - name: Checkout exact migrated proof project
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: 8fc0535a3677bebdfbb16a699e2897da9958ec90
+          ref: 85f69c802c08b145dbf2946055d34ec902ac6697
           fetch-depth: 1
 
       - name: Record exact commit
@@ -36,23 +36,38 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Restore reusable Lean build cache
+      - name: Restore checkerboard Lean cache
         uses: actions/cache/restore@v4
         with:
           path: |
             .lake/packages
             .lake/build
-          key: checkerboard-alln-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: |
-            checkerboard-alln-${{ runner.os }}-
-            a263135-${{ runner.os }}-
-            litt-${{ runner.os }}-
-            wow59-${{ runner.os }}-
+          key: checkerboard-432-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.lean') }}
+          restore-keys: checkerboard-432-${{ runner.os }}-
 
-      - name: Unpack any restored Mathlib cache
+      - name: Resolve pinned Mathlib
         run: |
           set -euo pipefail
-          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" update
+
+      - name: Fetch Mathlib olean cache
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if "$HOME/.elan/bin/lake" exe cache get; then
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
+
+      - name: Save checkerboard Lean cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: checkerboard-432-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.lean') }}
 
       - name: Reject proof holes and trust shortcuts
         run: |
