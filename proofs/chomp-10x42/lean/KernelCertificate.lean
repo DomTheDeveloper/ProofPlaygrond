@@ -3,100 +3,104 @@ import FormalConjectures.Util.ProblemImports
 /-!
 # Kernel-checked finite game certificates
 
-This module defines proof objects for finite normal-play games and a generic theorem turning a
-valid ranked certificate into an actual inductive outcome proof.  The certificate producer is
-untrusted: only the proof of `Certificate.ValidAt` is used.
+The certificate producer is untrusted.  A certificate contains a finite collection of nodes,
+an interpretation of each node as an actual game position, and proofs that its edge lists are
+sound and complete for the real move relation.  Lean reconstructs the normal-play outcome proof
+by well-founded induction on a strictly decreasing rank.
 -/
 
 namespace ChompKernel
 
-/-- A finite proof that a state is losing (`false`) or winning (`true`).
+/-- A finite proof that a position is losing (`false`) or winning (`true`).
 
 A losing proof contains a winning proof for every legal child.  A winning proof contains one
-legal move to a state with a losing proof.  Because this is an inductive type, every accepted
-proof object is finite. -/
-inductive Outcome {S : Type} (Move : S → S → Prop) : S → Bool → Prop
-  | losing {s : S} (children : ∀ t, Move s t → Outcome Move t true) : Outcome Move s false
-  | winning {s t : S} (move : Move s t) (child : Outcome Move t false) : Outcome Move s true
+legal move to a position with a losing proof. -/
+inductive Outcome {P : Type} (Move : P → P → Prop) : P → Bool → Prop
+  | losing {p : P} (children : ∀ q, Move p q → Outcome Move q true) : Outcome Move p false
+  | winning {p q : P} (move : Move p q) (child : Outcome Move q false) : Outcome Move p true
 
-/-- A state has a kernel-checked losing proof. -/
-def IsLosing {S : Type} (Move : S → S → Prop) (s : S) : Prop :=
-  Nonempty (Outcome Move s false)
+/-- A position has a kernel-checked losing proof. -/
+def IsLosing {P : Type} (Move : P → P → Prop) (p : P) : Prop :=
+  Nonempty (Outcome Move p false)
 
-/-- A state has a kernel-checked winning proof. -/
-def IsWinning {S : Type} (Move : S → S → Prop) (s : S) : Prop :=
-  Nonempty (Outcome Move s true)
+/-- A position has a kernel-checked winning proof. -/
+def IsWinning {P : Type} (Move : P → P → Prop) (p : P) : Prop :=
+  Nonempty (Outcome Move p true)
 
-/-- A finite game presented by its children and a strictly decreasing natural-number rank. -/
-structure RankedGame (S : Type) [DecidableEq S] where
-  moves : S → Finset S
-  rank : S → ℕ
-  decreases : ∀ {s t : S}, t ∈ moves s → rank t < rank s
+/-- A progressively bounded game: every move strictly decreases a natural-number rank. -/
+structure RankedGame (P : Type) where
+  Move : P → P → Prop
+  rank : P → ℕ
+  decreases : ∀ {p q : P}, Move p q → rank q < rank p
 
 namespace RankedGame
 
-variable {S : Type} [DecidableEq S]
+variable {P : Type} {G : RankedGame P} {n : ℕ}
 
-/-- The move relation represented by a ranked finite game. -/
-def Move (G : RankedGame S) (s t : S) : Prop := t ∈ G.moves s
+/-- A finite, interpreted game certificate.
 
-/-- An untrusted outcome labelling together with one proposed reply at winning states. -/
-structure Certificate (G : RankedGame S) where
-  label : S → Bool
-  reply : S → Option S
+`children` is not trusted data by itself.  `children_sound` and `children_complete` prove that
+it lists exactly all real legal moves from every interpreted certificate node. -/
+structure Certificate (G : RankedGame P) (n : ℕ) where
+  pos : Fin n → P
+  label : Fin n → Bool
+  children : Fin n → Finset (Fin n)
+  reply : Fin n → Option (Fin n)
+  children_sound : ∀ {i j : Fin n}, j ∈ children i → G.Move (pos i) (pos j)
+  children_complete : ∀ (i : Fin n) (q : P), G.Move (pos i) q →
+    ∃ j, j ∈ children i ∧ pos j = q
 
 namespace Certificate
 
-variable {G : RankedGame S}
+/-- Local outcome-label validity.
 
-/-- Local certificate validity.
-
-* A losing-labelled node must have every legal child labelled winning.
-* A winning-labelled node must name one legal losing-labelled reply.
+* Every child of a losing-labelled node is labelled winning.
+* Every winning-labelled node names a legal child labelled losing.
 -/
-def ValidAt (C : Certificate G) (s : S) : Prop :=
-  match C.label s with
-  | false => ∀ t, t ∈ G.moves s → C.label t = true
-  | true => ∃ t, C.reply s = some t ∧ t ∈ G.moves s ∧ C.label t = false
+def ValidAt (C : Certificate G n) (i : Fin n) : Prop :=
+  match C.label i with
+  | false => ∀ j, j ∈ C.children i → C.label j = true
+  | true => ∃ j, C.reply i = some j ∧ j ∈ C.children i ∧ C.label j = false
 
-/-- A total valid ranked certificate yields genuine inductive outcome proofs.
+/-- A valid finite interpreted certificate yields genuine outcome proofs for the actual game.
 
-For the generated Chomp certificate, the total functions are implemented by a finite ranked
-array plus an unreachable default.  Closure of every losing node and the recorded reply at every
-winning node ensure that the default is never used below a certified root.
--/
-theorem outcome_of_valid (C : Certificate G) (hvalid : ∀ s, C.ValidAt s) (s : S) :
-    Outcome G.Move s (C.label s) := by
-  refine (measure_wf G.rank).induction s ?_
-  intro s ih
-  cases hs : C.label s with
+The key point is `children_complete`: at a losing node, an arbitrary real legal move is mapped
+back to a certificate node before the induction hypothesis is used.  No default labels or
+unrepresented positions are trusted. -/
+theorem outcome_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) (i : Fin n) :
+    Outcome G.Move (C.pos i) (C.label i) := by
+  refine (measure_wf (fun i ↦ G.rank (C.pos i))).induction i ?_
+  intro i ih
+  cases hi : C.label i with
   | false =>
-      have hv : ∀ t, t ∈ G.moves s → C.label t = true := by
-        simpa [ValidAt, hs] using hvalid s
-      rw [hs]
-      exact Outcome.losing (fun t hm => by
-        have ht := ih t (G.decreases hm)
-        simpa [hv t hm] using ht)
+      have hv : ∀ j, j ∈ C.children i → C.label j = true := by
+        simpa [ValidAt, hi] using hvalid i
+      rw [hi]
+      exact Outcome.losing (fun q hq ↦ by
+        obtain ⟨j, hj, hpos⟩ := C.children_complete i q hq
+        subst q
+        have hout := ih j (G.decreases (C.children_sound hj))
+        simpa [hv j hj] using hout)
   | true =>
-      have hv : ∃ t, C.reply s = some t ∧ t ∈ G.moves s ∧ C.label t = false := by
-        simpa [ValidAt, hs] using hvalid s
-      obtain ⟨t, _, hm, htlabel⟩ := hv
-      rw [hs]
-      exact Outcome.winning hm (by
-        have ht := ih t (G.decreases hm)
-        simpa [htlabel] using ht)
+      have hv : ∃ j, C.reply i = some j ∧ j ∈ C.children i ∧ C.label j = false := by
+        simpa [ValidAt, hi] using hvalid i
+      obtain ⟨j, _, hj, hlabel⟩ := hv
+      rw [hi]
+      exact Outcome.winning (C.children_sound hj) (by
+        have hout := ih j (G.decreases (C.children_sound hj))
+        simpa [hlabel] using hout)
 
 /-- A losing-labelled root of a valid certificate has a kernel-checked losing proof. -/
-theorem losing_of_valid (C : Certificate G) (hvalid : ∀ s, C.ValidAt s) {s : S}
-    (hs : C.label s = false) : IsLosing G.Move s := by
+theorem losing_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) {i : Fin n}
+    (hi : C.label i = false) : IsLosing G.Move (C.pos i) := by
   refine ⟨?_⟩
-  simpa [hs] using C.outcome_of_valid hvalid s
+  simpa [hi] using C.outcome_of_valid hvalid i
 
 /-- A winning-labelled root of a valid certificate has a kernel-checked winning proof. -/
-theorem winning_of_valid (C : Certificate G) (hvalid : ∀ s, C.ValidAt s) {s : S}
-    (hs : C.label s = true) : IsWinning G.Move s := by
+theorem winning_of_valid (C : Certificate G n) (hvalid : ∀ i, C.ValidAt i) {i : Fin n}
+    (hi : C.label i = true) : IsWinning G.Move (C.pos i) := by
   refine ⟨?_⟩
-  simpa [hs] using C.outcome_of_valid hvalid s
+  simpa [hi] using C.outcome_of_valid hvalid i
 
 end Certificate
 end RankedGame
