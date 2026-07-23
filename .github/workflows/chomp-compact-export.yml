@@ -1,0 +1,96 @@
+name: Chomp compact certificate export
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'proofs/chomp-10x42/chomp_export_p_ranks.cpp'
+      - 'proofs/chomp-10x42/chomp_p_mdd_serialize.cpp'
+      - 'proofs/chomp-10x42/chomp_compact_export.cpp'
+      - 'proofs/chomp-10x42/chomp_compact_verify.cpp'
+      - '.github/workflows/chomp-compact-export.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chomp-compact-export-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: proofs/chomp-10x42
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build generators and independent verifier
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_export_p_ranks.cpp -o chomp_export_p_ranks
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_p_mdd_serialize.cpp -o chomp_p_mdd_serialize
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_compact_export.cpp -o chomp_compact_export
+          g++ -std=c++17 -O3 -march=native -DNDEBUG -Wall -Wextra -Wpedantic \
+            chomp_compact_verify.cpp -o chomp_compact_verify
+
+      - name: Regenerate exact P-position stream
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v ./chomp_export_p_ranks 10 42 p10x42.bin \
+            > export.stdout 2> export.stderr
+          grep -F 'P=107342138 prefixes=3042311754 last_rank=15820013305' export.stderr
+
+      - name: Regenerate reduced P MDD
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v ./chomp_p_mdd_serialize p10x42.bin p10x42.mdd \
+            > mdd.stdout 2> mdd.stderr
+          grep -F 'words=107342138 total_nodes=16906422 total_transitions=96754877' mdd.stdout
+
+      - name: Export compact root-reachable strategy
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v ./chomp_compact_export p10x42.mdd 100000 compact-strategy.bin \
+            > compact-export.stdout 2> compact-export.stderr
+          grep -F 'COMPLETE carrier=' compact-export.stdout
+
+      - name: Replay without the P oracle
+        run: |
+          set -euo pipefail
+          ./chomp_compact_verify compact-strategy.bin | tee compact-verify.stdout
+          grep -F 'VERIFIED carrier=' compact-verify.stdout
+          sha256sum compact-strategy.bin > compact-strategy.sha256
+
+      - name: Write report
+        if: always()
+        run: |
+          {
+            echo '# Chomp 10x42 compact explicit strategy'
+            echo
+            cat compact-export.stdout 2>/dev/null || true
+            cat compact-verify.stdout 2>/dev/null || true
+            cat compact-strategy.sha256 2>/dev/null || true
+            echo
+            tail -n 40 compact-export.stderr 2>/dev/null || true
+          } > COMPACT_EXPORT_REPORT.md
+
+      - name: Upload proof data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chomp-10x42-compact-strategy
+          path: |
+            proofs/chomp-10x42/compact-strategy.bin
+            proofs/chomp-10x42/compact-strategy.sha256
+            proofs/chomp-10x42/COMPACT_EXPORT_REPORT.md
+            proofs/chomp-10x42/compact-export.stdout
+            proofs/chomp-10x42/compact-export.stderr
+            proofs/chomp-10x42/compact-verify.stdout
+          if-no-files-found: warn
