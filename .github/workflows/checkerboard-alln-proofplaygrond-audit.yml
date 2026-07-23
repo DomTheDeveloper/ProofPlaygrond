@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused audit for pure BitVec n6 SAT source commit f7bb9301c63bad3e23121b90117c0df7b4f3a9d2.
+# One-time LRAT generation for source commit d8650ce8d9e2528adaf92c91bb58a8e9d8e23231.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout exact migrated proof project
+      - name: Checkout exact LRAT-generation source
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/ProofPlaygrond
-          ref: f7bb9301c63bad3e23121b90117c0df7b4f3a9d2
+          ref: d8650ce8d9e2528adaf92c91bb58a8e9d8e23231
           fetch-depth: 1
 
       - name: Record exact commit
@@ -62,18 +62,20 @@ jobs:
           done
           exit 1
 
-      - name: Test pure BitVec n6 SAT certificate
+      - name: Generate LRAT certificates
         run: |
           set -o pipefail
           "$HOME/.elan/bin/lake" env lean Checkerboard/N6SATTest.lean \
             2>&1 | tee "$RUNNER_TEMP/checkerboard-alln.log"
+          find Checkerboard -maxdepth 1 -name '*.lrat' -print
 
-      - name: Upload focused transcript
+      - name: Upload generated LRAT and transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: checkerboard-n6-sat-${{ github.run_id }}
+          name: checkerboard-n6-lrat-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/checkerboard-alln.log
-          if-no-files-found: warn
+            Checkerboard/*.lrat
+          if-no-files-found: error
