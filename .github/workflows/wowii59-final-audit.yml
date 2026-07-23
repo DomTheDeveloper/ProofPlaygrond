@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Explicit proposition-decision audit for source commit f3a710108086d7333e88a22cffa6bb84e6c3003b.
+# Explicit 11-bit case audit for source commit 338b08593ec9452eedd5920f9360ea3a50a3e77c.
 
 name: WOWII 59 final audit
 
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: f3a710108086d7333e88a22cffa6bb84e6c3003b
+          ref: 338b08593ec9452eedd5920f9360ea3a50a3e77c
           fetch-depth: 1
 
       - name: Record exact commit
