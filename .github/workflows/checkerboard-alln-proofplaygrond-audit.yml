@@ -1,6 +1,6 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
-# Focused pure-kernel bridge audit for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
+# Diagnostic pure-kernel bridge audit for source commit b2c96dd991abcf06da14ea35b19a5a319b036511.
 
 name: Checkerboard all-n ProofPlaygrond audit
 
@@ -52,19 +52,18 @@ jobs:
             exit 1
           fi
 
-      - name: Build both omega certificate bridges through Lake
-        run: |
-          set -o pipefail
-          "$HOME/.elan/bin/lake" build Checkerboard.N6BridgeTest \
-            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
-
-      - name: Enforce axiom policy
+      - name: Build bridge dependencies
         run: |
           set -euo pipefail
-          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-bridge.log"; then
-            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
-            exit 1
-          fi
+          "$HOME/.elan/bin/lake" build Checkerboard.FourCertificate Checkerboard.N6SATTest
+
+      - name: Compile both omega certificate bridges
+        id: compile
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean Checkerboard/N6BridgeTest.lean \
+            2>&1 | tee "$RUNNER_TEMP/checkerboard-n6-bridge.log"
 
       - name: Upload bridge transcript
         if: always()
@@ -75,3 +74,13 @@ jobs:
             ${{ runner.temp }}/resolved-sha.txt
             ${{ runner.temp }}/checkerboard-n6-bridge.log
           if-no-files-found: warn
+
+      - name: Enforce result and axiom policy
+        if: always()
+        run: |
+          set -euo pipefail
+          test '${{ steps.compile.outcome }}' = 'success'
+          if grep -E 'sorryAx|_native\.bv_decide|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/checkerboard-n6-bridge.log"; then
+            echo 'Forbidden axiom or compiler-trust dependency detected.' >&2
+            exit 1
+          fi
