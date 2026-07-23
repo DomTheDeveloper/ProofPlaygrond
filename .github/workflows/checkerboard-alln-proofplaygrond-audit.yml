@@ -36,20 +36,41 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Restore Lean build cache
-        uses: actions/cache@v4
+      - name: Restore reusable Lean build cache
+        id: lean-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             .lake/packages
             .lake/build
           key: checkerboard-alln-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: checkerboard-alln-${{ runner.os }}-
+          restore-keys: |
+            checkerboard-alln-${{ runner.os }}-
+            a263135-${{ runner.os }}-
+            litt-${{ runner.os }}-
+            wow59-${{ runner.os }}-
 
-      - name: Restore pinned Mathlib cache
+      - name: Restore pinned Mathlib cache when needed
+        if: steps.lean-cache.outputs.cache-matched-key == ''
         run: |
           set -euo pipefail
           "$HOME/.elan/bin/lake" exe cache unpack || true
-          "$HOME/.elan/bin/lake" exe cache get
+          for attempt in 1 2 3; do
+            if "$HOME/.elan/bin/lake" exe cache get; then
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
+
+      - name: Save reusable Lean build cache
+        if: steps.lean-cache.outputs.cache-matched-key == ''
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: checkerboard-alln-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
 
       - name: Reject proof holes and trust shortcuts
         run: |
