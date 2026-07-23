@@ -114,6 +114,7 @@ def n7ThinWeights : FourWeights 7 where
 
 private theorem n7Thin_cost : fourCost n7ThinWeights = 32 := by
   norm_num [fourCost, n7ThinWeights, Fin.sum_univ_succ, Nat.dist]
+  decide
 
 private theorem n7Thin_nonnegative :
     (∀ i, 0 ≤ n7ThinWeights.row i) ∧
@@ -135,9 +136,12 @@ private theorem n7Thin_nonnegative :
 private theorem n7Thin_cover :
     ∀ p : Point 7, InColor 1 p → 3 ≤ fourCoverage n7ThinWeights p := by
   rintro ⟨i, j⟩ hp
-  fin_cases i <;> fin_cases j <;>
-    norm_num [InColor, fourCoverage, n7ThinWeights, sumIndex,
-      differenceIndex, Nat.dist] at hp ⊢
+  fin_cases i <;> fin_cases j
+  all_goals
+    norm_num [InColor] at hp
+  all_goals
+    norm_num [fourCoverage, n7ThinWeights, sumIndex,
+      differenceIndex, Nat.dist]
 
 /-- Exceptional thin-color bound on the 7-board. -/
 theorem n7_one_upper (s : Finset (Point 7))
