@@ -40,6 +40,13 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
+      - name: Restore focused Lean build cache
+        id: lean-build-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: formal-conjectures/.lake/build
+          key: a263135-lean427-v1-${{ hashFiles('formal-conjectures/lean-toolchain', 'formal-conjectures/lake-manifest.json') }}
+
       - name: Fetch pinned Mathlib cache
         working-directory: formal-conjectures
         shell: bash
@@ -91,6 +98,13 @@ jobs:
             echo 'Unacceptable axiom dependency found.' >&2
             exit 1
           fi
+
+      - name: Save focused Lean build cache
+        if: always() && steps.lean-build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: formal-conjectures/.lake/build
+          key: a263135-lean427-v1-${{ hashFiles('formal-conjectures/lean-toolchain', 'formal-conjectures/lake-manifest.json') }}
 
       - name: Upload native transcript
         if: always()
