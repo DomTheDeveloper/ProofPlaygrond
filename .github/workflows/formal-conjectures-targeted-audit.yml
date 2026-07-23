@@ -1,0 +1,87 @@
+name: Targeted Formal Conjectures Lean audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/formal-conjectures-target.env'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: targeted-formal-conjectures-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Build exact requested module
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout audit controller
+        uses: actions/checkout@v4
+        with:
+          path: controller
+
+      - name: Read immutable target
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          source controller/audits/formal-conjectures-target.env
+          test -n "${REPOSITORY:-}"
+          test -n "${COMMIT_SHA:-}"
+          test -n "${MODULE:-}"
+          test -n "${SOURCE_FILE:-}"
+          echo "repository=$REPOSITORY" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+          echo "module=$MODULE" >> "$GITHUB_OUTPUT"
+          echo "source_file=$SOURCE_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout immutable proof commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.target.outputs.repository }}
+          ref: ${{ steps.target.outputs.commit_sha }}
+          path: target
+
+      - name: Confirm source, commit, and toolchain
+        shell: bash
+        working-directory: target
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ steps.target.outputs.commit_sha }}"
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.27.0"
+          test -f "${{ steps.target.outputs.source_file }}"
+          test -z "$(grep -nE '\b(sorry|admit)\b' "${{ steps.target.outputs.source_file }}" || true)"
+
+      - name: Install Lean 4.27
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        working-directory: target
+        run: lake exe cache get
+
+      - name: Build exact module
+        shell: bash
+        working-directory: target
+        run: |
+          set -o pipefail
+          lake --wfail build '${{ steps.target.outputs.module }}' \
+            2>&1 | tee targeted-formal-conjectures-audit.log
+
+      - name: Upload compiler transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: targeted-formal-conjectures-transcript
+          path: target/targeted-formal-conjectures-audit.log
+          if-no-files-found: warn
