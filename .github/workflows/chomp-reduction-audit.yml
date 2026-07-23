@@ -1,0 +1,77 @@
+name: Chomp reduction Lean audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'audits/chomp-reduction.trigger'
+      - '.github/workflows/chomp-reduction-audit.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chomp-reduction-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-lean-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout DTD Formal Conjectures audit branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 5e3e3cefa5abf2f2727bd12454617e03d3a5a14a
+
+      - name: Confirm immutable source
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "5e3e3cefa5abf2f2727bd12454617e03d3a5a14a"
+
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.27.0
+
+      - name: Fetch Mathlib cache
+        shell: bash
+        run: lake exe cache get
+
+      - name: Reject placeholders and trust escapes
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=FormalConjectures/Paper/ChompThreeOpenings.lean
+          if grep -nE '\b(sorry|admit)\b|native_decide|unsafe|^axiom\b|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' "$file"; then
+            echo 'Forbidden placeholder or trust escape found.' >&2
+            exit 1
+          fi
+
+      - name: Compile exact file and inspect axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake lean FormalConjectures/Paper/ChompThreeOpenings.lean 2>&1 | tee chomp-reduction.log
+          cat > ChompReductionAxioms.lean <<'EOF'
+          import FormalConjectures.Paper.ChompThreeOpenings
+          #print axioms ChompThreeOpenings.roots_are_distinct_legal_options
+          #print axioms ChompThreeOpenings.hasThreeWinningOpenings_of_roots
+          EOF
+          lake env lean ChompReductionAxioms.lean 2>&1 | tee -a chomp-reduction.log
+          if grep -E 'sorryAx|Lean\.trustCompiler|Lean\.ofReduce|Lean\.ofReduceBool' chomp-reduction.log; then
+            echo 'Forbidden axiom or trust shortcut found.' >&2
+            exit 1
+          fi
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chomp-reduction-lean-transcript
+          path: chomp-reduction.log
+          if-no-files-found: warn
