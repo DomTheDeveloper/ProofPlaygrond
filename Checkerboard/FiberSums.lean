@@ -1,12 +1,5 @@
 import Mathlib
 
-/-!
-# Exact finite fiber sums
-
-Elementary double-counting lemmas used to pass between sums over selected board
-points and sums over rows, columns, or diagonal fibers.
--/
-
 namespace Checkerboard
 
 open scoped BigOperators
@@ -19,8 +12,7 @@ def fiberCard (s : Finset α) (f : α → β) (b : β) : ℕ :=
   (s.filter fun a => f a = b).card
 
 @[simp] theorem fiberCard_empty (f : α → β) (b : β) :
-    fiberCard ∅ f b = 0 := by
-  simp [fiberCard]
+    fiberCard ∅ f b = 0 := by simp [fiberCard]
 
 private theorem fiberCard_mul_eq_sum [CommSemiring R]
     (s : Finset α) (f : α → β) (b : β) (g : β → R) :
@@ -37,17 +29,21 @@ private theorem fiberCard_mul_eq_sum [CommSemiring R]
         have hfilter : (insert a s).filter (fun x => f x = b) =
             insert a (s.filter fun x => f x = b) := by
           ext x
-          simp [h]
-        rw [fiberCard, hfilter, Finset.card_insert hnot, Nat.cast_add, add_mul]
+          by_cases hxa : x = a
+          · subst x; simp [ha, h]
+          · simp [hxa]
+        rw [fiberCard, hfilter]
         rw [Finset.sum_insert ha, if_pos h]
-        exact congrArg (fun z => g b + z) ih
+        simp [hnot, ih, add_mul]
       · have hfilter : (insert a s).filter (fun x => f x = b) =
             s.filter fun x => f x = b := by
           ext x
-          simp [h]
+          by_cases hxa : x = a
+          · subst x; simp [ha, h]
+          · simp [hxa]
         rw [fiberCard, hfilter]
         rw [Finset.sum_insert ha, if_neg h]
-        exact ih
+        simpa [fiberCard] using ih
 
 theorem sum_fiberCard_mul [Fintype β] [CommSemiring R]
     (s : Finset α) (f : α → β) (g : β → R) :
