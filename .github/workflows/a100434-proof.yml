@@ -34,7 +34,14 @@ jobs:
           key: a100434-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
           restore-keys: a100434-${{ runner.os }}-
       - name: Get Mathlib cache
-        run: lake exe cache get
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            lake exe cache get && exit 0
+            echo "cache attempt $attempt failed"
+            sleep 10
+          done
+          exit 1
       - name: Compile proof
         run: lake env lean FormalConjectures/OEIS/100434.lean
       - name: Audit axioms
