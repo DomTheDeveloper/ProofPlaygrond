@@ -1,0 +1,2 @@
+441ced8a683f48e0b9603da11023e4b0958f9bec
+solved catalog metadata fix
