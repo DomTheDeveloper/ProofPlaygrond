@@ -14,7 +14,11 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
       - name: Checkout exact formal-conjectures branch
@@ -70,7 +74,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: w320-independent-audit-${{ github.run_id }}
+          name: w320-independent-audit-${{ matrix.os }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/w320-build.log
             ${{ runner.temp }}/axioms.log
