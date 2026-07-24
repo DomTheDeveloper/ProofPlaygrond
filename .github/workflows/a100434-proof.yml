@@ -11,30 +11,44 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    runs-on: ubuntu-slim
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout audit branch
+        uses: actions/checkout@v6
+        with:
+          ref: audit/a100434-exact
+          fetch-depth: 0
+
+      - name: Checkout exact Formal Conjectures head
+        uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
           ref: 44f20bd9058d7054e7c2055156c8e32ff534b996
+          path: proof
           fetch-depth: 1
+
       - name: Install Lean
         run: |
           curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
       - uses: actions/cache@v4
         with:
           path: |
-            .lake/packages
-            .lake/build
-          key: a100434-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: a100434-${{ runner.os }}-
+            proof/.lake/packages
+            proof/.lake/build
+          key: a100434-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('proof/lean-toolchain', 'proof/lake-manifest.json', 'proof/lakefile.toml') }}
+          restore-keys: a100434-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Get Mathlib cache
+        id: cache
+        continue-on-error: true
+        working-directory: proof
         run: |
           set -euo pipefail
           for attempt in 1 2 3; do
@@ -43,30 +57,66 @@ jobs:
             sleep 10
           done
           exit 1
-      - name: Build project utility dependency
+
+      - name: Build dependency and compile proof
+        id: compile
+        if: steps.cache.outcome == 'success'
+        continue-on-error: true
+        working-directory: proof
         run: |
           set -o pipefail
-          lake build FormalConjecturesUtil 2>&1 | tee /tmp/a100434-dependency.log
-      - name: Compile proof
-        run: |
-          set -o pipefail
-          lake env lean FormalConjectures/OEIS/100434.lean 2>&1 | tee /tmp/a100434-compile.log
-      - name: Audit axioms
-        if: success()
+          lake build FormalConjecturesUtil 2>&1 | tee ../a100434-dependency.log
+          test ${PIPESTATUS[0]} -eq 0
+          lake env lean FormalConjectures/OEIS/100434.lean 2>&1 | tee ../a100434-compile.log
+          test ${PIPESTATUS[0]} -eq 0
+
+      - name: Audit theorem axioms
+        id: axioms
+        if: steps.compile.outcome == 'success'
+        continue-on-error: true
+        working-directory: proof
         run: |
           cat > /tmp/A100434Axioms.lean <<'EOF'
           import FormalConjectures.OEIS.«100434»
           #print axioms OeisA100434.a100434_auxiliary_identities
           EOF
-          lake env lean /tmp/A100434Axioms.lean 2>&1 | tee /tmp/a100434-axioms.log
-          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/a100434-axioms.log
-      - name: Upload exact diagnostics
+          set -o pipefail
+          lake env lean /tmp/A100434Axioms.lean 2>&1 | tee ../a100434-axioms.log
+          test ${PIPESTATUS[0]} -eq 0
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' ../a100434-axioms.log
+
+      - name: Publish readable diagnostic
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: a100434-diagnostics-${{ github.run_id }}
-          path: |
-            /tmp/a100434-dependency.log
-            /tmp/a100434-compile.log
-            /tmp/a100434-axioms.log
-          if-no-files-found: warn
+        run: |
+          {
+            echo "proof_commit=44f20bd9058d7054e7c2055156c8e32ff534b996"
+            echo "cache=${{ steps.cache.outcome }}"
+            echo "compile=${{ steps.compile.outcome }}"
+            echo "axioms=${{ steps.axioms.outcome }}"
+            if [[ "${{ steps.compile.outcome }}" == "success" && "${{ steps.axioms.outcome }}" == "success" ]]; then
+              echo "result=GREEN"
+            else
+              echo "result=RED"
+            fi
+            echo
+            echo "===== dependency ====="
+            cat a100434-dependency.log 2>/dev/null || true
+            echo
+            echo "===== compile ====="
+            cat a100434-compile.log 2>/dev/null || true
+            echo
+            echo "===== axioms ====="
+            cat a100434-axioms.log 2>/dev/null || true
+          } > .github/a100434-latest-diagnostic.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/a100434-latest-diagnostic.txt
+          git commit -m "Record A100434 exact audit result" || exit 0
+          git push origin HEAD:audit/a100434-exact
+
+      - name: Fail audit when verification failed
+        if: always()
+        run: |
+          test "${{ steps.cache.outcome }}" = success
+          test "${{ steps.compile.outcome }}" = success
+          test "${{ steps.axioms.outcome }}" = success
