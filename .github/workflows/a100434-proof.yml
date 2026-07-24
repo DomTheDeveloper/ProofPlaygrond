@@ -1,4 +1,5 @@
 # Exact audit trigger for Formal Conjectures PR #4560.
+# Retriggered after closing superseded audit-only lanes.
 name: A100434 exact Lean proof
 
 on:
