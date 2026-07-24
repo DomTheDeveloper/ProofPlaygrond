@@ -47,12 +47,24 @@ jobs:
           done
           exit 1
       - name: Compile proof
-        run: lake env lean FormalConjectures/OEIS/100434.lean
+        run: |
+          set -o pipefail
+          lake env lean FormalConjectures/OEIS/100434.lean 2>&1 | tee /tmp/a100434-compile.log
       - name: Audit axioms
+        if: success()
         run: |
           cat > /tmp/A100434Axioms.lean <<'EOF'
           import FormalConjectures.OEIS.«100434»
           #print axioms OeisA100434.a100434_auxiliary_identities
           EOF
-          lake env lean /tmp/A100434Axioms.lean | tee /tmp/a100434-axioms.log
+          lake env lean /tmp/A100434Axioms.lean 2>&1 | tee /tmp/a100434-axioms.log
           ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/a100434-axioms.log
+      - name: Upload exact diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a100434-diagnostics-${{ github.run_id }}
+          path: |
+            /tmp/a100434-compile.log
+            /tmp/a100434-axioms.log
+          if-no-files-found: warn
