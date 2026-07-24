@@ -3,7 +3,7 @@ name: A100434 exact Lean proof
 
 on:
   push:
-    branches: [main]
+    branches: [audit/a100434-exact]
     paths: ['.github/workflows/a100434-proof.yml']
   pull_request:
     branches: [main]
