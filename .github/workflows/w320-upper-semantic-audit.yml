@@ -1,0 +1,81 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: W320 upper semantic audit
+
+on:
+  push:
+    branches: [agent/w320-upper-semantic-audit]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/w320-upper-semantic-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact formal-conjectures bridge commit
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: ee7ebb09505c3769af6e5a12a47ded3b629e42ec
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        run: |
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Build exact semantic and cube bridges
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build \
+            FormalConjectures.GreensOpenProblems.Green14UpperOrderBridge \
+            FormalConjectures.GreensOpenProblems.Green14PositiveCertificateBridge \
+            FormalConjectures.GreensOpenProblems.Green14CNFEncoding \
+            FormalConjectures.GreensOpenProblems.Green14CubeCover \
+            2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Audit theorem axioms
+        run: |
+          cat > "$RUNNER_TEMP/Axioms.lean" <<'EOF'
+          import FormalConjectures.GreensOpenProblems.Green14CubeCover
+          #print axioms Green14.W_le_of_mem
+          #print axioms Green14.W_3_20_eq_389_of_mem
+          #print axioms Green14.PositiveCertificateBridge.exists_monoAP_of_hasAP_eq_true
+          #print axioms Green14.PositiveCertificateBridge.mem_mixed_of_direct_checks
+          #print axioms Green14.CNFEncoding.eval_apAvoidanceCNF_eq_true
+          #print axioms Green14.CNFEncoding.direct_checks_complete_of_w320CNF_unsat
+          #print axioms Green14.CNFEncoding.W_3_20_eq_389_of_w320CNF_unsat
+          #print axioms Green14.CubeCover.w320CNF_unsat_of_all_cubes
+          #print axioms Green14.CubeCover.W_3_20_eq_389_of_all_cubes
+          EOF
+          set -o pipefail
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/Axioms.lean" \
+            2>&1 | tee "$RUNNER_TEMP/axioms.log"
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' "$RUNNER_TEMP/axioms.log"
+
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w320-upper-semantic-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/build.log
+            ${{ runner.temp }}/axioms.log
