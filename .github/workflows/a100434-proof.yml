@@ -18,13 +18,13 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-slim
-    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 5465cbc4a079b786a883ef3181c0538a62fdeded
+          ref: 193b08e6bccf96afc1e876cd1a0c99d49eb087d2
           fetch-depth: 1
       - name: Install Lean
         run: |
