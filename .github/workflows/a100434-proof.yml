@@ -1,3 +1,4 @@
+# Exact audit trigger for Formal Conjectures PR #4560.
 name: A100434 exact Lean proof
 
 on:
