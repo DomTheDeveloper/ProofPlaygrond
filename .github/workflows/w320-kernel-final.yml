@@ -24,13 +24,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: efd41f05e0ba677afb515fdf0e0187c809cb9e71
+          ref: 8ab8bbf671d539d25ade77d970523f9a1b0e0022
           fetch-depth: 1
 
       - name: Record exact commit
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "efd41f05e0ba677afb515fdf0e0187c809cb9e71"
+          test "$(git rev-parse HEAD)" = "8ab8bbf671d539d25ade77d970523f9a1b0e0022"
           git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
 
       - name: Install repository-pinned Lean
