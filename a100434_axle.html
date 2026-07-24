@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>A100434 AXLE Lean 4.27 audit</title>
+<pre id="out">starting…</pre>
+<script>
+(async () => {
+  const out = document.getElementById('out');
+  try {
+    const sourceUrl = 'https://raw.githubusercontent.com/DomTheDeveloper/formal-conjectures/44f20bd9058d7054e7c2055156c8e32ff534b996/FormalConjectures/OEIS/100434.lean';
+    let content = await (await fetch(sourceUrl, {cache: 'no-store'})).text();
+    content = content
+      .replace('import FormalConjecturesUtil', 'import Mathlib')
+      .replace(/^@\[category[^\n]*\]\n/gm, '');
+    const response = await fetch('https://axle.axiommath.ai/api/v1/check', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        content,
+        environment: 'lean-4.27.0',
+        ignore_imports: true,
+        mathlib_options: true,
+        timeout_seconds: 300
+      })
+    });
+    const text = await response.text();
+    out.textContent = 'HTTP ' + response.status + '\n' + text;
+  } catch (e) {
+    out.textContent = 'ERROR\n' + (e && e.stack ? e.stack : String(e));
+  }
+})();
+</script>
