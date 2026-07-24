@@ -4,6 +4,8 @@
 name: W320 upper semantic audit
 
 on:
+  push:
+    branches: [agent/w320-upper-semantic-audit]
   pull_request:
     branches: [main]
     paths:
