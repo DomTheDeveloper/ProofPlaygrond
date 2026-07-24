@@ -1,0 +1,73 @@
+name: W320 independent Lean audit
+
+on:
+  push:
+    branches: [agent/w320-independent-audit]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact formal-conjectures branch
+        uses: actions/checkout@v4
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: agent/w320-lrat-kernel-v2
+
+      - name: Install repository-pinned Lean
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        run: |
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Build exact W320 modules
+        run: |
+          set -o pipefail
+          "$HOME/.elan/bin/lake" build \
+            FormalConjectures.GreensOpenProblems.Green14UpperOrderBridge \
+            FormalConjectures.GreensOpenProblems.Green14PositiveCertificateBridge \
+            FormalConjectures.GreensOpenProblems.Green14CNFEncoding \
+            FormalConjectures.GreensOpenProblems.Green14CubeCover \
+            FormalConjectures.GreensOpenProblems.Green14NestedCubeCover \
+            FormalConjectures.GreensOpenProblems.Green14LRATKernelConversion \
+            FormalConjectures.GreensOpenProblems.Green14LRATKernelChecker \
+            FormalConjectures.GreensOpenProblems.Green14LRATImport \
+            FormalConjectures.GreensOpenProblems.Green14LRATImportSmoke \
+            2>&1 | tee "$RUNNER_TEMP/w320-build.log"
+
+      - name: Verify byte-identical CNF
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" env lean --run scripts/w320/export_lean_cnf.lean > "$RUNNER_TEMP/lean.cnf"
+          python3 scripts/w320/generate_cnf.py --output "$RUNNER_TEMP/python.cnf"
+          cmp "$RUNNER_TEMP/lean.cnf" "$RUNNER_TEMP/python.cnf"
+          grep -q '^p cnf 389 41426$' "$RUNNER_TEMP/lean.cnf"
+
+      - name: Audit axioms
+        run: |
+          cat > "$RUNNER_TEMP/Audit.lean" <<'EOF'
+          import FormalConjectures.GreensOpenProblems.Green14LRATImportSmoke
+          #print axioms Green14.CNFEncoding.W_3_20_eq_389_of_w320CNF_unsat
+          #print axioms Green14.LRATKernelV2.checkKernel_sound
+          #print axioms Green14.LRATImportSmoke.tinyCNF_unsat
+          EOF
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/Audit.lean" | tee "$RUNNER_TEMP/axioms.log"
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' "$RUNNER_TEMP/axioms.log"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: w320-independent-audit-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/w320-build.log
+            ${{ runner.temp }}/axioms.log
+            ${{ runner.temp }}/lean.cnf
