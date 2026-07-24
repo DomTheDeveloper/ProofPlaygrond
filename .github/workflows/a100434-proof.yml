@@ -10,7 +10,7 @@ on:
     paths: ['.github/workflows/a100434-proof.yml']
 
 concurrency:
-  group: a100434-proof
+  group: a100434-proof-${{ github.event_name }}
   cancel-in-progress: true
 
 permissions:
