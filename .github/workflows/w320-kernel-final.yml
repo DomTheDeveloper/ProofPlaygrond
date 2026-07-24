@@ -1,18 +1,14 @@
 # Copyright 2026 Dominic Dabish
 # Licensed under the Apache License, Version 2.0.
 
-name: W320 kernel final audit
+name: W320 upper semantic kernel audit
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'audits/W320-kernel-final.md'
   pull_request:
     branches: [main]
     paths:
       - '.github/workflows/w320-kernel-final.yml'
-      - 'audits/W320-kernel-final.md'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,19 +16,22 @@ permissions:
 
 jobs:
   audit:
-    name: exact DTD proof build and axiom audit
+    name: exact upper semantic build and axiom audit
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Checkout exact DTD proof commit
+      - name: Checkout exact DTD upper-proof commit
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: c81b931c9bc70203dc1a687a1381957d6c3e167e
-          fetch-depth: 0
+          ref: 8ab8bbf671d539d25ade77d970523f9a1b0e0022
+          fetch-depth: 1
 
       - name: Record exact commit
-        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "8ab8bbf671d539d25ade77d970523f9a1b0e0022"
+          git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
 
       - name: Install repository-pinned Lean
         run: |
@@ -47,8 +46,8 @@ jobs:
           path: |
             .lake/packages
             .lake/build
-          key: w320-kernel-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: w320-kernel-${{ runner.os }}-
+          key: w320-upper-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: w320-upper-${{ runner.os }}-
 
       - name: Restore pinned Mathlib cache
         run: |
@@ -56,46 +55,45 @@ jobs:
           "$HOME/.elan/bin/lake" exe cache unpack || true
           "$HOME/.elan/bin/lake" exe cache get
 
-      - name: Verify exact proof scope
-        run: |
-          set -euo pipefail
-          git diff --name-only 022c1989ef80195545332f5ace7ac4e43caff572..HEAD | tee "$RUNNER_TEMP/scope.txt"
-          test "$(wc -l < "$RUNNER_TEMP/scope.txt")" -eq 5
-          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14Core.lean' "$RUNNER_TEMP/scope.txt"
-          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14FiniteExistence.lean' "$RUNNER_TEMP/scope.txt"
-          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14OrderBridge.lean' "$RUNNER_TEMP/scope.txt"
-          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14ArrayCertificateBridge.lean' "$RUNNER_TEMP/scope.txt"
-          grep -Fxq 'FormalConjectures/GreensOpenProblems/Green14FastKernel20.lean' "$RUNNER_TEMP/scope.txt"
-
-      - name: Build exact W(3,20) proof module
+      - name: Build exact upper-bound modules
         run: |
           set -o pipefail
-          "$HOME/.elan/bin/lake" build FormalConjectures.GreensOpenProblems.Green14FastKernel20 \
-            2>&1 | tee "$RUNNER_TEMP/w320-build.log"
+          "$HOME/.elan/bin/lake" build \
+            FormalConjectures.GreensOpenProblems.Green14UpperOrderBridge \
+            FormalConjectures.GreensOpenProblems.Green14PositiveCertificateBridge \
+            FormalConjectures.GreensOpenProblems.Green14CNFEncoding \
+            FormalConjectures.GreensOpenProblems.Green14CubeCover \
+            2>&1 | tee "$RUNNER_TEMP/w320-upper-build.log"
 
       - name: Audit theorem axioms
         run: |
           set -euo pipefail
-          cat > "$RUNNER_TEMP/W320Axioms.lean" <<'EOF'
-          import FormalConjectures.GreensOpenProblems.Green14FastKernel20
-          #print axioms Green14.FastKernel.valid_20
-          #print axioms Green14.FastKernel.W_3_20_lower_fast
+          cat > "$RUNNER_TEMP/W320UpperAxioms.lean" <<'EOF'
+          import FormalConjectures.GreensOpenProblems.Green14CubeCover
+          #print axioms Green14.W_le_of_mem
+          #print axioms Green14.W_3_20_eq_389_of_mem
+          #print axioms Green14.PositiveCertificateBridge.exists_monoAP_of_hasAP_eq_true
+          #print axioms Green14.PositiveCertificateBridge.mem_mixed_of_direct_checks
+          #print axioms Green14.CNFEncoding.eval_apAvoidanceCNF_eq_true
+          #print axioms Green14.CNFEncoding.W_3_20_eq_389_of_w320CNF_unsat
+          #print axioms Green14.CubeCover.w320CNF_unsat_of_all_cubes
+          #print axioms Green14.CubeCover.W_3_20_eq_389_of_all_cubes
           EOF
           set -o pipefail
-          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/W320Axioms.lean" \
-            2>&1 | tee "$RUNNER_TEMP/w320-axioms.log"
-          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' "$RUNNER_TEMP/w320-axioms.log"
+          "$HOME/.elan/bin/lake" env lean "$RUNNER_TEMP/W320UpperAxioms.lean" \
+            2>&1 | tee "$RUNNER_TEMP/w320-upper-axioms.log"
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' \
+            "$RUNNER_TEMP/w320-upper-axioms.log"
 
       - name: Upload transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: w320-kernel-final-${{ github.run_id }}
+          name: w320-upper-semantic-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
-            ${{ runner.temp }}/scope.txt
-            ${{ runner.temp }}/w320-build.log
-            ${{ runner.temp }}/w320-axioms.log
+            ${{ runner.temp }}/w320-upper-build.log
+            ${{ runner.temp }}/w320-upper-axioms.log
           if-no-files-found: warn
 
       - name: Publish final audit status
@@ -109,7 +107,7 @@ jobs:
               repo: context.repo.repo,
               sha: context.sha,
               state: ok ? 'success' : 'failure',
-              context: 'w320/kernel-final',
-              description: ok ? 'Exact Lean build and axiom audit passed' : 'W(3,20) final audit failed',
+              context: 'w320/upper-semantic',
+              description: ok ? 'Upper semantic Lean audit passed' : 'Upper semantic Lean audit failed',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
