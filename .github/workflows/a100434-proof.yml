@@ -1,5 +1,5 @@
 # Exact audit trigger for Formal Conjectures PR #4560.
-# Tests the isolated recurrence-induction repair before updating the submitted branch.
+# Tests the recurrence-induction repair rebased onto the actual current submitted head.
 name: A100434 exact Lean proof
 
 on:
@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout repaired candidate
+      - name: Checkout repaired current-head candidate
         uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: fba7ff42ccfb21bcf7904c4b13555f20741d310e
+          ref: f6fce00d9f0fb5cfcd04b63016eb4c3fa76a319d
           fetch-depth: 1
 
       - name: Install Lean
@@ -36,8 +36,8 @@ jobs:
           path: |
             .lake/packages
             .lake/build
-          key: a100434-candidate-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: a100434-candidate-${{ runner.os }}-${{ runner.arch }}-
+          key: a100434-current-candidate-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: a100434-current-candidate-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Get Mathlib cache
         run: |
@@ -73,7 +73,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: a100434-candidate-${{ github.run_id }}
+          name: a100434-current-candidate-${{ github.run_id }}
           path: |
             a100434-dependency.log
             a100434-compile.log
