@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: macos-15
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
@@ -35,8 +35,8 @@ jobs:
           path: |
             .lake/packages
             .lake/build
-          key: a100434-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
-          restore-keys: a100434-${{ runner.os }}-
+          key: a100434-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: a100434-${{ runner.os }}-${{ runner.arch }}-
       - name: Get Mathlib cache
         run: |
           set -euo pipefail
