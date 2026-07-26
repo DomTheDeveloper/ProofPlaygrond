@@ -54,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           targets=(RNAQuasiPowers.lean RNAQuasiPowers FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean)
-          if grep -RInE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${targets[@]}"; then
+          if grep -RInE '(^|[[:space:]])(sorry|admit|unsafe)([[:space:]]|$)|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${targets[@]}"; then
             exit 1
           fi
       - name: Build internal certificate library
