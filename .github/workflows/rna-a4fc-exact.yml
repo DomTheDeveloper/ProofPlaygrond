@@ -68,10 +68,12 @@ jobs:
           set -o pipefail
           lake build FormalConjectures.Util.ProblemImports \
             2>&1 | tee -a "$RUNNER_TEMP/rna.log"
-      - name: Compile public theorem layer
+      - name: Compile and save public theorem layer
         run: |
           set -o pipefail
+          mkdir -p .lake/build/lib/lean/FormalConjectures/Arxiv/2602.19255
           lake env lean -DwarningAsError=true \
+            -o .lake/build/lib/lean/FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.olean \
             FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
             2>&1 | tee -a "$RUNNER_TEMP/rna.log"
       - name: Compile internal and public axiom audits
