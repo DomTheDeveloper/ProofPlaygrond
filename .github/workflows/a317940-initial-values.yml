@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: DomTheDeveloper/formal-conjectures
-          ref: 2e85f34e59caf25364f6aa06f639cc5021510fdc
+          ref: 5bde58f419e0b4022e515a3daf10304125ab138f
           fetch-depth: 1
       - name: Install Lean
         run: |
