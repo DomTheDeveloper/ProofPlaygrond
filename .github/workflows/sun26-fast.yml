@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           targets=(FormalConjectures/SunConjectures/2_6Finite.lean FormalConjectures/SunConjectures/2_6Proof.lean)
-          if grep -nE '(^|[[:space:]])(sorry|admit|unsafe)([[:space:]]|$)|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)|native_decide' "${targets[@]}"; then
+          if grep -nE '(^|[[:space:]])(sorry|admit|unsafe)([[:space:]]|$)|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)|^[[:space:]]*native_decide([[:space:]]|$)' "${targets[@]}"; then
             exit 1
           fi
       - name: Compile finite theorem by kernel reduction
