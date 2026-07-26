@@ -1,0 +1,76 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: A263135 documentation reproduction
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a263135-docs-repro.yml'
+      - 'audits/a263135-docs-repro.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    name: reproduce doc-gen failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact A263135 PR head
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: 7f1bd9fd95a3718bb7e849620a9c96176aa0defc
+          fetch-depth: 1
+
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/resolved-sha.txt"
+
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Mathlib cache
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" exe cache unpack || true
+          "$HOME/.elan/bin/lake" exe cache get
+
+      - name: Build Lean project
+        run: |
+          set -o pipefail
+          : > "$RUNNER_TEMP/a263135-docs.log"
+          "$HOME/.elan/bin/lake" --wfail build \
+            2>&1 | tee "$RUNNER_TEMP/a263135-docs.log"
+
+      - name: Prepare documentation project
+        run: |
+          set -o pipefail
+          cd docbuild
+          export MATHLIB_NO_CACHE_ON_UPDATE=1
+          "$HOME/.elan/bin/lake" update formal_conjectures \
+            2>&1 | tee -a "$RUNNER_TEMP/a263135-docs.log"
+
+      - name: Build documentation
+        run: |
+          set -o pipefail
+          cd docbuild
+          "$HOME/.elan/bin/lake" build FormalConjectures:docs \
+            2>&1 | tee -a "$RUNNER_TEMP/a263135-docs.log"
+
+      - name: Upload complete reproduction log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a263135-docs-repro-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/a263135-docs.log
+          if-no-files-found: warn
