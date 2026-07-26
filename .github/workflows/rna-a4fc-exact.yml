@@ -1,0 +1,96 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: RNA certificate exact audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/rna-a4fc-exact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: exact algebraic certificate and axiom audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout immutable proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: a4fc5e6c9f846c424ba20bd3b6587546841cd811
+          fetch-depth: 1
+      - name: Confirm exact source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = a4fc5e6c9f846c424ba20bd3b6587546841cd811
+          git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.27.0'
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: rna-a4fc-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: rna-a4fc-${{ runner.os }}-
+      - name: Fetch committed Mathlib cache
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          targets=(RNAQuasiPowers.lean RNAQuasiPowers FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean)
+          if grep -RInE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${targets[@]}"; then
+            exit 1
+          fi
+      - name: Build internal certificate library
+        run: |
+          set -o pipefail
+          : > "$RUNNER_TEMP/rna.log"
+          lake --wfail build RNAQuasiPowers \
+            2>&1 | tee -a "$RUNNER_TEMP/rna.log"
+      - name: Build public support import
+        run: |
+          set -o pipefail
+          lake build FormalConjectures.Util.ProblemImports \
+            2>&1 | tee -a "$RUNNER_TEMP/rna.log"
+      - name: Compile public theorem layer
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2602.19255/RNAQuasiPowers.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/rna.log"
+      - name: Compile internal and public axiom audits
+        run: |
+          set -o pipefail
+          lake env lean -DwarningAsError=true RNAQuasiPowers/AxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/rna.log"
+          lake env lean -DwarningAsError=true \
+            FormalConjectures/Arxiv/2602.19255/RNAQuasiPowersAxiomAudit.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/rna.log"
+      - name: Enforce final axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/rna.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rna-a4fc-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/rna.log
