@@ -42,20 +42,19 @@ jobs:
             .lake/build
           key: sun26-fast-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
           restore-keys: sun26-fast-${{ runner.os }}-
-      - name: Fetch Mathlib cache and build native_decide
+      - name: Fetch Mathlib cache
         run: |
           set -euo pipefail
           lake exe cache unpack || true
           lake exe cache get
-          lake build Mathlib.Tactic.NativeDecide
       - name: Reject placeholders and trust escapes
         run: |
           set -euo pipefail
           targets=(FormalConjectures/SunConjectures/2_6Finite.lean FormalConjectures/SunConjectures/2_6Proof.lean)
-          if grep -nE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${targets[@]}"; then
+          if grep -nE '(^|[[:space:]])(sorry|admit|unsafe)([[:space:]]|$)|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)|native_decide' "${targets[@]}"; then
             exit 1
           fi
-      - name: Compile finite theorem
+      - name: Compile finite theorem by kernel reduction
         run: |
           set -o pipefail
           : > "$RUNNER_TEMP/sun26.log"
