@@ -72,6 +72,11 @@ jobs:
             exit 1
           fi
 
+      - name: Build repository utility module
+        run: |
+          set -euo pipefail
+          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
+
       - name: Compile exact counterexample proof
         run: |
           set -o pipefail
