@@ -72,10 +72,11 @@ jobs:
             exit 1
           fi
 
-      - name: Build repository utility module
+      - name: Build repository
         run: |
-          set -euo pipefail
-          "$HOME/.elan/bin/lake" build FormalConjecturesUtil
+          set -o pipefail
+          "$HOME/.elan/bin/lake" --wfail build \
+            2>&1 | tee "$RUNNER_TEMP/erdos545-build.log"
 
       - name: Compile exact counterexample proof
         run: |
@@ -99,5 +100,6 @@ jobs:
           name: erdos545-counterexample-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/resolved-sha.txt
+            ${{ runner.temp }}/erdos545-build.log
             ${{ runner.temp }}/erdos545.log
           if-no-files-found: warn
