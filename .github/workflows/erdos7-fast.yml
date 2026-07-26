@@ -1,0 +1,72 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Erdos 7 CRT obstruction exact audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/erdos7-fast.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: exact pairwise-coprime obstruction
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout active proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: research/erdos7-pairwise-coprime-obstruction
+          fetch-depth: 1
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: erdos7-fast-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: erdos7-fast-${{ runner.os }}-
+      - name: Fetch Mathlib cache
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          target=FormalConjectures/ErdosProblems/7PairwiseCoprime.lean
+          if grep -nE '^[[:space:]]*(sorry|admit)([[:space:]]|$)|^[[:space:]]*unsafe[[:space:]]+(def|theorem|instance|opaque|abbrev|structure|inductive|class)|^[[:space:]]*axiom[[:space:]]+|Lean\.(trustCompiler|ofReduce|ofReduceBool)|^[[:space:]]*native_decide([[:space:]]|$)' "$target"; then
+            exit 1
+          fi
+      - name: Compile exact theorem and print axioms
+        run: |
+          set -o pipefail
+          lake env lean FormalConjectures/ErdosProblems/7PairwiseCoprime.lean \
+            2>&1 | tee "$RUNNER_TEMP/erdos7.log"
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/erdos7.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos7-fast-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/erdos7.log

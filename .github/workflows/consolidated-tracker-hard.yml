@@ -1,0 +1,209 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Consolidated tracker targeted Lean audits
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/consolidated-tracker-hard.yml'
+      - 'audits/consolidated-tracker-hard.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  erdos545:
+    name: Erdős 545 exact module
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact proof branch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: research/erdos-545-counterexample
+          fetch-depth: 1
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Lean cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: erdos545-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: erdos545-${{ runner.os }}-
+      - name: Fetch pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          target='FormalConjectures/ErdosProblems/545Counterexample.lean'
+          if grep -nE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            exit 1
+          fi
+      - name: Compile exact Erdős module
+        run: |
+          set -o pipefail
+          lake build FormalConjecturesUtil
+          lake env lean FormalConjectures/ErdosProblems/545Counterexample.lean \
+            2>&1 | tee "$RUNNER_TEMP/erdos545.log"
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/erdos545.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos545-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/erdos545.log
+
+  sun26:
+    name: Sun 2.6 exact modules
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact proof branch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: statement/sun-2-7-i
+          fetch-depth: 1
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Lean cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: sun26-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: sun26-${{ runner.os }}-
+      - name: Fetch pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Reject proof placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          targets=(
+            FormalConjectures/SunConjectures/2_6Finite.lean
+            FormalConjectures/SunConjectures/2_6Proof.lean
+          )
+          if grep -nE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "${targets[@]}"; then
+            exit 1
+          fi
+      - name: Compile finite kernel checks
+        run: |
+          set -o pipefail
+          : > "$RUNNER_TEMP/sun26.log"
+          mkdir -p .lake/build/lib/lean/FormalConjectures/SunConjectures
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/SunConjectures/2_6Finite.olean \
+            FormalConjectures/SunConjectures/2_6Finite.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/sun26.log"
+      - name: Compile complete analytic proof
+        run: |
+          set -o pipefail
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/SunConjectures/2_6Proof.olean \
+            FormalConjectures/SunConjectures/2_6Proof.lean \
+            2>&1 | tee -a "$RUNNER_TEMP/sun26.log"
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/sun26.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sun26-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/sun26.log
+
+  a280831:
+    name: A280831 parametric families
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact research branch
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: research/a280831-parametric-families
+          fetch-depth: 1
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+      - name: Install repository-pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Lean cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: a280831-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: a280831-${{ runner.os }}-
+      - name: Fetch pinned Mathlib cache
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          target='FormalConjectures/OEIS/A280831Families.lean'
+          if grep -nE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            exit 1
+          fi
+      - name: Compile exact family module
+        run: |
+          set -o pipefail
+          lake build FormalConjecturesUtil
+          mkdir -p .lake/build/lib/lean/FormalConjectures/OEIS
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/OEIS/280831.olean \
+            FormalConjectures/OEIS/280831.lean
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/OEIS/A280831Families.olean \
+            FormalConjectures/OEIS/A280831Families.lean \
+            2>&1 | tee "$RUNNER_TEMP/a280831.log"
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/a280831.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a280831-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/a280831.log
