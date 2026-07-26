@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/sun26-fast.yml'
+      - 'audits/consolidated-tracker-hard.md'
   workflow_dispatch:
 
 permissions:
