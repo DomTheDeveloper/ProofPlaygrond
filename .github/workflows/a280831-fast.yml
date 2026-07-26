@@ -42,12 +42,16 @@ jobs:
             .lake/build
           key: a280831-fast-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
           restore-keys: a280831-fast-${{ runner.os }}-
-      - name: Fetch cache and build imported theorem
+      - name: Fetch cache and compile imported theorem
         run: |
           set -euo pipefail
           lake exe cache unpack || true
           lake exe cache get
-          lake build FormalConjectures.OEIS.280831
+          lake build FormalConjectures.Util.ProblemImports
+          mkdir -p .lake/build/lib/lean/FormalConjectures/OEIS
+          lake env lean \
+            -o .lake/build/lib/lean/FormalConjectures/OEIS/280831.olean \
+            FormalConjectures/OEIS/280831.lean
       - name: Reject placeholders and trust escapes
         run: |
           set -euo pipefail
