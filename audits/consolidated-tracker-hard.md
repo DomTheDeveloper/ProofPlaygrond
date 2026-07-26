@@ -8,7 +8,7 @@ This audit lane compiles three active research modules independently under each 
 
 Current iterative source heads:
 
-- Erdős 545: `d1521d52329c1ce891642d50be1bdb654ad43433`;
+- Erdős 545: `0e3a4ac0fc7ee93cec184bf27bb8f4a79f3dcfca`;
 - Sun 2.6: `4541e7704610f4e16bb1ef4d637a5867ac2c78db`;
 - A280831 families: `c39efc8f29479a6111a627fb388a846147a40556`.
 
