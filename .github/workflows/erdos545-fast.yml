@@ -1,0 +1,74 @@
+# Copyright 2026 Dominic Dabish
+# Licensed under the Apache License, Version 2.0.
+
+name: Erdos 545 fast exact audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/erdos545-fast.yml'
+      - 'audits/consolidated-tracker-hard.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: exact counterexample proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout active proof
+        uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: research/erdos-545-counterexample
+          fetch-depth: 1
+      - name: Record exact commit
+        run: git rev-parse HEAD | tee "$RUNNER_TEMP/sha.txt"
+      - name: Install pinned Lean
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: erdos545-fast-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: erdos545-fast-${{ runner.os }}-
+      - name: Fetch cache and build support import
+        run: |
+          set -euo pipefail
+          lake exe cache unpack || true
+          lake exe cache get
+          lake build FormalConjectures.Util.ProblemImports
+      - name: Reject placeholders and trust escapes
+        run: |
+          set -euo pipefail
+          target=FormalConjectures/ErdosProblems/545Counterexample.lean
+          if grep -nE '\b(sorry|admit|unsafe)\b|(^|[^A-Za-z])axiom([^A-Za-z]|$)|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$target"; then
+            exit 1
+          fi
+      - name: Compile exact theorem and print axioms
+        run: |
+          set -o pipefail
+          lake env lean FormalConjectures/ErdosProblems/545Counterexample.lean \
+            2>&1 | tee "$RUNNER_TEMP/erdos545.log"
+      - name: Enforce axiom policy
+        run: |
+          set -euo pipefail
+          ! grep -E 'sorryAx|Lean\.(trustCompiler|ofReduce|ofReduceBool)' "$RUNNER_TEMP/erdos545.log"
+      - name: Upload transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erdos545-fast-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/sha.txt
+            ${{ runner.temp }}/erdos545.log
