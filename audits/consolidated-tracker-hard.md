@@ -9,7 +9,7 @@ This audit lane compiles three active research modules independently under each 
 Current iterative source heads:
 
 - Erdős 545: `0e3a4ac0fc7ee93cec184bf27bb8f4a79f3dcfca`;
-- Sun 2.6: `65ab4714f5fb032c9d58430c71c0f5a5e85870ce`;
+- Sun 2.6: `70b0ac2147bdcaed3390e4866571b1d2d925f5ac`;
 - A280831 families: `c39efc8f29479a6111a627fb388a846147a40556`.
 
 Each job records the exact checked source commit, rejects placeholders and compiler-trust shortcuts, compiles only the relevant module, inspects the printed axiom transcript, and uploads its log.
