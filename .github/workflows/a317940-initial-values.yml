@@ -1,0 +1,54 @@
+name: A317940 initial values exact Lean audit
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/a317940-initial-values.yml']
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/a317940-initial-values.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: DomTheDeveloper/formal-conjectures
+          ref: a0752c4e330dd7013f69dd07c06f5bae8449376d
+          fetch-depth: 1
+      - name: Install Lean
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages
+            .lake/build
+          key: a317940-initial-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}
+          restore-keys: a317940-initial-${{ runner.os }}-
+      - name: Get Mathlib cache
+        run: lake exe cache get
+      - name: Reject target placeholders and trust shortcuts
+        run: |
+          awk '/theorem a_1/,/theorem f_nonnegative/' FormalConjectures/OEIS/317940.lean > /tmp/a317940-targets.lean
+          ! grep -E '(^|[^A-Za-z])(sorry|admit|native_decide|unsafe|axiom)([^A-Za-z]|$)|decide[[:space:]]*\+native' /tmp/a317940-targets.lean
+      - name: Compile exact canonical file
+        run: lake env lean FormalConjectures/OEIS/317940.lean
+      - name: Audit theorem axioms
+        run: |
+          cat > /tmp/A317940InitialAxioms.lean <<'EOF'
+          import FormalConjectures.OEIS.«317940»
+          #print axioms OeisA317940.a_1
+          #print axioms OeisA317940.a_2
+          #print axioms OeisA317940.a_3
+          #print axioms OeisA317940.a_4
+          #print axioms OeisA317940.a_5
+          EOF
+          lake env lean /tmp/A317940InitialAxioms.lean | tee /tmp/a317940-initial-axioms.log
+          ! grep -E 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/a317940-initial-axioms.log
