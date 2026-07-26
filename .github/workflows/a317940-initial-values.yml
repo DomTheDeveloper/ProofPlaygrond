@@ -39,8 +39,22 @@ jobs:
           awk '/theorem a_1/,/theorem f_nonnegative/' FormalConjectures/OEIS/317940.lean > /tmp/a317940-targets.lean
           ! grep -E '(^|[^A-Za-z])(sorry|admit|native_decide|unsafe|axiom)([^A-Za-z]|$)|decide[[:space:]]*\+native' /tmp/a317940-targets.lean
       - name: Compile exact canonical file
-        run: lake env lean FormalConjectures/OEIS/317940.lean
+        id: compile
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          lake env lean FormalConjectures/OEIS/317940.lean 2>&1 | tee /tmp/a317940-compile.log
+      - name: Upload compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a317940-compile-log
+          path: /tmp/a317940-compile.log
+      - name: Fail on compiler error
+        if: steps.compile.outcome == 'failure'
+        run: exit 1
       - name: Audit theorem axioms
+        if: steps.compile.outcome == 'success'
         run: |
           cat > /tmp/A317940InitialAxioms.lean <<'EOF'
           import FormalConjectures.OEIS.«317940»
