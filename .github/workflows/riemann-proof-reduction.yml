@@ -1,0 +1,73 @@
+name: Verify the ordinary Riemann hypothesis reduction
+on:
+  push:
+    branches: [codex/riemann-proof-reduction]
+    paths:
+      - 'proofs/riemann/**'
+      - '.github/workflows/riemann-proof-reduction.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    env:
+      PIN: 40e56bab026552e089d7afcfeff08d2defb9c005
+      OBJECT_URL: https://huggingface.co/datasets/JackMcCarthy/riemann-hypothesis-build/resolve/9036e64326acf4acfae159b96664e9708445c1d1/oleans.tar.zst
+      OBJECT_SHA: 953bab5386a7849527a11960f80a2fab427c49c637d6e94cc75788dd8f40196b
+      MATHLIB_CACHE_GET_URL: https://cache.mathlib.org/mathlib4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare the GitHub-hosted runner
+        run: |
+          set -euxo pipefail
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          sudo apt-get update -qq
+          sudo apt-get install -y squashfs-tools zstd
+          # Release unused preinstalled SDKs on this disposable hosted runner.
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo sysctl -w vm.max_map_count=1048576
+          df -h .
+      - name: Fetch the original source and measure the reachable files
+        run: |
+          git init -q archive
+          git -C archive fetch -q --depth=1 https://github.com/leanprover-community/riemann-hypothesis.git "$PIN"
+          git -C archive checkout -q --detach FETCH_HEAD
+          python3 proofs/riemann/source.py archive
+      - name: Install the exact compiler and Mathlib
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: archive
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-github-cache: false
+          use-mathlib-cache: true
+      - name: Mount the verified archive objects on compressed storage
+        run: |
+          set -euxo pipefail
+          mkdir -p objects
+          curl --fail --location --silent --show-error --retry 4 "$OBJECT_URL" -o "$RUNNER_TEMP/oleans.tar.zst"
+          echo "$OBJECT_SHA  $RUNNER_TEMP/oleans.tar.zst" | sha256sum --check
+          zstd -dc "$RUNNER_TEMP/oleans.tar.zst" |
+            tar --wildcards --wildcards-match-slash --delete -f - -- '*.ilean' |
+            mksquashfs - "$RUNNER_TEMP/rh.sqfs" -tar -no-strip -noappend -no-progress -no-xattrs -comp zstd -Xcompression-level 4 -processors 4
+          rm -- "$RUNNER_TEMP/oleans.tar.zst"
+          sudo mount -t squashfs -o loop,ro,nosuid,nodev,noexec "$RUNNER_TEMP/rh.sqfs" objects
+          test -d objects/.lake/build/lib/lean/Formalism
+          free_gib=$(df -BG --output=avail "$RUNNER_TEMP" | tail -1 | tr -dc '0-9')
+          swap_gib=$((free_gib - 4))
+          if ((swap_gib > 42)); then swap_gib=42; fi
+          if ((swap_gib > 0)); then
+            sudo fallocate -l "${swap_gib}G" "$RUNNER_TEMP/rh.swap"
+            sudo chmod 600 "$RUNNER_TEMP/rh.swap"
+            sudo mkswap "$RUNNER_TEMP/rh.swap"
+            sudo swapon "$RUNNER_TEMP/rh.swap"
+          fi
+          free -h
+      - name: Compile both reduced files, audit the closed theorem and replay both modules
+        run: bash proofs/riemann/verify.sh archive objects/.lake/build/lib/lean
