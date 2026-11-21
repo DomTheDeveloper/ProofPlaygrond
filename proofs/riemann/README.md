@@ -1,20 +1,22 @@
 # One Lean file for the five Riemann hypothesis statements
 
-[CompactRH.lean](CompactRH.lean) uses 482 lines of new Lean to close the five statements of Levent Alpöge’s release, including Mathlib’s `RiemannHypothesis`. Its complete project contains **16,595,972 lines**, after counting every imported arithmetic source. Lean and Mathlib are external dependencies on both sides of the comparison.
+[CompactRH.lean](CompactRH.lean) uses 400 lines of new Lean to close the five statements of Levent Alpöge’s release, including Mathlib’s `RiemannHypothesis`. Its complete project contains **16,595,834 lines**, after counting every imported arithmetic source. Lean and Mathlib are external dependencies on both sides of the comparison.
 
 | Source | Lean files | Source lines |
 | --- | ---: | ---: |
 | Original release, all five statements | 175,187 | 17,374,215 |
-| Original arithmetic imported by this version | 164,429 | 16,595,490 |
-| New proof and axiom audit | 1 | 482 |
-| Complete reduced project, all five statements | 164,430 | 16,595,972 |
-| Removed from the release | 10,757 | 778,243 |
+| Original arithmetic imported by this version | 164,427 | 16,595,434 |
+| New proof and axiom audit | 1 | 400 |
+| Complete reduced project, all five statements | 164,428 | 16,595,834 |
+| Removed from the release | 10,759 | 778,381 |
 
 ## The argument
 
-The same local theta identities, covolume bound, Galois representation and local Langlands existence results can feed the archive’s comparison theorem for **every** Dirichlet character. The proof constructs the arithmetic-window hypothesis for every character from a single collection of proved results. Applying the comparison once yields zero-freeness to the right of one half. Reflection gives the critical-strip statements. Specializing to the principal character gives ordinary RH.
+Suppose a Dirichlet L-function had a zero with real part $\beta>1/2$. Choose $1/2<\theta<\min(\beta,1)$. The analytic comparison forces a weighted prime-sum error to rise above $x^\theta$ somewhere in every sufficiently late interval $[Y,Y^{3/2}]$. The arithmetic part supplies arbitrarily late intervals of exactly this shape on which the error stays at or below $x^\theta$ throughout. These two statements contradict each other.
 
-The hard mathematics lies in proving the arithmetic estimates and identities. The 482-line file supplies each one using the imported results. Selecting shorter routes to those inputs and reusing them across all five conclusions removes 778,243 lines from the complete source. The five declarations at the end have the names and types used by the original release. The joint axiom audit traverses the proofs of all five.
+The simplification comes from how the proof supplies those intervals. Its arithmetic-window bound already covers every primitive Dirichlet character, and the same local theta identities and covolume bound work for all of them. The new file constructs these inputs once and passes them directly to the general comparison theorem. Twenty fields of the unitary-group input come straight from the local theta input, and the existing local Langlands proof supplies the same witness everywhere it is needed. The finite Euler factors extend the result to imprimitive characters. Reflection across the critical line then gives the zero locations, and the character modulo one gives ordinary RH.
+
+The five declarations at the end have the names and types used by the original release. The joint axiom audit traverses the proofs of all five. [Window and comparison definitions](https://github.com/leanprover-community/riemann-hypothesis/blob/40e56bab026552e089d7afcfeff08d2defb9c005/src/Formalism/SharpRestriction/RamificationFrobenius/TotientGaloisClasses/Window.lean#L24-L33) · [Comparison applied to every character](https://github.com/leanprover-community/riemann-hypothesis/blob/40e56bab026552e089d7afcfeff08d2defb9c005/src/Development/AutomorphicArithmetic/ThetaCorrespondence/ThetaPairLifts/ThirdPlaceSeries/TopPlug.lean#L12-L18)
 
 [Earlier 33-line principal-window deduction](https://github.com/DomTheDeveloper/ProofPlaygrond/blob/43cff8aa194597b2f4ae674aa7d6d991a8ed9283/proofs/riemann/PrincipalWindows.lean) · [Earlier ordinary-RH project in this repository](https://github.com/DomTheDeveloper/ProofPlaygrond/tree/43cff8aa194597b2f4ae674aa7d6d991a8ed9283/proofs/riemann)
 
