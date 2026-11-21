@@ -1,39 +1,49 @@
-# An ordinary Riemann hypothesis reduction in Lean
+# Reducing the Riemann hypothesis proof in Lean
 
-The target is Mathlib’s `RiemannHypothesis`, with no hypotheses in the theorem’s type. The proof specializes Levent Alpöge’s arithmetic argument to the principal Dirichlet character using David Sanftenberg’s single-family construction. The local files contain the analytic deduction and the geometric assembly. Their imported arithmetic is part of the proof.
+`OrdinaryRH` proves Mathlib’s `RiemannHypothesis` with no hypotheses. `AllClaims` preserves all five statements in Levent Alpöge’s original release, including the Dirichlet L-function results. Both targets reuse the pinned arithmetic archive. The counts below include every reachable project source and exclude Lean and Mathlib throughout.
 
-| Source | Lean files | Physical source lines |
-| --- | ---: | ---: |
-| Alpöge’s original release, including the Dirichlet statements | 175,187 | 17,374,215 |
-| Original modules imported by this reduction | 165,069 | 16,642,350 |
-| PrincipalWindows and OrdinaryRH, including the axiom check | 2 | 2,549 |
-| Complete ordinary-RH source over Lean and Mathlib | 165,071 | 16,644,899 |
+| Target | Imported archive files | New Lean files | New lines | Complete source lines |
+| --- | ---: | ---: | ---: | ---: |
+| Original release | 175,187 | 0 | 0 | 17,374,215 |
+| Earlier ordinary-RH specialization by David Sanftenberg | 165,070 | 31 | 4,024 | 16,646,436 |
+| Ordinary RH in this branch | 164,424 | 2 | 2,533 | 16,599,659 |
+| All five original statements in this branch | 175,128 | 1 | 52 | 17,371,572 |
 
-The local assembly keeps the route that produces one principal-character family with compatible rank, divisibility and spectral estimates. The principal-level window theorem applies the archive’s zero-free criterion at the trivial character directly. A zero to the right of the critical line would violate the criterion at an exponent strictly between one half and its real part. The functional equation for completed zeta reflects a nontrivial zero on the left into that same excluded region.
+## Ordinary RH
 
-[Principal-window deduction](PrincipalWindows.lean) · [Geometric assembly and closed theorem](OrdinaryRH.lean)
+The arithmetic produces intervals `[Y, Y^(3/2)]` starting arbitrarily far out. On each interval the principal-character error is bounded above by `x^θ`, for each fixed exponent strictly between one half and one. If a zeta zero lay to the right of the critical line, one could choose such an exponent below its real part. The archive’s zero-free criterion excludes that zero. The functional equation for completed zeta reflects a nontrivial zero on the left into the same excluded region.
+
+The 33-line analytic file applies the criterion directly to the character modulo one. The geometric file uses Sanftenberg’s single-family construction to supply the rank, divisibility and spectral estimates together. It keeps the declarations used by the endpoint. At 38 theorem references it selects a proof of the same type that permits a smaller set of imports. These replacements remove another 645 archive modules from the first version of this branch.
+
+[Analytic deduction](PrincipalWindows.lean) · [Geometric proof and closed theorem](OrdinaryRH.lean)
+
+## All five statements
+
+The literature hypotheses construct the arithmetic windows for every character. The archived comparison then gives zero-freeness for every Dirichlet L-function to the right of one half. From this the reduced file derives both zeta statements, the critical-strip statement for every character, and its primitive-character specialization. It type-checks each result against the original release’s statement file and audits their combined axioms.
+
+[Five-statement proof](AllClaims.lean)
 
 ## Verification
 
-Lean 4.33.1 accepted the local principal-window deduction. The branch workflow checks both files using the release’s exact toolchain, the pinned Mathlib and a SHA-256 checked archive of compiled imports. It checks that the closed declaration has Mathlib’s RH type, enforces the standard three axioms, and replays each local module with `leanchecker`. A green run for the specific commit is the full check of the combined source.
+The workflow uses stock Lean 4.33.1, the release’s pinned Mathlib and a SHA-256 verified archive of previously compiled dependencies. Each target compiles its new Lean files at trust level zero with warnings treated as errors, checks the standard axiom set, and replays the new modules with `leanchecker`. A green job for the target and commit records its verification. The original archive also has independent kernel replays.
 
-[Branch workflow](../../.github/workflows/riemann-proof-reduction.yml) · [Verification of the original archive](https://math.mit.edu/~drew/grh/) · [Earlier principal-character check](https://github.com/leanprover-community/riemann-hypothesis/pull/38)
+[GitHub Actions](https://github.com/DomTheDeveloper/ProofPlaygrond/actions/workflows/riemann-proof-reduction.yml) · [Independent checks of the original release](https://math.mit.edu/~drew/grh/) · [Earlier principal-character verification](https://github.com/leanprover-community/riemann-hypothesis/pull/38)
 
-## Rebuild from the reduced source
+## Rebuild a complete source project
 
-From this directory, with Git, Python 3, and elan installed, the following creates a native Lake project containing both local files and each imported archive source. The script checks the original commit, rejects modified or untracked archive sources, and counts every file it copies. Lean and Mathlib are external dependencies in both line counts.
+From this directory, the following commands create a native Lake project containing the two ordinary-RH files and every archive source they import. The materializer checks the original commit and dependency pins. It rejects local changes or untracked files in the archive source directory.
 
 ```sh
 git init archive
 git -C archive fetch --depth=1 https://github.com/leanprover-community/riemann-hypothesis.git 40e56bab026552e089d7afcfeff08d2defb9c005
 git -C archive checkout --detach FETCH_HEAD
-python3 source.py archive --output reduced
+python3 source.py archive --target OrdinaryRH --output reduced
 cd reduced
 lake exe mathlib/cache get
 lake build OrdinaryRH
 lake env leanchecker -v OrdinaryRH
 ```
 
-With a previously built original archive, `bash verify.sh /path/to/archive /path/to/archive/.lake/build/lib/lean` checks the two local files against those imports. Use `python3 source.py /path/to/archive` for the source count alone.
+To build the five-statement version, choose `--target AllClaims` and use `AllClaims` in the two final commands. For counts alone omit `--output reduced`. With previously compiled archive dependencies, `bash verify.sh /path/to/archive /path/to/archive/.lake/build/lib/lean OrdinaryRH` rechecks the ordinary proof. Its last argument also accepts `AllClaims`.
 
-The ordinary-RH specialization is derived from David Sanftenberg’s Apache-2.0 code at commit `d7857c26d332c8ebcd30d98e96acaee67b61715d`. This edition combines the geometric declarations used by the endpoint, replaces the principal-window argument, and performs one axiom audit on the closed theorem. The earlier specialization reports 165,070 archive modules plus 31 local modules. Credit for the underlying mathematical proof belongs to Levent Alpöge, working with Claude. [Original announcement](https://alpo.ge/remark.pdf) · [Specialization source](https://github.com/dbsanfte/riemann-hypothesis/tree/d7857c26d332c8ebcd30d98e96acaee67b61715d/src/PrincipalRH) · [License for the adapted source](LICENSE)
+The ordinary specialization adapts David Sanftenberg’s Apache-2.0 code at commit `d7857c26d332c8ebcd30d98e96acaee67b61715d`. The underlying mathematical proof is due to Levent Alpöge, working with Claude. [Original announcement](https://alpo.ge/remark.pdf) · [Specialization source](https://github.com/dbsanfte/riemann-hypothesis/tree/d7857c26d332c8ebcd30d98e96acaee67b61715d/src/PrincipalRH) · [License for the adapted source](LICENSE)

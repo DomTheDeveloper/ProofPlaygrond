@@ -5,132 +5,116 @@ retains the declarations used by the ordinary-RH endpoint and replaces the
 analytic deduction with PrincipalWindows. The arithmetic archive is by Levent Alpöge.
 -/
 import PrincipalWindows
-import Development.AutomorphicArithmetic.CharacterBoxes.ZeroFreeAllOfTopG
 import Mathlib.RingTheory.Noetherian.Basic
 import Mathlib.LinearAlgebra.Prod
-import Formalism.LocalToGlobal.NormalizedHeckeFactors.EtaClosed
-import Formalism.LocalToGlobal.NormalizedHeckeFactors.BaseRowsEqRecordRows
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkBrest
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.ClosedFamilyAdmissibleTwistLink
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SelectionClosedOfWuDecay
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.WireSel
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkIrr
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkAltAltBis
-import Development.AutomorphicArithmetic.CharacterBoxes.ClassSel
-import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.WorkingFamClassCopiesEqFrozenStatement
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowHTuCTminStatement
-import CompanionTheory.RealGroups.DiscreteSeries.DiscreteSeriesClassification.DiscreteSeriesExhaustion.DsExhaust
-import CompanionTheory.RealGroups.UnitaryAdmissibility.ArchimedeanUnitaryDual.FinalB
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.CuspidalMirabolicHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.DixmierMalliavinFactorisationFromLibrary
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.HolomorphicDiscreteSeriesHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.HoweDualityRealHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ImportsTailTer
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.InfinitesimalEquivalenceUnitaryGroupPQ
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.KFiniteVectorsIrreducibleUnitaryUnitaryGroupPQ
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.KudlaSplittingSplitUnitary
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.LogDerOneHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.MetaplecticRepresentationHolds
-import Development.AutomorphicArithmetic.ThetaCorrespondence.FockModels.RallisDM
-import Development.AutomorphicArithmetic.ThetaCorrespondence.Linnik
-import Development.AutomorphicArithmetic.ThetaCorrespondence.WeilRepresentation.WeilEx
-import Development.WeilBound.CoreStatements.AbelianHeightsDuality.PublishedTheoremStatements.BridgesAut
-import Development.WeilBound.CoreStatements.AbelianHeightsDuality.PublishedTheoremStatements.BridgesRep
-import Development.WeilBound.CoreStatements.PublishedTheorems.CasselmanWallach.FinalB
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.CuspDecaySobolev
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.HarishChandraModules
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.HeckeLEntireAndNonzeroAtOne
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.HermitianHassePrinciple
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.RealMetaplecticRepresentation
-import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.SchurOrthogonalitySquareIntegrable
-import Development.WeilBound.RepresentationTheoryGL.ConstantTermFiniteness.CuspidalConstantTerms.FiniteOfCuspOfConstTerm
-import Development.WeilBound.RepresentationTheoryGL.DiscreteSeries.DiscreteSeriesCovers.FdTopB
-import Development.WeilBound.RepresentationTheoryGL.EisensteinSeries.SiegelEisensteinContinuation.EisensteinChartSplitting.SiegelEisensteinContinuation
-import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.RowRatWOfRowTest
-import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.LitThin
-import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.GenusMassAtTwo
-import Development.AbelianVarietyTheory.Proofs.FlagMeasures.RowMainEqPOfSiegelWeil
-import Development.WeilBound.ThetaLifts.Reductions.FiniteClosure.TheoremKOfMod
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.FunctionalsSeparateOfHoweUnramOfSiegelWeil
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.TestVectorAtDatumOfJoin
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.EvaluationGridOfJoin
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.OpenOrbitOfUnramifiedExponents
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SurjectiveAndLowWeightOfUnramifiedExponents
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.MemberBundlesLargeUnramifiedExponents
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkROfIsLinked
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.FourierCoefficientFitOfJoin
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowFunAtGridA
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkedBundlesL3OfOpen
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.CFinal
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.OpenAndLinkedOfStrongerExtension
-import Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.WindowBoundOfLiteratureLevel
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ImportsSideExtra
-import Development.AutomorphicArithmetic.ThetaCorrespondence.GoodReduction.SerreTate
-import Development.AutomorphicArithmetic.CharacterBoxes.SupplyChi
-import Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.RowSrc
-import CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.Imports
-import Development.AbelianVarietyTheory.Proofs.AbelianSchemeLawProofs.PrincipalPolarisationUniqueSection
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.KawamataViehwegOfNadelVanishingPair
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.JoinOutOfFive
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.VolGeOfHilbertSamuel
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.L2ExtensionLogCanonical
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.GoodChernWeil
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SemiAbelianLieSeminegativeBis
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.HeckeTateFE
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.LocfinHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.LoceulerHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsMulEquiv
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ToroidalCompactificationHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SiegelToroidalIntegralHolds
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmCurveGoodOutsidePrime
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ArithHilbertSamuelOfPrincipalisation
-import Development.AbelianVarietyTheory.Proofs.SatakeParameters.UnitarySegmentOfCentralUnit
-import Development.AbelianVarietyTheory.Proofs.SatakeParameters.LocalComponentTempered
-import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ImportsTerAlt
-import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.UnramifiedOrthogonalityHolds
-import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.BhattScholzeIntegral
-import Development.AutomorphicArithmetic.ThetaCorrespondence.GaloisRepresentations.BlochKatoLocal
-import GroundTheory.HeightsAndTheta.Theta.FiniteGL.Mirabolic
-import Development.WeilBound.RepresentationTheoryGL.GaloisPermutationReps.SubquotientEquivalence.CechDescentTests.SubquotientNontrivial
-import Development.WeilBound.CoreStatements.AutomorphicKernels.DepthZeroCuspidal.IsArtinCond
-import Development.AutomorphicArithmetic.ThetaCorrespondence.GaloisRepresentations.GreenbergWiles
-import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.CuspidalEqUnitaryTwist
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.InvariantIntegralVanishesIwahori
-import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ParabolicBlockDecompositionEmbed
-import Development.AutomorphicArithmetic.ThetaCorrespondence.FockModels.GlnTemp
-import Development.AutomorphicArithmetic.ThetaCorrespondence.PrismaticDieudonne.PrismaticDieudonneHodge
-import Development.AutomorphicArithmetic.AutomorphicVarieties.AutomorphicForms.TemperedLocalComponents.PSpecC
-import Development.WeilBound.CoreStatements.HodgeTatePoints.ZarTop
-import Development.WeilBound.CoreStatements.PublishedTheorems.ClozelPurity.Bridge
-import Development.WeilBound.CoreStatements.PublishedTheorems.GlobalEulerCharacteristic.GlobalEulerCharOfLemmaX
-import Development.WeilBound.CoreStatements.PublishedTheorems.GlobalFiniteness.GlobalFiniteness
-import Development.WeilBound.CoreStatements.PublishedTheorems.PoitouTateDuality.PoitouTateNineTerm.PoitouTateNormalisedHolds
-import Development.WeilBound.CoreStatements.AutomorphicKernels.DeligneRibet.DeligneRibetHolds
-import Development.WeilBound.CoreStatements.AutomorphicKernels.DualAbelianScheme.AbelianDeRhamDuality.AbelianDeRhamDuality
-import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.InstField
-import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.ExistsPowEqOneOfValuationEqOne
-import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.IsTateMeasMulHighlyRamified
-import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.ContinuousOfIsSmoothChar
 import Mathlib.Analysis.Complex.Liouville
 import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.Calculus.Deriv.ZPow
-import Development.WeilBound.CoreStatements.AutomorphicKernels.NadelVanishing.TopNSI
-import Development.WeilBound.CoreStatements.AbelianHeightsDuality.PublishedTheoremStatements.BridgesGeo
-import Development.AutomorphicSpectrum.PublishedTheorems.PublishedGlobalResults.InvLogIntervalIntegrable
-import Development.WeilBound.CoreStatements.ResolutionCharZero.ResolutionCharZero
-import Development.WeilBound.CoreStatements.ResolutionCharZero.PrincipalisationCharZeroClosed
-import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.ArakelovCycleHeights.CycleHeightFormulas.CycleHeightsDirect
-import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.ChernDegreeComplex.ChernDegreeComplex
-import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.FormalAlgebraisation.Development
-import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.NefDivisors.NefRR
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.TopCovolSlim2Use
-import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LitCharCrys
+import CompanionTheory.AutomorphicTheory.MirabolicRestriction.MirabolicInduction.CuspidalMirabolic
+import CompanionTheory.RealGroups.DiscreteSeries.DiscreteSeriesClassification.DiscreteSeriesExhaustion.DsExhaust
+import CompanionTheory.RealGroups.UnitaryAdmissibility.ArchimedeanUnitaryDual.FinalB
+import CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.Imports
+import Development.AbelianVarietyTheory.Proofs.AbelianSchemeLawProofs.PrincipalPolarisationUniqueSection
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ArithHilbertSamuelOfPrincipalisation
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmCurveGoodOutsidePrime
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.GoodChernWeil
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.HolomorphicDiscreteSeriesHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.HoweDualityRealHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ImportsTailTer
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.InfinitesimalEquivalenceUnitaryGroupPQ
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.InvariantIntegralVanishesIwahori
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.JoinOutOfFive
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.KawamataViehwegOfNadelVanishingPair
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.KudlaSplittingSplitUnitary
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.L2ExtensionLogCanonical
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.LogDerOneHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.MetaplecticRepresentationHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ParabolicBlockDecompositionEmbed
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ProdFactorsOfMonic
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ProjectionFormulaAndChernDegreeOfHeightProjectio
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SemiAbelianLieSeminegativeBis
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SiegelKlingenDeligneRibetOfBoth
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SiegelToroidalIntegralHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ToroidalCompactificationHolds
+import Development.AbelianVarietyTheory.Proofs.DivisorProofs.VolGeOfHilbertSamuel
+import Development.AbelianVarietyTheory.Proofs.FlagMeasures.RowMainEqPOfSiegelWeil
+import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.GenusMassAtTwo
+import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.LitThin
+import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.BhattScholzeIntegral
+import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.CuspidalEqUnitaryTwist
+import Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ImportsTerAlt
+import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.RowRatWOfRowTest
+import Development.AbelianVarietyTheory.Proofs.SatakeParameters.LocalComponentTempered
+import Development.AbelianVarietyTheory.Proofs.SatakeParameters.UnitarySegmentOfCentralUnit
+import Development.AbelianVarietyTheory.Proofs.TwistedOperators.FlathFactorisationOfTensorProduct
+import Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.WindowBoundOfLiteratureLevel
+import Development.AutomorphicArithmetic.CharacterBoxes.ClassSel
+import Development.AutomorphicArithmetic.CharacterBoxes.SupplyChi
+import Development.AutomorphicArithmetic.CharacterBoxes.ZeroFreeAllOfTopG
+import Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.RowSrc
+import Development.AutomorphicArithmetic.ThetaCorrespondence.FockModels.GlnTemp
+import Development.AutomorphicArithmetic.ThetaCorrespondence.FockModels.RallisDM
+import Development.AutomorphicArithmetic.ThetaCorrespondence.GoodReduction.SerreTate
+import Development.AutomorphicArithmetic.ThetaCorrespondence.Linnik
+import Development.AutomorphicArithmetic.ThetaCorrespondence.PrismaticDieudonne.PrismaticDieudonneHodge
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.EvaluationGridOfJoin
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.FunctionalsSeparateOfHoweUnramOfSiegelWeil
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.LocalTypeDictionary.TestVectorAtDatumOfJoin
 import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.AlLocalGlobalAboveLPstlocalGlobalAboveL
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.CFinal
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.ClosedFamilyAdmissibleTwistLink
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.FourierCoefficientFitOfJoin
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkAltAltBis
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkBrest
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkIrr
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkROfIsLinked
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LinkedBundlesL3OfOpen
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.MemberBundlesLargeUnramifiedExponents
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.ModularityOfHyps
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.OpenAndLinkedOfStrongerExtension
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.OpenOrbitOfUnramifiedExponents
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowFunAtGridA
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowHTuCTmin
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SelectionClosedOfWuDecay
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SurjectiveAndLowWeightOfUnramifiedExponents
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.TopCovolSlim2Use
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.WireSel
+import Development.AutomorphicArithmetic.ThetaCorrespondence.WeilRepresentation.WeilEx
+import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.GreenbergWilesOfPoitouTate
+import Development.AutomorphicSpectrum.Proofs.GlobalProofs.BlochKatoLocal
+import Development.AutomorphicSpectrum.Proofs.GlobalProofs.HeckeTateFunctionalEquation
+import Development.AutomorphicSpectrum.PublishedTheorems.PublishedGlobalResults.InvLogIntervalIntegrable
+import Development.WeilBound.CoreStatements.AutomorphicKernels.DeligneRibet.NotDvdAbsNorm
+import Development.WeilBound.CoreStatements.AutomorphicKernels.DepthZeroCuspidal.IsArtinCond
+import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.ContinuousOfIsSmoothChar
+import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.ExistsPowEqOneOfValuationEqOne
+import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.InstField
+import Development.WeilBound.CoreStatements.AutomorphicKernels.LocalLanglandsExistence.IsTateMeasMulHighlyRamified
 import Development.WeilBound.CoreStatements.AutomorphicKernels.MoriwakiBigness.MoriwakiBigTheorem.Outright
+import Development.WeilBound.CoreStatements.AutomorphicKernels.NadelVanishing.TopNSI
+import Development.WeilBound.CoreStatements.HodgeTatePoints.ZarTop
+import Development.WeilBound.CoreStatements.PublishedTheorems.CasselmanWallach.FinalB
+import Development.WeilBound.CoreStatements.PublishedTheorems.ClozelPurity.Bridge
+import Development.WeilBound.CoreStatements.PublishedTheorems.GlobalEulerCharacteristic.GlobalEulerCharOfLemmaX
+import Development.WeilBound.CoreStatements.PublishedTheorems.GlobalFiniteness.GlobalFiniteness
+import Development.WeilBound.CoreStatements.PublishedTheorems.PoitouTateDuality.PoitouTateNineTerm.PoitouTateNormalisedHolds
+import Development.WeilBound.CoreStatements.ResolutionCharZero.PrincipalisationCharZeroClosed
+import Development.WeilBound.CoreStatements.ResolutionCharZero.ResolutionCharZero
+import Development.WeilBound.CoreStatements.StandardPublishedResults.StandardTheoremStatements.CuspDecaySobolev
+import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.ArakelovCycleHeights.CycleHeightFormulas.CycleHeightsDirect
+import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.NefDivisors.NefRR
+import Development.WeilBound.RepresentationTheoryGL.ConstantTermFiniteness.CuspidalConstantTerms.FiniteOfCuspOfConstTerm
+import Development.WeilBound.RepresentationTheoryGL.DiscreteSeries.DiscreteSeriesCovers.FdTopB
+import Development.WeilBound.RepresentationTheoryGL.EisensteinSeries.SiegelEisensteinContinuation.EisensteinChartSplitting.SiegelEisensteinContinuation
+import Development.WeilBound.RepresentationTheoryGL.GaloisPermutationReps.SubquotientEquivalence.CechDescentTests.SubquotientNontrivial
+import Development.WeilBound.ThetaLifts.Reductions.FiniteClosure.TheoremKOfMod
+import Formalism.LocalToGlobal.NormalizedHeckeFactors.BaseRowsEqRecordRows
+import Formalism.LocalToGlobal.NormalizedHeckeFactors.EtaClosed
+import GroundTheory.HeightsAndTheta.Theta.FiniteGL.Mirabolic
 
 namespace RiemannGaussian.AlpogeWindow
 
@@ -1884,7 +1868,7 @@ theorem principal_archived_row_selection
       (DC.MinkDiv → UpperTheory.Top.ExD h.𝒜 (fun _ => cTmin)) := by
   intro hP hLit hWu hRF hTy hNG hM hU hG hc hx hA
   obtain ⟨R30, hR30, c30, cIc, hb30, hpos, r30⟩ := hA.c30
-  have rTu := Row.rowL (KP := KP) (Q := Q) largeBaseProperty_true (_root_.GlobalTheory.T.hTu_cTmin_of_genusMass hU hG Q' Lk)
+  have rTu := Row.rowL (KP := KP) (Q := Q) largeBaseProperty_true (_root_.GlobalTheory.Fc.row_hTu_cTmin_alt hU hG Q' Lk)
   have hall := RowL.and (hA.hn4 : RowL KP Q Q' Lk fun 𝒜 _ => R0.ClassCountBoundAllPoints 𝒜) <|
     RowL.and (hA.jOn : RowL KP Q Q' Lk fun 𝒜 _ => R0.H_jOn 𝒜) <|
     RowL.and (hA.hInstR : RowL KP Q Q' Lk fun 𝒜 _ => ClassTwoEntries.H_hInstR 𝒜) <|
@@ -1914,15 +1898,15 @@ theorem principal_archived_row_selection
   obtain ⟨𝒜, σ, hE, hD, hs, hn4, jOn, hInstR, aC2, aP10, aAtG, aPt0, aPtTw, aPer0, aPerTw, tie, hRB, hTw, hPA, hLamP, hDivG,
     hDcPtG, selJ, sLp, sO, hServ, zL, hTF, rRows, nRest, ⟨h30, irrC⟩, hTu⟩ :=
     UpperTheory.Top.classSel hP (fun D => hU D) KP Q Q' _root_.GlobalTheory.Fc.BundleCondition Lk _ (fun _ => cTmin) hc hx hall
-  have s3 : ∀ {eps : ℝ} (Fm : FamP eps), GlobalTheory.Cp.D3 3 𝒜 Fm → W3 𝒜 Fm := fun Fm h => ((GlobalTheory.T.workingFamClass_copies_eq_frozen.1 𝒜 _ Fm).1).1 h
+  have s3 : ∀ {eps : ℝ} (Fm : FamP eps), GlobalTheory.Cp.D3 3 𝒜 Fm → W3 𝒜 Fm := fun Fm h => ((GlobalTheory.Fc.copies_frozen.1 𝒜 _ Fm).1).1 h
   have s1 : ∀ {eps : ℝ} (Fm : FamP eps), Formalism.MainNotions.WithTw (Formalism.MainNotions.WithSm (GlobalTheory.Cp.WithChN 𝒜)) Fm → W1 𝒜 Fm :=
-    fun Fm h => ((GlobalTheory.T.workingFamClass_copies_eq_frozen.1 𝒜 _ Fm).2).1 h
+    fun Fm h => ((GlobalTheory.Fc.copies_frozen.1 𝒜 _ Fm).2).1 h
   let h : HypsAlt N DR := {
     𝒜 := 𝒜
     σ := σ
     cT := fun _ => cTmin
     hEx := fun hM la G hla hH => working_classes_frozen.2 _ _ (fun hM' => hE hM' la G hla hH) hM
-    hduty := fun Fm h => GlobalTheory.T.workingFamClass_copies_eq_frozen.2 _ Fm (hD _ Fm h).1
+    hduty := fun Fm h => GlobalTheory.Fc.copies_frozen.2 _ Fm (hD _ Fm h).1
     hRB := fun Fm hc x hx _ i => hRB Fm hc x hx i
     hTw := fun Fm hc x hx _ i => hTw Fm hc x hx i
     hPA := fun Fm hc x hx _ i => hPA Fm hc x hx i
@@ -1974,52 +1958,52 @@ theorem archive_local_theta_inputs : GlobalTheory.FunPr.ThetaLocalInputs := by
   have doubling := ResidueKilled.dm_of_two GlobalTheory.RapidDecay.cuspRapidDecay
     PositivityTheory.RgEis.Sp.Hd.siegelEisensteinContinuation trivial
   exact {
-    greenSeriesSt := PositivityTheory.Prw.greenSeriesSt_of PositivityTheory.Stage1.PM.greenCuspidal
+    greenSeriesSt := GlobalTheory.GreenSeries.green_series PositivityTheory.GreenCharacters.greenCuspidal
     linnik := UpperTheory.Lit.linnik
     complexMultiplicationJSt := GlobalTheory.CompanionTheory.Published.complexMultiplicationJ
-    cuspidalMirabolic := GlobalTheory.cuspidalMirabolic_holds
-    weylBranching := PositivityTheory.Stage1.PM.weylBranching
+    cuspidalMirabolic := CompanionTheory.Mirab.cuspidalMirabolic
+    weylBranching := GlobalTheory.Published.weylBranching_holds
     bernsteinUnitaryProductIrreducible := PositivityTheory.RgUd.All.bernsteinUnitaryProductIrreducible
     zelevinskyPolynomialRing := PositivityTheory.Prw.zelevinskyPolynomialRing_of
       PositivityTheory.Prw.bernsteinZelevinskyFiniteness_holds PositivityTheory.RgGu.segmentRepresentation
       (PositivityTheory.Groth.grothendieckRingPolynomial_of_seg PositivityTheory.RgGu.segmentRepresentation)
     bernsteinZelevinskyFiniteness := PositivityTheory.Prw.bernsteinZelevinskyFiniteness_holds
     cuspTraceClass := PositivityTheory.Prw.cuspTraceClass_of PositivityTheory.Prw.dixmierMalliavinFactorisation_holds
-    flathFactorisation := PositivityTheory.Prw.flathFactorisation_of CompanionTheory.Rg.Fl.B.flathTensorProduct
+    flathFactorisation := GlobalTheory.flathFactorisation_of_tensorProduct CompanionTheory.Rg.Fl.B.flathTensorProduct
       CompanionTheory.Rg.Fl.B.unitaryIrreducibleAdmissible
     weilSiegelFormulaUnitary := UpperTheory.Lit.Sw47.weilUnitary
     rallisInnerProductConvergent := UpperTheory.Lit.Rallis.RallisIPProof.rallis_of_dm doubling
       UpperTheory.Lit.Sw47.convergent UpperTheory.Lit.weilThetaConvergence
     doublingMethod := doubling
     unramifiedDoublingGL := GlobalTheory.UnramDoublingProof.unramifiedDoublingGL
-    hermitianLocalGlobal := PositivityTheory.Stage1.PM.hermitianLocalGlobal
-    quadraticClassFieldTheory := PositivityTheory.Stage1.PM.quadraticClassFieldTheory
-    borelCasselman := PositivityTheory.Stage1.PM.borelCasselman
-    radfordShufflePolynomial := PositivityTheory.Stage1.PM.radfordShufflePolynomial
-    dixmierMalliavinFactorisation := GlobalTheory.dixmierMalliavinFactorisation_fromLibrary
-    schurOrthogonalitySquareIntegrable := PositivityTheory.Stage1.PM.schurOrthogonalitySquareIntegrable
-    heckeLPartialContinuation := PositivityTheory.Stage1.PM.heckeLPartialContinuation
+    hermitianLocalGlobal := GlobalTheory.Published.hermitianLocalGlobal_holds
+    quadraticClassFieldTheory := GlobalTheory.Published.quadraticClassFieldTheory_holds
+    borelCasselman := GlobalTheory.Published.BorelCasselman_holds
+    radfordShufflePolynomial := GlobalTheory.Published.radfordShufflePolynomial_holds
+    dixmierMalliavinFactorisation := PositivityTheory.DM.dixmierMalliavinFactorisation_holds
+    schurOrthogonalitySquareIntegrable := GlobalTheory.Published.schurOrthogonalitySquareIntegrable'
+    heckeLPartialContinuation := GlobalTheory.Published.HeckeLPartialContinuation_holds
     logDerOne := GlobalTheory.LogDerOneProof.logDerOne_holds
-    kFiniteVectorsUnitary := GlobalTheory.KFinLinkPort.kFiniteVectors_irreducibleUnitary_unitaryGroupPQ
+    kFiniteVectorsUnitary := GlobalTheory.CompanionTheory.Published.kFiniteVectors_irreducibleUnitary_unitaryGroupPQ
     discreteSeriesLowestKType := PositivityTheory.Prw.discreteSeriesLowestKType_holds
     holomorphicDiscreteSeries := GlobalTheory.HolDS.holomorphicDiscreteSeries_holds
     gKGlobalisation := GlobalTheory.gkGlobalisation_holds
     cuspBounded := PositivityTheory.Stage1.PM.cuspBounded
     strongApproxSU := GlobalTheory.StrongApproxSUProof.strongApproxSU
-    heckeLEntireAndNonzeroAtOne := PositivityTheory.Stage1.PM.heckeLEntireAndNonzeroAtOne
-    realMetaplecticRepresentation := PositivityTheory.Stage1.PM.realMetaplecticRepresentation
+    heckeLEntireAndNonzeroAtOne := GlobalTheory.Published.HeckeLEntireAndNonzeroAtOne_holds
+    realMetaplecticRepresentation := CompanionTheory.ThKR.realMetaplecticRepresentation_holds
     cuspDecayBound := GlobalTheory.CuspGeo.cuspDecayBound
-    gLHoweDuality := PositivityTheory.Stage1.PM.gLHoweDuality
+    gLHoweDuality := GlobalTheory.Published.glHoweDuality_holds
     kudlaSplittingSplitUnitary := GlobalTheory.kudlaSplittingSplitUnitary
     metaplecticRepresentation := GlobalTheory.metaplecticRepresentation_holds
-    harishChandraModules := PositivityTheory.Stage1.PM.harishChandraModules
+    harishChandraModules := GlobalTheory.HcPort.print_harishChandraModules
     discreteSeriesCover := CompanionTheory.RgExh.discreteSeriesCover
     idealInvariantsOneOrbitSt := PositivityTheory.Prw.idealInvariantsOneOrbitSt_holds
-    hermitianHassePrinciple := PositivityTheory.Stage1.PM.hermitianHassePrinciple
-    stoneVonNeumann := PositivityTheory.Stage1.PM.stoneVonNeumann
+    hermitianHassePrinciple := GlobalTheory.Published.hermitianHassePrinciple_holds
+    stoneVonNeumann := GlobalTheory.Published.StoneVonNeumann_holds
     discreteSeriesUpqExists := CompanionTheory.RgDs.B.discreteSeriesUpqExists
     formalDegreeCompactDual := PositivityTheory.RgFd.B.formalDegreeCompactDual
-    thetaRationalInvariance := PositivityTheory.Stage1.PM.thetaRationalInvariance
+    thetaRationalInvariance := GlobalTheory.Published.thetaRationalInvariance_holds
     discreteSeriesHermitianUnique := PositivityTheory.Prw.discreteSeriesHermitianUnique_holds
     discreteSeriesExists := CompanionTheory.RgDs.B.discreteSeriesExists
     harishChandraFinite := PositivityTheory.RgHf.harishChandraFinite
@@ -2044,10 +2028,10 @@ structure OpenLiteratureStatements : Prop where
   galoisRepOfPolarizedPairLit : _root_.UpperTheory.One.M.Row
 
 theorem siegel_klingen_deligne_ribet_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.SiegelKlingenDeligneRibet :=
-  PositivityTheory.Prw.siegelKlingenDeligneRibet_of PositivityTheory.Prw.siegelKlingen_holds PositivityTheory.PfDR.deligneRibet_holds
+  GlobalTheory.siegelKlingenDeligneRibet_of_both PositivityTheory.Prw.siegelKlingen_holds PositivityTheory.PfDRL.deligneRibet
 
 theorem join_out_of_literature (O : OpenLiteratureStatements) : GlobalTheory.Mem.LiteralAutomorphy.JoinOut :=
-  GlobalTheory.JoinFun.joinOut_of_five PositivityTheory.Prw.ellipticMainTheoremCM_holds GlobalTheory.Laid.hcfj_holds (siegel_klingen_deligne_ribet_of_literature O) PositivityTheory.Prw.partialZetaFunctionalEquation_holds GlobalTheory.Top.heckeTateFE
+  GlobalTheory.JoinFun.joinOut_of_five PositivityTheory.Prw.ellipticMainTheoremCM_holds GlobalTheory.Laid.hcfj_holds (siegel_klingen_deligne_ribet_of_literature O) PositivityTheory.Prw.partialZetaFunctionalEquation_holds GlobalTheory.CompanionTheory.HeckeFE.heckeTateFunctionalEquation
 
 theorem algebraic_character_wd_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.AlgebraicCharacterWD :=
   UpperTheory.Lit.CharWD.algebraicCharacterWD GlobalTheory.globalArtinReciprocity_holds UpperTheory.Lit.heckeLAdicCharacterDeRham GlobalTheory.deRham_potentiallySemistable
@@ -2056,7 +2040,7 @@ theorem ar_calc_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Pub
   GlobalTheory.ArithmeticHeightTower.ArakelovDirectHeights.arCalc_direct PositivityTheory.Tls2.Pl.poincareLelong PositivityTheory.ResPlug.FromRes.resK
 
 theorem ar_degree_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.ArDegree :=
-  PositivityTheory.Prw.arDegree_of (GlobalTheory.Published.CycleHeights.heightProjection (GlobalTheory.ArithmeticHeightTower.ArakelovDirectHeights.cycleHeights_direct PositivityTheory.Tls2.Pl.poincareLelong PositivityTheory.ResPlug.FromRes.resK)) PositivityTheory.Tls2.Chern2.chernDegreeComplex
+  GlobalTheory.Published.arDegree_of_heightProjection (GlobalTheory.Published.CycleHeights.heightProjection (GlobalTheory.ArithmeticHeightTower.ArakelovDirectHeights.cycleHeights_direct PositivityTheory.Tls2.Pl.poincareLelong PositivityTheory.ResPlug.FromRes.resK)) GlobalTheory.ChernDegree.chernDegreeComplex
 
 theorem arith_hilbert_samuel_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.ArithHilbertSamuel :=
   GlobalTheory.arithHilbertSamuel_of_principalisation PositivityTheory.ResPlug.WeightsCompactStabilizer.principalisation_closed
@@ -2074,7 +2058,7 @@ theorem pair_u_of_literature (O : OpenLiteratureStatements) : _root_.UpperTheory
   _root_.UpperTheory.GalS.field_of_starFull_alt O.localLanglandsExists DiscreteGroups.sglob.LConv.localConverseGL (PositivityTheory.Exh.langlandsExhaustionGL_of_seg (PositivityTheory.RgGu.segmentRepresentation)) O.galoisRepOfPolarizedPairLit
 
 theorem gelfand_kazhdan_dual_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.GelfandKazhdanDual :=
-  PositivityTheory.JMult1.gelfandKazhdanDual_of_rigidity PositivityTheory.AdelicQuotientData.jacquetShalikaRigidity UpperTheory.V.Af.cuspSpectrumGL.2.2
+  PositivityTheory.JMult1.gelfandKazhdanDual_of_rigidity PositivityTheory.AdelicQuotientData.jacquetShalikaRigidity RfCs.cuspidalSpectrumGL.2.2
 
 theorem generic_unlinked_gl_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.GenericUnlinkedGL :=
   GlobalTheory.RgGu.genericUnlinkedGL_of_segRep2 (PositivityTheory.RgGu.segmentRepresentation)
@@ -2113,16 +2097,16 @@ theorem doubling_method (_O : OpenLiteratureStatements) : GlobalTheory.Published
   ResidueKilled.dm_of_two GlobalTheory.RapidDecay.cuspRapidDecay PositivityTheory.RgEis.Sp.Hd.siegelEisensteinContinuation trivial
 
 theorem flath_factorisation_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.FlathFactorisation :=
-  PositivityTheory.Prw.flathFactorisation_of CompanionTheory.Rg.Fl.B.flathTensorProduct CompanionTheory.Rg.Fl.B.unitaryIrreducibleAdmissible
+  GlobalTheory.flathFactorisation_of_tensorProduct CompanionTheory.Rg.Fl.B.flathTensorProduct CompanionTheory.Rg.Fl.B.unitaryIrreducibleAdmissible
 
 theorem cusp_u_of_literature (O : OpenLiteratureStatements) : _root_.UpperTheory.GalS.CuspUAlt :=
   (_root_.UpperTheory.GalS.bridgeStar_alt (gelfand_kazhdan_dual_of_literature O)).2 (pair_u_of_literature O)
 
 theorem green_series_st_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.GreenSeriesSt :=
-  PositivityTheory.Prw.greenSeriesSt_of PositivityTheory.Stage1.PM.greenCuspidal
+  GlobalTheory.GreenSeries.green_series PositivityTheory.GreenCharacters.greenCuspidal
 
 theorem grothendieck_deformation_of_literature (_O : OpenLiteratureStatements) : GlobalTheory.Published.GrothendieckDeformation :=
-  GlobalTheory.Published.grothendieckDeformation_of_lifting PositivityTheory.DualRT.abelianDeRham GlobalTheory.abelianScheme_hom_lifting_nilpotent_dividedPowers
+  GlobalTheory.Published.grothendieckDeformation_of_lifting GlobalTheory.abelianDeRham GlobalTheory.abelianScheme_hom_lifting_nilpotent_dividedPowers
 
 theorem grothendieck_messing_of_literature (O : OpenLiteratureStatements) : GlobalTheory.Published.GrothendieckMessing :=
   GlobalTheory.Published.GrothendieckDeformation.grothendieckMessing (grothendieck_deformation_of_literature O)
@@ -2131,7 +2115,7 @@ theorem harish_chandra_analyticity_of_literature (_O : OpenLiteratureStatements)
   GlobalTheory.CompanionTheory.Hypotheses₂.harishChandra_analyticity_density
 
 theorem hecke_l_adic_character_crystalline_of_literature (O : OpenLiteratureStatements) : GlobalTheory.Published.HeckeLAdicCharacterCrystalline :=
-  _root_.UpperTheory.Lit.heckeLAdicCharacterCrystalline_of_deRham UpperTheory.Lit.heckeLAdicCharacterDeRham GlobalTheory.deRham_potentiallySemistable (algebraic_character_wd_of_literature O) (local_langlands_gl_recT_exists_of_literature O)
+  _root_.GlobalTheory.Published.CharCrysModel.of_hypotheses_m_alt UpperTheory.Lit.heckeLAdicCharacterDeRham GlobalTheory.deRham_potentiallySemistable (algebraic_character_wd_of_literature O) (local_langlands_gl_recT_exists_of_literature O)
 
 theorem hecke_l_adic_character_above_of_literature (O : OpenLiteratureStatements) : GlobalTheory.Published.HeckeLAdicCharacterAbove :=
   GlobalTheory.HeckeAboveBridge.heckeLAdicCharacterAbove_of_potSemistable UpperTheory.Lit.heckeLAdicCharacterDeRham (hecke_l_adic_character_crystalline_of_literature O) GlobalTheory.deRham_potentiallySemistable
@@ -2176,7 +2160,7 @@ theorem zarhin_statement (_O : OpenLiteratureStatements) : GlobalTheory.Companio
   PositivityTheory.HtPt.Narrow.zarhin GlobalTheory.dualAbelianScheme
 
 theorem greenberg_wiles_of_literature (_O : OpenLiteratureStatements) : ReciprocityTheory.Gal.GreenbergWiles :=
-  UpperTheory.Lit.greenbergWiles PositivityTheory.Lit1.PTN.poitouTateNormalised_holds PositivityTheory.Lit1.GEN.globalEulerChar_full GlobalTheory.LocalDualityAll.localTateDuality GlobalTheory.Laid.loceuler_holds GlobalTheory.Laid.locfin_holds
+  GlobalTheory.CompanionTheory.GreenbergWiles.Assembly.greenbergWiles_of_poitouTate PositivityTheory.Lit1.PTN.poitouTateNormalised_holds PositivityTheory.Lit1.GEN.globalEulerChar_full GlobalTheory.CompanionTheory.Hypotheses₂.localTateDuality GlobalTheory.CompanionTheory.Hypotheses₂.LocalEuler.localEulerChar_holds GlobalTheory.CompanionTheory.Hypotheses₂.localFiniteness
 
 theorem literature_local (O : OpenLiteratureStatements) : _root_.GlobalTheory.Mem.LiteralAutomorphy.LocalRepresentationTheoryHypothesesAlt where
   bz := PositivityTheory.Prw.bernsteinZelevinskyFiniteness_holds
@@ -2219,24 +2203,24 @@ theorem literature_automorphy (O : OpenLiteratureStatements) : _root_.GlobalTheo
 
 theorem literature_cohomology (O : OpenLiteratureStatements) : GlobalTheory.Mem.LiteralAutomorphy.LitCoh where
   pt := PositivityTheory.Lit1.PTN.poitouTateNormalised_holds
-  lf := GlobalTheory.Laid.locfin_holds
-  lt := GlobalTheory.LocalDualityAll.localTateDuality
-  le := GlobalTheory.Laid.loceuler_holds
+  lf := GlobalTheory.CompanionTheory.Hypotheses₂.localFiniteness
+  lt := GlobalTheory.CompanionTheory.Hypotheses₂.localTateDuality
+  le := GlobalTheory.CompanionTheory.Hypotheses₂.LocalEuler.localEulerChar_holds
   gf := PositivityTheory.Lit1.GF.globalFiniteness
   ge := PositivityTheory.Lit1.GEN.globalEulerChar_full
-  uo := GlobalTheory.unramifiedOrthogonality_holds
+  uo := GlobalTheory.CompanionTheory.Hypotheses₂.unramifiedOrthogonality
   gw := (greenberg_wiles_of_literature O)
   lfK := CompanionTheory.LocalTateOrthogonality.Gcoh.top_locfin
   ltK := CompanionTheory.LocalTateOrthogonality.Gcoh.top_tate
   leK := CompanionTheory.LocalTateOrthogonality.Gcoh.top_euler
-  bk := UpperTheory.Lit.blochKatoLocal
+  bk := GlobalTheory.CompanionTheory.Hypotheses₂.BK.blochKatoLocal
 
 theorem literature_nonexistence (O : OpenLiteratureStatements) : _root_.GlobalTheory.Mem.LiteralAutomorphy.NonEndoscopicHypothesesAlt where
   loc := (literature_local O)
   aut := (literature_automorphy O)
   coh := (literature_cohomology O)
   join := (join_out_of_literature O)
-  fe := GlobalTheory.Top.heckeTateFE
+  fe := GlobalTheory.CompanionTheory.HeckeFE.heckeTateFunctionalEquation
 
 theorem published_results_analytic (O : OpenLiteratureStatements) : GlobalTheory.NRows.GeometricGaloisRepCompatibility where
   weil := GlobalTheory.weilRepresentationUnitaryPair
@@ -2244,18 +2228,18 @@ theorem published_results_analytic (O : OpenLiteratureStatements) : GlobalTheory
   ana := (harish_chandra_analyticity_of_literature O)
   dsc := CompanionTheory.RgExh.discreteSeriesClassification
   trc := (cusp_trace_class_of_literature O)
-  dm := GlobalTheory.dixmierMalliavinFactorisation_fromLibrary
+  dm := PositivityTheory.DM.dixmierMalliavinFactorisation_holds
   flath := (flath_factorisation_of_literature O)
   sw := UpperTheory.Lit.Sw47.weilUnitary
   dbl := (doubling_method O)
   udbl := GlobalTheory.UnramDoublingProof.unramifiedDoublingGL
-  hl := PositivityTheory.Stage1.PM.heckeLPartialContinuation
+  hl := GlobalTheory.Published.HeckeLPartialContinuation_holds
   ht := GlobalTheory.HtCardProof.htCard
 
 theorem published_results_local (_O : OpenLiteratureStatements) : GlobalTheory.NLink.Hypotheses₂ where
   font := GlobalTheory.MemLoc.fontaineBcris
   artin := GlobalTheory.globalArtinReciprocity_holds
-  bk := UpperTheory.Lit.blochKatoLocal
+  bk := GlobalTheory.CompanionTheory.Hypotheses₂.BK.blochKatoLocal
   tate := CompanionTheory.LocalTateOrthogonality.Gcoh.top_tate
   euler := CompanionTheory.LocalTateOrthogonality.Gcoh.top_euler
   fin := CompanionTheory.LocalTateOrthogonality.Gcoh.top_locfin
@@ -2263,7 +2247,7 @@ theorem published_results_local (_O : OpenLiteratureStatements) : GlobalTheory.N
 
 theorem published_results_eigen (O : OpenLiteratureStatements) : _root_.GlobalTheory.Fc.S0.UnitaryGroupThirdPlaceHypotheses where
   clozelCohomological := PositivityTheory.Rg.Cz.clozelCohomological
-  greenCuspidal := PositivityTheory.Stage1.PM.greenCuspidal
+  greenCuspidal := PositivityTheory.GreenCharacters.greenCuspidal
   heckeLAdicCharacter := PositivityTheory.Stage1.PM.heckeLAdicCharacter
   chebotarevDegreeOne := GlobalTheory.Published.chebotarevDegreeOne'
   galoisRepOfPolarizedCuspidal := (cusp_u_of_literature O)
@@ -2297,7 +2281,7 @@ theorem published_results_eigen (O : OpenLiteratureStatements) : _root_.GlobalTh
   standardCosocleGL := (standard_cosocle_gl_of_literature O)
   cheb := GlobalTheory.Published.cheb_holds
   discreteSeriesCover := CompanionTheory.RgExh.discreteSeriesCover
-  harishChandraModules := PositivityTheory.Stage1.PM.harishChandraModules
+  harishChandraModules := GlobalTheory.HcPort.print_harishChandraModules
   casselmanWallach := PositivityTheory.CWB.casselmanWallach
   weilRepresentationUnitaryPair := GlobalTheory.weilRepresentationUnitaryPair
   discreteSeriesExists := CompanionTheory.RgDs.B.discreteSeriesExists
@@ -2306,7 +2290,7 @@ theorem published_results_eigen (O : OpenLiteratureStatements) : _root_.GlobalTh
   siegelWeilUnitaryConvergent2 := GlobalTheory.CompanionTheory.SW.siegelWeilUnitaryConvergent
   harishChandraAnalyticity := (harish_chandra_analyticity_of_literature O)
   cuspTraceClass := (cusp_trace_class_of_literature O)
-  dixmierMalliavinFactorisation := GlobalTheory.dixmierMalliavinFactorisation_fromLibrary
+  dixmierMalliavinFactorisation := PositivityTheory.DM.dixmierMalliavinFactorisation_holds
   flathFactorisation := (flath_factorisation_of_literature O)
   cMCurveGoodOutsidePrimeSt := GlobalTheory.Published.cmCurveGoodOutsidePrime
   weberRayFieldSt := PositivityTheory.Prw.weberRayFieldSt_holds
@@ -2314,21 +2298,21 @@ theorem published_results_eigen (O : OpenLiteratureStatements) : _root_.GlobalTh
   siegelWeilUnitarySchrodinger := PositivityTheory.SiegelWeilCoefficients.field
   siegelEisensteinContinuation := PositivityTheory.RgEis.Sp.Hd.siegelEisensteinContinuation
   siegelEisensteinSimplePole := trivial
-  schurOrthogonalitySquareIntegrable := PositivityTheory.Stage1.PM.schurOrthogonalitySquareIntegrable
+  schurOrthogonalitySquareIntegrable := GlobalTheory.Published.schurOrthogonalitySquareIntegrable'
   litN := (literature_nonexistence O)
   toHypothesesX := (published_results_analytic O)
   nLink := (published_results_local O)
   depthZeroSupport' := GlobalTheory.SmGL.depthZeroSupport
-  localFiniteness := GlobalTheory.Laid.locfin_holds
-  localTateDuality := GlobalTheory.LocalDualityAll.localTateDuality
-  localEulerChar := GlobalTheory.Laid.loceuler_holds
+  localFiniteness := GlobalTheory.CompanionTheory.Hypotheses₂.localFiniteness
+  localTateDuality := GlobalTheory.CompanionTheory.Hypotheses₂.localTateDuality
+  localEulerChar := GlobalTheory.CompanionTheory.Hypotheses₂.LocalEuler.localEulerChar_holds
 
 theorem published_results_arithmetic (O : OpenLiteratureStatements) : GlobalTheory.CovTop.PublishedHodgeBundleTheorems where
   p1 := GlobalTheory.toroidalCompactification_holds
   p2 := (vol_ge_of_literature O)
   p3 := (vol_nef_of_literature O)
   p4 := (ar_calc_of_literature O)
-  p5 := PositivityTheory.DualRT.abelianDeRham
+  p5 := GlobalTheory.abelianDeRham
   p8 := PositivityTheory.Stage1.PM.rayClassFieldSt
   p12 := GlobalTheory.SS.semistableReductionSt
   p13 := GlobalTheory.StrongApproxSUProof.strongApproxSU
@@ -2351,7 +2335,7 @@ theorem published_results_arithmetic (O : OpenLiteratureStatements) : GlobalTheo
   q13 := GlobalTheory.Published.serreHolomorphicSections_holds
   q15 := NadelVanishingSeparation.NSI.nadelVanishingAndNonKltDivisor
   q16 := PositivityTheory.ResPlug.WeightsCompactStabilizer.principalisation_closed
-  q18 := PositivityTheory.FormalThickening.formalAlgebraisation
+  q18 := GlobalTheory.formalAlgebraisation
 
 theorem principal_archived_covolume (O : OpenLiteratureStatements) : GlobalTheory.CovTop.CovolumeBoundOfX := by
   exact SelfIntersectionVolumeEstimates.topCovolSlim2_use_alt_alt
@@ -2480,17 +2464,17 @@ theorem principal_archived_window (O : ArchivedInputs.OpenLiteratureStatements)
     berger := A.berger }
   let cm : LiteratureCMHypothesis := {
     gm := ArchivedInputs.grothendieck_deformation_of_literature O
-    dr := PositivityTheory.DualRT.abelianDeRham
+    dr := GlobalTheory.abelianDeRham
     dual := GlobalTheory.abelianDualCrystal_of_dual_of_smoothLift GlobalTheory.dualAbelianScheme
       GlobalTheory.SmoothLift.crystallineSmoothLift_of_relations
     per := GlobalTheory.PeriodFamily.periodComparison_holds
-    gmp := GlobalTheory.GaussManinTop.main
+    gmp := GlobalTheory.PeriodFamily.gaussManinPeriods_holds
     st := UpperTheory.Lit.serreTateGoodReduction
     cm := PositivityTheory.Prw.ellipticMainTheoremCM_holds
     hj := GlobalTheory.Laid.hcfj_holds
     dri := ArchivedInputs.siegel_klingen_deligne_ribet_of_literature O
     pz := PositivityTheory.Prw.partialZetaFunctionalEquation_holds
-    fe := GlobalTheory.Top.heckeTateFE }
+    fe := GlobalTheory.CompanionTheory.HeckeFE.heckeTateFunctionalEquation }
   exact UpperTheory.V.v_window_of_literal_automorphy_n
     ⟨loc, aut, ArchivedInputs.literature_cohomology O, cm⟩ PChar.one
 

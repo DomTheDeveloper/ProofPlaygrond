@@ -1,15 +1,22 @@
-name: Verify the ordinary Riemann hypothesis reduction
+name: Verify the reduced Riemann hypothesis proofs
 on:
   push:
     branches: [codex/riemann-proof-reduction]
     paths:
-      - 'proofs/riemann/**'
+      - 'proofs/riemann/*.lean'
+      - 'proofs/riemann/source.py'
+      - 'proofs/riemann/verify.sh'
       - '.github/workflows/riemann-proof-reduction.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   lean:
+    name: ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [OrdinaryRH, AllClaims]
     runs-on: ubuntu-24.04
     timeout-minutes: 355
     env:
@@ -17,6 +24,7 @@ jobs:
       OBJECT_URL: https://huggingface.co/datasets/JackMcCarthy/riemann-hypothesis-build/resolve/9036e64326acf4acfae159b96664e9708445c1d1/oleans.tar.zst
       OBJECT_SHA: 953bab5386a7849527a11960f80a2fab427c49c637d6e94cc75788dd8f40196b
       MATHLIB_CACHE_GET_URL: https://cache.mathlib.org/mathlib4
+      TARGET: ${{ matrix.target }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +44,7 @@ jobs:
           git init -q archive
           git -C archive fetch -q --depth=1 https://github.com/leanprover-community/riemann-hypothesis.git "$PIN"
           git -C archive checkout -q --detach FETCH_HEAD
-          python3 proofs/riemann/source.py archive
+          python3 proofs/riemann/source.py archive --target "$TARGET"
       - name: Install the exact compiler and Mathlib
         uses: leanprover/lean-action@v1
         with:
@@ -69,5 +77,5 @@ jobs:
             sudo swapon "$RUNNER_TEMP/rh.swap"
           fi
           free -h
-      - name: Compile both reduced files, audit the closed theorem and replay both modules
-        run: bash proofs/riemann/verify.sh archive objects/.lake/build/lib/lean
+      - name: Compile, audit the theorem axioms and replay the reduced modules
+        run: bash proofs/riemann/verify.sh archive objects/.lake/build/lib/lean "$TARGET"
