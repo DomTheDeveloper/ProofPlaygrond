@@ -12,10 +12,10 @@ hypothesis.
 The proof has two ingredients.
 
 * For `σ > 1/2` the Riemann Hypothesis leaves no zeros to count.
-* For `σ = 1/2` one needs `N(1/2, T) ≪ T ^ (1 + ε)`. This is the classical unconditional
-  Riemann–von Mangoldt upper bound, proved in `DensityHypothesis.ZeroCount` from Jensen's
-  inequality (`DensityHypothesisProof.zeroCountOn_strip_le_rpow`, and in the sharper form
-  `O(T log T)` as `DensityHypothesisProof.zeroCountOn_strip_le_mul_log`).
+* For `σ = 1/2` one needs `N(1/2, T) ≪ T ^ (1 + ε)`. This classical unconditional bound, the
+  easy half of the Riemann–von Mangoldt formula, is proved in `DensityHypothesis.ZeroCount` from
+  Jensen's inequality (`DensityHypothesisProof.zeroCountOn_strip_le_rpow`, and in the sharper
+  form `O(T log T)` as `DensityHypothesisProof.zeroCountOn_strip_le_mul_log`).
 -/
 
 namespace DensityHypothesis
@@ -28,8 +28,10 @@ theorem density_hypothesis_zeta_zeros_of_riemannHypothesis (hRH : RiemannHypothe
       (zetaZeroCount σ T : ℝ) ≤ C * T ^ (2 * (1 - σ) + ε) :=
   DensityHypothesisProof.density_hypothesis_of_riemannHypothesis hRH ε hε
 
-/-- Assuming the Riemann Hypothesis, the zero-density bound with the Guth–Maynard exponent
-`30/13` (the statement `DensityHypothesis.guth_maynard_zero_density` of formal-conjectures). -/
+/-- Assuming the Riemann Hypothesis, the zero-density bound with exponent `30/13`: the statement
+`DensityHypothesis.guth_maynard_zero_density` of formal-conjectures, whose name this follows.
+Under the Riemann Hypothesis it is a corollary of the Density Hypothesis because `30/13 ≥ 2`.
+This is not Guth and Maynard's unconditional theorem, none of which is proved here. -/
 theorem guth_maynard_zero_density_of_riemannHypothesis (hRH : RiemannHypothesis)
     (ε : ℝ) (hε : 0 < ε) :
     ∃ C : ℝ, 0 < C ∧ ∀ σ T : ℝ, 1 / 2 ≤ σ → σ ≤ 1 → 2 ≤ T →

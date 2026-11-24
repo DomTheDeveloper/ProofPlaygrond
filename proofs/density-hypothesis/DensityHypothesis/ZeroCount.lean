@@ -19,9 +19,10 @@ This file proves, on top of Mathlib only:
   `(s - 1) ζ(s) = 1 - ∑ₙ ((1 - s) (n+1)^(-s) - ((n+2)^(1-s) - (n+1)^(1-s)))`,
   which converges locally uniformly on `Re s > 0`;
 * `DensityHypothesisProof.zeroCountOn_strip_le_mul_log` and
-  `DensityHypothesisProof.zeroCountOn_strip_le_rpow`: the unconditional Riemann–von Mangoldt
-  upper bound `N(T) = O(T log T)` for the zeros with `1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T`, counted
-  with multiplicity, from Jensen's inequality on discs centred at `2 + i (k + 1/2)`;
+  `DensityHypothesisProof.zeroCountOn_strip_le_rpow`: the unconditional bound `O(T log T)` for
+  the number of zeros with `1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T`, counted with multiplicity, from
+  Jensen's inequality on discs centred at `2 + i (k + 1/2)`. This is only the easy upper-bound
+  half of the Riemann–von Mangoldt formula, and only for the right half of the critical strip;
 * `DensityHypothesisProof.density_hypothesis_of_riemannHypothesis`: the Riemann Hypothesis
   implies the Density Hypothesis `N(σ, T) ≪ T ^ (2 (1 - σ) + ε)`, uniformly in `1/2 ≤ σ ≤ 1`.
 -/
@@ -634,8 +635,8 @@ lemma zeroCountOn_strip_le {T : ℝ} (hT : 2 ≤ T) :
       ≤ ((⌈T⌉₊ : ℕ) : ℝ) * Lr T := h3.trans h2
     _ ≤ (T + 1) * Lr T := mul_le_mul_of_nonneg_right hceil.le hL
 
-/-- **Riemann–von Mangoldt upper bound (unconditional)**: the number of zeros of `ζ`, counted
-with multiplicity, in `1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T` is `O_ε(T^{1+ε})`. -/
+/-- **Zero count, unconditional**: the number of zeros of `ζ`, counted with multiplicity, in
+`1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T` is `O_ε(T^{1+ε})`. -/
 theorem zeroCountOn_strip_le_rpow (ε : ℝ) (hε : 0 < ε) :
     ∃ C : ℝ, 0 < C ∧ ∀ T : ℝ, 2 ≤ T →
       (zeroCountOn riemannZeta (strip T) : ℝ) ≤ C * T ^ (1 + ε) := by
@@ -683,8 +684,8 @@ theorem zeroCountOn_strip_le_rpow (ε : ℝ) (hε : 0 < ε) :
         field_simp
         ring
 
-/-- **Riemann–von Mangoldt upper bound (unconditional), logarithmic form**: the number of zeros
-of `ζ`, counted with multiplicity, in `1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T` is `O(T log T)`. -/
+/-- **Zero count, unconditional, logarithmic form**: the number of zeros of `ζ`, counted with
+multiplicity, in `1/2 ≤ Re s ≤ 1`, `0 < Im s ≤ T` is `O(T log T)`. -/
 theorem zeroCountOn_strip_le_mul_log :
     ∃ C : ℝ, 0 < C ∧ ∀ T : ℝ, 2 ≤ T →
       (zeroCountOn riemannZeta (strip T) : ℝ) ≤ C * T * Real.log T := by
@@ -770,9 +771,11 @@ theorem density_hypothesis_of_riemannHypothesis (hRH : RiemannHypothesis) (ε : 
     simp only [Nat.cast_zero]
     exact mul_nonneg hC.le (Real.rpow_nonneg hT0.le _)
 
-/-- Under the Riemann Hypothesis the Guth–Maynard zero-density bound (exponent `30/13`) is an
-immediate consequence of the Density Hypothesis. The conclusion is verbatim the statement of
-`DensityHypothesis.guth_maynard_zero_density` in `google-deepmind/formal-conjectures`. -/
+/-- Under the Riemann Hypothesis the zero-density bound with exponent `30/13` is an immediate
+consequence of the Density Hypothesis, because `30/13 ≥ 2`. The conclusion is verbatim the
+statement of `DensityHypothesis.guth_maynard_zero_density` in
+`google-deepmind/formal-conjectures`, whose name this declaration follows. This is not Guth and
+Maynard's theorem: theirs is unconditional and deep, and nothing of it is proved here. -/
 theorem guth_maynard_zero_density_of_riemannHypothesis (hRH : RiemannHypothesis) (ε : ℝ)
     (hε : 0 < ε) :
     ∃ C : ℝ, 0 < C ∧ ∀ σ T : ℝ, 1 / 2 ≤ σ → σ ≤ 1 → 2 ≤ T →

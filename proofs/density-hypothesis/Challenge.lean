@@ -1,4 +1,19 @@
 /-
+Copyright 2026 The Formal Conjectures Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-/
+/-
 Challenge.lean: WHAT IS CLAIMED.
 
 The statements of the three headline theorems, with their proofs left out on purpose, in a file
@@ -7,8 +22,8 @@ whose only import is Mathlib. `Solution.lean` proves statements with the same na
 sets of statements agree and which principles the proofs rest on.
 
 The definitions are copied from `DensityHypothesis/Defs.lean`, which copies them from
-google-deepmind/formal-conjectures at commit 9097e2f90e66d2f6244209cb1c07f7120d17ec53
-(Copyright 2026 The Formal Conjectures Authors, Apache License 2.0).
+google-deepmind/formal-conjectures at commit 9097e2f90e66d2f6244209cb1c07f7120d17ec53; the notice
+above is theirs. The three theorem statements below are this project's.
 
 Building this file reports "declaration uses `sorry`" three times. That is intended here and
 nowhere else in the project.
@@ -72,8 +87,9 @@ theorem density_hypothesis_zeta_zeros_of_riemannHypothesis (hRH : RiemannHypothe
       (zetaZeroCount σ T : ℝ) ≤ C * T ^ (2 * (1 - σ) + ε) := by
   sorry
 
-/-- The zero-density bound with the Guth–Maynard exponent `30/13`, assuming the Riemann
-Hypothesis: the statement `DensityHypothesis.guth_maynard_zero_density` of formal-conjectures. -/
+/-- Assuming the Riemann Hypothesis, the zero-density bound with exponent `30/13`: the statement
+`DensityHypothesis.guth_maynard_zero_density` of formal-conjectures, whose name this follows. This
+is not Guth and Maynard's unconditional theorem. -/
 theorem guth_maynard_zero_density_of_riemannHypothesis (hRH : RiemannHypothesis)
     (ε : ℝ) (hε : 0 < ε) :
     ∃ C : ℝ, 0 < C ∧ ∀ σ T : ℝ, 1 / 2 ≤ σ → σ ≤ 1 → 2 ≤ T →

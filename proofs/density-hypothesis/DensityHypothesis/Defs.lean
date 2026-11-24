@@ -1,3 +1,18 @@
+/-
+Copyright 2026 The Formal Conjectures Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-/
 import Mathlib.Algebra.BigOperators.Finprod
 import Mathlib.Analysis.Analytic.Order
 import Mathlib.NumberTheory.LSeries.ZetaZeros
@@ -12,11 +27,16 @@ Everything in this file is copied, with the same names, from
   `FormalConjecturesForMathlib/NumberTheory/RiemannZetaZeros.lean`;
 * `DensityHypothesis.zetaZeroCount`, from `FormalConjectures/Wikipedia/DensityHypothesis.lean`.
 
-Those files are Copyright 2026 The Formal Conjectures Authors and licensed under the Apache
-License, Version 2.0. They are reproduced here only so that this repository, which does not
-depend on formal-conjectures, can state the theorem with the catalog's own definitions. The file
-`proofs/density-hypothesis/InSitu.lean` checks the same proof against the unmodified catalog
-module.
+Those files carry the copyright and licence notice reproduced at the top of this file. The
+declarations are unchanged; what was removed is the catalog's `module` header, its
+`@[expose] public section` and its own imports, because this project does not use the module
+system. They are reproduced here only so that this project, which does not depend on
+formal-conjectures, can state the theorem with the catalog's own definitions.
+
+The source text is the same, but the elaborated terms are not literally the same: outside the
+module system Lean picks a different (definitionally equal) instance path inside
+`Complex.zeroCountOn`. The file `InSitu.lean` therefore checks the same proof against the
+unmodified catalog module, where no copy is involved.
 -/
 
 namespace Complex

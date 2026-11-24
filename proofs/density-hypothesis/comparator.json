@@ -6,10 +6,7 @@
     "DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis",
     "DensityHypothesis.zetaZeroCount_half_le_mul_log"
   ],
-  "definition_names": [
-    "Complex.zeroCountOn",
-    "DensityHypothesis.zetaZeroCount"
-  ],
+  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Quot.sound",

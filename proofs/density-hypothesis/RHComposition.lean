@@ -2,7 +2,7 @@ import Challenge
 import DensityHypothesis
 
 /-!
-# The Density Hypothesis with no hypothesis
+# Composing with `riemannHypothesis`
 
 This file is NOT part of the Lake project in this directory and does not compile in it. It
 belongs inside a checkout of `leanprover-community/riemann-hypothesis` (Lean `v4.37.0-rc1`),

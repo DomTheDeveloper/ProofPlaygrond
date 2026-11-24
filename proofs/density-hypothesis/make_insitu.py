@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Regenerate InSitu.lean from DensityHypothesis/ZeroCount.lean.
 
-InSitu.lean is the proof text of DensityHypothesis/ZeroCount.lean, unchanged except that its
-import lines are replaced by a single import of the unmodified catalog module
-`FormalConjectures.Wikipedia.DensityHypothesis`. It is meant to be compiled inside a checkout of
-google-deepmind/formal-conjectures (see README.md).
+InSitu.lean is the proof text of DensityHypothesis/ZeroCount.lean with three mechanical changes:
+its import lines are replaced by a single import of the unmodified catalog module
+`FormalConjectures.Wikipedia.DensityHypothesis`; a generated header is put in front; and its
+`/-! ... -/` section comments become ordinary `/- ... -/` comments (the catalog's linter allows
+one module docstring per file). Two theorems whose types are taken from the catalog by `type_of%`
+are appended. It is meant to be compiled inside a checkout of google-deepmind/formal-conjectures
+(see README.md).
 
 usage: make_insitu.py <path to ZeroCount.lean> <output path>
 """

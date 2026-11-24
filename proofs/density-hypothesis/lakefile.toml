@@ -1,6 +1,10 @@
 name = "density_hypothesis"
 defaultTargets = ["DensityHypothesis"]
 
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
 # The Mathlib release that google-deepmind/formal-conjectures pins at commit 9097e2f.
 [[require]]
 name = "mathlib"
