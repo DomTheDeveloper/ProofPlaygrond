@@ -12,7 +12,7 @@ This is the statement `DensityHypothesis.density_hypothesis_zeta_zeros` of
 [google-deepmind/formal-conjectures](https://github.com/google-deepmind/formal-conjectures)
 (`FormalConjectures/Wikipedia/DensityHypothesis.lean`).
 
-The library `DensityHypothesis` in this repository proves, with no `sorry`:
+The library `DensityHypothesis` in this directory proves, with no `sorry`:
 
 | Declaration | Statement | Uses RH |
 |---|---|---|
@@ -71,15 +71,19 @@ The library `DensityHypothesis` in this repository proves, with no `sorry`:
 
 ## Files
 
+This directory is a self-contained Lake project (Lean `v4.33.1`, Mathlib `v4.33.1`, the versions
+pinned by formal-conjectures at `9097e2f`). It does not touch the repository's root `lakefile.lean`.
+
 | File | Contents |
 |---|---|
-| `DensityHypothesis/Defs.lean` | The catalog's definitions `Complex.zeroCountOn`, `DensityHypothesis.zetaZeroCount` and three lemmas, copied byte for byte from formal-conjectures `9097e2f` |
+| `DensityHypothesis/Defs.lean` | The catalog's definitions `Complex.zeroCountOn`, `DensityHypothesis.zetaZeroCount` and their lemmas, copied byte for byte from formal-conjectures `9097e2f` |
 | `DensityHypothesis/ZeroCount.lean` | The whole proof (steps 1–6) |
 | `DensityHypothesis/Main.lean` | The three headline theorems, stated with `zetaZeroCount` |
 | `DensityHypothesis/Audit.lean` | `#print axioms` for the headline theorems |
-| `proofs/density-hypothesis/InSitu.lean` | The same proof text behind `import FormalConjectures.Wikipedia.DensityHypothesis`; its final theorem has type `type_of% DensityHypothesis.density_hypothesis_zeta_zeros` |
-| `proofs/density-hypothesis/make_insitu.py` | Regenerates `InSitu.lean` from `ZeroCount.lean` |
-| `proofs/density-hypothesis/formal-conjectures-status.patch` | Proposed status change for the catalog entry |
+| `InSitu.lean` | The same proof text behind `import FormalConjectures.Wikipedia.DensityHypothesis`; its final theorems have type `type_of% @density_hypothesis_zeta_zeros` and `type_of% @guth_maynard_zero_density` |
+| `make_insitu.py` | Regenerates `InSitu.lean` from `DensityHypothesis/ZeroCount.lean` |
+| `formal-conjectures-status.patch` | Proposed status change for the catalog entry |
+| `lakefile.toml`, `lake-manifest.json`, `lean-toolchain` | The pins; the manifest is formal-conjectures' own at `9097e2f` |
 
 ## Verification
 
@@ -124,14 +128,17 @@ lake exe cache get && lake build FormalConjectures.Wikipedia.DensityHypothesis
 lake env lean /path/to/ProofPlaygrond/proofs/density-hypothesis/InSitu.lean
 ```
 
-### 3. This repository's pinned toolchain (Lean 4.32.0, Mathlib `v4.32.0`)
+### 3. Not done: an independent CI run
 
-_Not yet run when this revision was committed; this section is updated with the audit run once it finishes._
+The repository's `Manual Lean audit` workflow could not be started from the session that wrote
+this (the integration token has no permission to dispatch workflows), and the proof was not
+compiled against the root project's Lean `v4.32.0`. Every Mathlib theorem the proof uses was
+checked by name to exist in Mathlib `v4.32.0` as well, but that is not a compile.
 
-To reproduce:
+To rebuild from scratch on a machine with normal network access:
 
 ```bash
-lake exe cache get && lake build DensityHypothesis && lake env lean DensityHypothesis/Audit.lean
+cd proofs/density-hypothesis && lake exe cache get && lake build && lake env lean DensityHypothesis/Audit.lean
 ```
 
 ## Was this already done? Evidence as of 2026-11-24
