@@ -41,10 +41,11 @@ The library `DensityHypothesis` in this directory proves, with no `sorry`:
   ```
 
   inside a build of `leanprover-community/riemann-hypothesis`. **That composition was not
-  compiled here**: the RH proof is about 60 000 modules on Lean `v4.37.0-rc1` and could not be
-  rebuilt in the container this was written in. Whether the Density Hypothesis is a theorem
-  therefore rests on that repository's proof of RH, exactly as the catalog's other
-  "solved because RH is proved" entries do.
+  compiled against their proof here**: the RH proof is about 60 000 modules on Lean
+  `v4.37.0-rc1` and could not be rebuilt in the container this was written in. It was compiled
+  against their statements-only file on their toolchain (see Verification, part 4). Whether the
+  Density Hypothesis is a theorem therefore rests on that repository's proof of RH, exactly as
+  the catalog's other "solved because RH is proved" entries do.
 
 ## Proof outline
 
@@ -84,6 +85,7 @@ pinned by formal-conjectures at `9097e2f`). It does not touch the repository's r
 | `make_insitu.py` | Regenerates `InSitu.lean` from `DensityHypothesis/ZeroCount.lean` |
 | `Challenge.lean`, `Solution.lean`, `comparator.json` | Statements only (Mathlib-only, proofs omitted on purpose), the module that proves them, and the comparator configuration |
 | `formal-conjectures-status.patch` | Proposed status change for the catalog entry |
+| `RHComposition.lean` | The one-line composition with `riemannHypothesis`; for use inside the RH repository, not part of this Lake project |
 | `lakefile.toml`, `lake-manifest.json`, `lean-toolchain` | The pins; the manifest is formal-conjectures' own at `9097e2f` |
 
 ## Verification
@@ -170,8 +172,27 @@ expression. The comparator tool itself (kernel replay, second kernel) was **not*
 
 ### 4. Compatibility with the RH repository's toolchain
 
-_In progress when this revision was committed (Lean `v4.37.0-rc1`, Mathlib `31ce06e`); this
-section is updated with the result._
+`leanprover-community/riemann-hypothesis` (at `9282d3a`) uses Lean `v4.37.0-rc1` and Mathlib
+`31ce06e`. In a scratch Lake workspace with exactly those pins (Mathlib again compiled from
+source):
+
+* `lake build DensityHypothesis` succeeds with the library files of this directory unchanged. The
+  only warnings are Lake's reminders that these files import Mathlib without using the module
+  system.
+* `RHComposition.lean` typechecks against that repository's statements-only module:
+
+  ```text
+  $ lake env lean RHComposition.lean
+  'density_hypothesis_zeta_zeros' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+  'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
+   Classical.choice,
+   Quot.sound]
+  ```
+
+  The `sorryAx` is the omitted proof of `riemannHypothesis` in their `src/Challenge.lean` (used
+  here with its `import Mathlib` narrowed to the two Mathlib modules it needs, so that all of
+  Mathlib did not have to be compiled a second time). Importing their `Main` instead of
+  `Challenge` replaces it by their proof. That last step needs their full build and was not run.
 
 ### 5. Not done
 
@@ -180,7 +201,8 @@ section is updated with the result._
 * **Not compiled on the root project's Lean `v4.32.0`.** That is why this is a separate Lake
   project and not a target in the root `lakefile.lean`. Every Mathlib theorem the proof uses was
   checked by name to exist in Mathlib `v4.32.0` too, which is not the same as compiling it there.
-* **Not composed with the proof of RH**, as explained at the top.
+* **Not composed with the actual proof of RH**, only with its statement (part 4).
+* **The comparator tool was not run** (part 3).
 
 ## Was this already done? Evidence as of 2026-11-24
 
