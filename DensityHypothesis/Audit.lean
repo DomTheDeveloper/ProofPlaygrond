@@ -1,0 +1,5 @@
+import DensityHypothesis
+
+#print axioms DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis
+#print axioms DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis
+#print axioms DensityHypothesis.zetaZeroCount_half_le_mul_log

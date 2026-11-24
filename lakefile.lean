@@ -9,3 +9,6 @@ require mathlib from git
 
 lean_lib Checkerboard where
   roots := #[`Checkerboard]
+
+lean_lib DensityHypothesis where
+  roots := #[`DensityHypothesis]
