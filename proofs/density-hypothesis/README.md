@@ -82,21 +82,27 @@ pinned by formal-conjectures at `9097e2f`). It does not touch the repository's r
 | `DensityHypothesis/Audit.lean` | `#print axioms` for the headline theorems |
 | `InSitu.lean` | The same proof text behind `import FormalConjectures.Wikipedia.DensityHypothesis`; its final theorems have type `type_of% @density_hypothesis_zeta_zeros` and `type_of% @guth_maynard_zero_density` |
 | `make_insitu.py` | Regenerates `InSitu.lean` from `DensityHypothesis/ZeroCount.lean` |
+| `Challenge.lean`, `Solution.lean`, `comparator.json` | Statements only (Mathlib-only, proofs omitted on purpose), the module that proves them, and the comparator configuration |
 | `formal-conjectures-status.patch` | Proposed status change for the catalog entry |
 | `lakefile.toml`, `lake-manifest.json`, `lean-toolchain` | The pins; the manifest is formal-conjectures' own at `9097e2f` |
 
 ## Verification
 
-### 1. Local, against the catalog's Mathlib (Lean 4.33.1, Mathlib `v4.33.1`)
+All of the following was run on 2026-11-24 with Lean `4.33.1` and Mathlib `v4.33.1`
+(`0df444a`), the versions pinned by formal-conjectures at `9097e2f`. The prebuilt Mathlib cache
+was not reachable from the container this was written in, so Mathlib was compiled from source.
 
-The prebuilt Mathlib cache was not reachable from the container this was written in, so the 3801
-modules that the proof needs were compiled from source. Then:
+### 1. The project itself
 
 ```text
-$ lean DensityHypothesis/Defs.lean        # exit 0, no output
-$ lean DensityHypothesis/ZeroCount.lean   # exit 0, no output (no errors, no warnings)
-$ lean DensityHypothesis/Main.lean        # exit 0, no output
-$ lean DensityHypothesis/Audit.lean
+$ lake build
+✔ [3793/3797] Built DensityHypothesis.Defs (2.2s)
+✔ [3794/3797] Built DensityHypothesis.ZeroCount (8.2s)
+✔ [3795/3797] Built DensityHypothesis.Main (2.4s)
+✔ [3796/3797] Built DensityHypothesis (1.0s)
+Build completed successfully (3797 jobs).
+
+$ lake env lean DensityHypothesis/Audit.lean
 'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
@@ -106,9 +112,34 @@ $ lean DensityHypothesis/Audit.lean
 'DensityHypothesis.zetaZeroCount_half_le_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
+No errors and no warnings. To reproduce:
+
+```bash
+cd proofs/density-hypothesis && lake exe cache get && lake build && lake env lean DensityHypothesis/Audit.lean
+```
+
 ### 2. In situ, against the unmodified catalog file
 
-_Not yet run when this revision was committed; this section is updated once the full build of the catalog module finishes._
+In a clean checkout of formal-conjectures at `9097e2f`, after
+`lake build FormalConjectures.Wikipedia.DensityHypothesis` (8987 jobs, all of Mathlib included):
+
+```text
+$ lake env lean InSitu.lean
+'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'DensityHypothesisProof.zeroCountOn_strip_le_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+
+`InSitu.lean` imports the catalog module and states its two theorems as
+`(hRH : RiemannHypothesis) : type_of% @density_hypothesis_zeta_zeros` and
+`… : type_of% @guth_maynard_zero_density`, so the statements are supplied by Lean from the
+catalog's own declarations, not retyped. For comparison, in the same checkout
+`#print axioms DensityHypothesis.density_hypothesis_zeta_zeros` (the catalog's theorem) lists
+`sorryAx`.
 
 To reproduce:
 
@@ -128,18 +159,28 @@ lake exe cache get && lake build FormalConjectures.Wikipedia.DensityHypothesis
 lake env lean /path/to/ProofPlaygrond/proofs/density-hypothesis/InSitu.lean
 ```
 
-### 3. Not done: an independent CI run
+### 3. Statements-only challenge file
 
-The repository's `Manual Lean audit` workflow could not be started from the session that wrote
-this (the integration token has no permission to dispatch workflows), and the proof was not
-compiled against the root project's Lean `v4.32.0`. Every Mathlib theorem the proof uses was
-checked by name to exist in Mathlib `v4.32.0` as well, but that is not a compile.
+`Challenge.lean` imports only Mathlib and states the three headline theorems with their proofs
+omitted; `Solution.lean` re-exports the proved ones; `comparator.json` names them. Both modules
+build (`lake build Challenge Solution`, the three intended `sorry` warnings in `Challenge.lean`
+and nothing else). The types of the three theorems and the bodies of `Complex.zeroCountOn` and
+`DensityHypothesis.zetaZeroCount` were dumped from each module and are identical expression for
+expression. The comparator tool itself (kernel replay, second kernel) was **not** run here.
 
-To rebuild from scratch on a machine with normal network access:
+### 4. Compatibility with the RH repository's toolchain
 
-```bash
-cd proofs/density-hypothesis && lake exe cache get && lake build && lake env lean DensityHypothesis/Audit.lean
-```
+_In progress when this revision was committed (Lean `v4.37.0-rc1`, Mathlib `31ce06e`); this
+section is updated with the result._
+
+### 5. Not done
+
+* **No independent CI run.** The repository's `Manual Lean audit` workflow could not be started
+  from the session that wrote this: the integration token is not allowed to dispatch workflows.
+* **Not compiled on the root project's Lean `v4.32.0`.** That is why this is a separate Lake
+  project and not a target in the root `lakefile.lean`. Every Mathlib theorem the proof uses was
+  checked by name to exist in Mathlib `v4.32.0` too, which is not the same as compiling it there.
+* **Not composed with the proof of RH**, as explained at the top.
 
 ## Was this already done? Evidence as of 2026-11-24
 
@@ -152,9 +193,10 @@ Nobody can prove a negative. This is what was checked.
    (commit `f9b3868`, PR 8057), three days after the proof of RH was released, and has not been
    touched since.
 2. **The maintainers' RH sweep missed it.** Commit `6bc2f74` (PR 8111, 2026-11-24 09:39 UTC),
-   "set the status of the (generalized) Riemann hypothesis to solved", moved eleven files'
-   statements to `research solved` (Robin, Lagarias, Li, idoneal numbers, Erdős 233 and 985, Mills,
-   powerful numbers, and others). `Wikipedia/DensityHypothesis.lean` is not among them.
+   "set the status of the (generalized) Riemann hypothesis to solved", edited eleven files and
+   moved statements such as Robin's and Lagarias's inequalities, Li's criterion, the idoneal
+   number list, Erdős 985, Mills' constant and the powerful-number error term to
+   `research solved`. `Wikipedia/DensityHypothesis.lean` is not among the files it touched.
 3. **No pending pull request touches it.** The heads of all 139 pull requests numbered 8057 to
    8265 were fetched on 2026-11-24 at about 19:35 UTC. None changes
    `FormalConjectures/Wikipedia/DensityHypothesis.lean`, and none mentions
@@ -168,9 +210,9 @@ Nobody can prove a negative. This is what was checked.
      constant depending on `σ`. Not uniform down to `1/2`.
    * [finndoolan-m/rh-lindelof](https://github.com/finndoolan-m/rh-lindelof) (2026-11-22): RH
      implies the Lindelöf hypothesis. No zero-density statement.
-   * [anthropics/zeta-23-lean](https://github.com/anthropics/zeta-23-lean): contains a
-     Riemann–von Mangoldt formula in its own setting. It does not state the catalog's Density
-     Hypothesis.
+   * [anthropics/zeta-23-lean](https://github.com/anthropics/zeta-23-lean) (`zeta23/`, at
+     `11b6c7e`): proves a Riemann–von Mangoldt formula on the way to its theorems about simple
+     zeros. No file in that repository mentions a zero-density statement.
 
 What this evidence does not exclude: a proof that is unpublished, unindexed, or posted after the
 times above. And, as said at the top, mathematicians regard the Density Hypothesis as settled the
@@ -181,3 +223,6 @@ moment RH is; the gap that was open is the formal one.
 `formal-conjectures-status.patch` is the corresponding edit to the catalog entry. The catalog
 requires a `formal_proof` link for a research problem to point at a
 [Palomar](https://palomar-registry.org/) entry, so registering the proof there comes first.
+`Challenge.lean`, `Solution.lean` and `comparator.json` follow that registry's layout; a
+`formalization.yaml` with authorship and licence metadata is still to be written by whoever
+submits it.

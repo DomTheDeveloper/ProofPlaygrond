@@ -9,3 +9,12 @@ rev = "v4.33.1"
 
 [[lean_lib]]
 name = "DensityHypothesis"
+
+# Statements only (Mathlib-only; its `sorry`s are deliberate) and the module that proves them.
+[[lean_lib]]
+name = "Challenge"
+roots = ["Challenge"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]

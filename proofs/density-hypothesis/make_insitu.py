@@ -14,6 +14,9 @@ import sys
 proof_path, out_path = sys.argv[1:3]
 lines = pathlib.Path(proof_path).read_text(encoding="utf-8").splitlines()
 body = "\n".join(line for line in lines if not line.startswith("import "))
+# formal-conjectures' style linter allows one module docstring per file; the generated header
+# below is that one, so the proof's own `/-! ... -/` blocks become ordinary comments.
+body = body.replace("/-!", "/-")
 
 HEADER = """import FormalConjectures.Wikipedia.DensityHypothesis
 

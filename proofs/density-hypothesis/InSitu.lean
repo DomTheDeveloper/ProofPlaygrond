@@ -4,7 +4,7 @@ import FormalConjectures.Wikipedia.DensityHypothesis
 GENERATED FILE: do not edit. Produced by `make_insitu.py` from `DensityHypothesis/ZeroCount.lean`.
 Compile it inside a checkout of google-deepmind/formal-conjectures; see `README.md`.
 -/
-/-!
+/-
 # Counting the zeros of the Riemann zeta function, and the density hypothesis
 
 This file proves, on top of Mathlib only:
@@ -26,7 +26,7 @@ noncomputable section
 
 namespace DensityHypothesisProof
 
-/-! ## Part 1: the correction series for `(s - 1) ζ(s)` on `Re s > 0` -/
+/- ## Part 1: the correction series for `(s - 1) ζ(s)` on `Re s > 0` -/
 
 /-- `cterm n s = (1 - s) (n+1)^{-s} - ((n+2)^{1-s} - (n+1)^{1-s})`. -/
 def cterm (n : ℕ) (s : ℂ) : ℂ :=
@@ -278,7 +278,7 @@ lemma norm_riemannZeta₁_le {s : ℂ} (hs : 1 / 5 ≤ s.re) :
   calc ‖1 - ∑' n : ℕ, cterm n s‖ ≤ ‖(1 : ℂ)‖ + ‖∑' n : ℕ, cterm n s‖ := norm_sub_le _ _
     _ ≤ 1 + ‖s‖ * ‖1 - s‖ * K := by rw [norm_one]; linarith
 
-/-! ## Part 2: a lower bound for `ζ` on the line `Re s = 2` -/
+/- ## Part 2: a lower bound for `ζ` on the line `Re s = 2` -/
 
 lemma one_third_le_norm_riemannZeta {s : ℂ} (hs : s.re = 2) : 1 / 3 ≤ ‖riemannZeta s‖ := by
   have hs1 : 1 < s.re := by rw [hs]; norm_num
@@ -313,7 +313,7 @@ lemma one_third_le_norm_riemannZeta {s : ℂ} (hs : s.re = 2) : 1 / 3 ≤ ‖rie
     exact h
   linarith
 
-/-! ## Part 3: Jensen's inequality on a disc centred at `2 + iτ` -/
+/- ## Part 3: Jensen's inequality on a disc centred at `2 + iτ` -/
 
 /-- Centre of the disc at height `τ`. -/
 def ctr (τ : ℝ) : ℂ := 2 + τ * I
@@ -403,7 +403,7 @@ lemma finsum_divisor_le (τ : ℝ) :
   rw [div_le_iff₀ hnpos]
   nlinarith [mul_nonneg hMpos.le (by linarith : (0 : ℝ) ≤ 3 * ‖riemannZeta₁ (ctr τ)‖ - 1)]
 
-/-! ## Part 4: from divisors of `(s-1)ζ(s)` to `Complex.zeroCountOn riemannZeta` -/
+/- ## Part 4: from divisors of `(s-1)ζ(s)` to `Complex.zeroCountOn riemannZeta` -/
 
 lemma enat_map_untop₀ (n : ℕ∞) :
     ((n.map (Nat.cast : ℕ → ℤ)).untop₀ : ℤ) = (n.toNat : ℤ) := by
@@ -499,7 +499,7 @@ lemma zeroCountOn_le_finsum_divisor {c : ℂ} {r : ℝ} {Q : Set ℂ} (hQ : Q �
     _ ≤ ∑ u ∈ hDfin.toFinset, divisor riemannZeta₁ (closedBall c r) u :=
         Finset.sum_le_sum_of_subset_of_nonneg hsub (fun u _ _ => hDnn u)
 
-/-! ## Part 5: boxes, strips and the summation -/
+/- ## Part 5: boxes, strips and the summation -/
 
 /-- The `k`-th unit box of the half-strip `1/2 ≤ Re s ≤ 1`. -/
 def box (k : ℕ) : Set ℂ := {s : ℂ | 1 / 2 ≤ s.re ∧ s.re ≤ 1 ∧ (k : ℝ) < s.im ∧ s.im ≤ k + 1}
@@ -730,7 +730,7 @@ theorem zeroCountOn_strip_le_mul_log :
     _ = 2 * D / Real.log (9 / 8) * T * Real.log T := by
         field_simp
 
-/-! ## Part 6: the Density Hypothesis from the Riemann Hypothesis -/
+/- ## Part 6: the Density Hypothesis from the Riemann Hypothesis -/
 
 /-- **The Density Hypothesis follows from the Riemann Hypothesis.**
 The conclusion is verbatim the statement of
