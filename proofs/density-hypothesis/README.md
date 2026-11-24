@@ -90,9 +90,10 @@ pinned by formal-conjectures at `9097e2f`). It does not touch the repository's r
 
 ## Verification
 
-All of the following was run on 2026-11-24 with Lean `4.33.1` and Mathlib `v4.33.1`
-(`0df444a`), the versions pinned by formal-conjectures at `9097e2f`. The prebuilt Mathlib cache
-was not reachable from the container this was written in, so Mathlib was compiled from source.
+Everything below was run on 2026-11-24. Parts 1 to 3 use Lean `4.33.1` and Mathlib `v4.33.1`
+(`0df444a`), the versions pinned by formal-conjectures at `9097e2f`; part 4 uses the RH
+repository's versions. The prebuilt Mathlib cache was not reachable from the container this was
+written in, so Mathlib was compiled from source each time.
 
 ### 1. The project itself
 
@@ -114,7 +115,12 @@ $ lake env lean DensityHypothesis/Audit.lean
 'DensityHypothesis.zetaZeroCount_half_le_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
-No errors and no warnings. To reproduce:
+No errors and no warnings. The same holds from a fresh clone of the pushed branch. The compiled
+declarations of the four modules were also replayed through the kernel with the `leanchecker`
+that ships with Lean (`lake env leanchecker DensityHypothesis.Defs DensityHypothesis.ZeroCount
+DensityHypothesis.Main DensityHypothesis`, exit code 0).
+
+To reproduce:
 
 ```bash
 cd proofs/density-hypothesis && lake exe cache get && lake build && lake env lean DensityHypothesis/Audit.lean
