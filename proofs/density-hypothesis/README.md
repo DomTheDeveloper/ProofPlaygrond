@@ -223,10 +223,12 @@ available here.
 
 ### 5. The root project's toolchain (Lean `4.32.0`, Mathlib `v4.32.0`)
 
-_A build with these versions was still running when this revision was committed; this section is
-updated with its result._ Until then: of the 451 Mathlib theorems the proof terms use, 420 occur
-by name in the `v4.32.0` sources and the other 31 are generated names (instances, additive
-versions, projections) that a source search cannot confirm.
+In a scratch Lake workspace pinned like this repository's root project (Lean `4.32.0`, Mathlib
+`v4.32.0` = `81a5d25`), the four library files of this directory build unchanged with no
+warnings, and `DensityHypothesis/Audit.lean` prints the same three dependency lists as in part 1.
+So the proof text is the same on Lean `4.32.0`, `4.33.1` and `4.37.0-rc1`. The library is still
+kept out of the root `lakefile.lean`; adding it there as a second `lean_lib` would be a
+two-line change.
 
 ### 6. Not done
 
