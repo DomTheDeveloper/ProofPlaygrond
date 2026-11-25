@@ -1,0 +1,31 @@
+Controls for verification/tools/Replay.lean (native build, sha256 708c4d85e6b955372ee9bd071f2f9487ad4a71aebcae100e412cf82fb0b87a8b)
+run 2026-11-25T06:05:35Z
+
+## A. controls/Bogus.lean: a false theorem added with the kernel switched off (must be rejected)
+READY externals=1 
+FAIL	0	Bogus	while replaying declaration 'Bogus.falseHolds': | (kernel) declaration type mismatch, 'Bogus.falseHolds' has type |   True | but it is expected to have type |   False
+END failures=1
+
+## B. a module of the RH proof fed before the modules it depends on (must be rejected)
+READY externals=2842 
+FAIL	149	Formalism.RealPlaceAnalysis.FinalF	while replaying declaration 'Formalism.REAL.expUJ': | (kernel) unknown constant 'Formalism.REAL.ExpUJ'
+END failures=1
+
+## C. the same module after the 149 modules before it in the order (must be accepted)
+READY externals=2842 
+OK	149	Formalism.RealPlaceAnalysis.FinalF	consts=18 kernel=18 dupthm=0 dups=[] unsafe=0 axioms=0 pub=18 ms=60
+END failures=0
+
+## D. controls/DupA.lean, then controls/DupB.lean, which declares the theorem Dup.t again with an invalid proof (DupB must be rejected)
+READY externals=1 
+OK	0	DupA	consts=2 kernel=2 dupthm=0 dups=[] unsafe=0 axioms=0 pub=2 ms=2
+FAIL	1	DupB	while checking the duplicate theorem 'Dup.t': | (kernel) declaration type mismatch, '_dupcheck.«1».0.Dup.t' has type |   Nat | but it is expected to have type |   True
+NOTE	1	DupB	viewdups=[A/A=1]
+END failures=1
+
+## E. controls/DupA.lean, then controls/DupC.lean, which defines Dup.d again with another body (DupC must be rejected)
+READY externals=1 
+OK	0	DupA	consts=2 kernel=2 dupthm=0 dups=[] unsafe=0 axioms=0 pub=2 ms=3
+FAIL	1	DupC	constant Dup.d is already declared with different data (present: A, new: D)
+VIEWFAIL	1	DupC	constant Dup.d is already declared with different data (present: A, new: D)
+END failures=2

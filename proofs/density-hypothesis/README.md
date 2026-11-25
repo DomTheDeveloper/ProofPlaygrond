@@ -1,66 +1,66 @@
-# The Density Hypothesis for ζ, from the Riemann Hypothesis — Lean 4 proof
+# The Density Hypothesis for ζ in Lean 4
 
 ## What is proved
 
-Let `N(σ, T)` be the number of zeros of the Riemann zeta function, counted with multiplicity,
-in the rectangle `σ ≤ Re s ≤ 1`, `0 < Im s ≤ T`. The **Density Hypothesis** says that for every
+Let `N(σ, T)` be the number of zeros of the Riemann zeta function, counted with multiplicity, in
+the rectangle `σ ≤ Re s ≤ 1`, `0 < Im s ≤ T`. The **Density Hypothesis** says that for every
 `ε > 0` there is a constant `C > 0` with
 
     N(σ, T) ≤ C · T ^ (2 (1 − σ) + ε)      for all 1/2 ≤ σ ≤ 1 and T ≥ 2.
 
 This is the statement `DensityHypothesis.density_hypothesis_zeta_zeros` of
 [google-deepmind/formal-conjectures](https://github.com/google-deepmind/formal-conjectures)
-(`FormalConjectures/Wikipedia/DensityHypothesis.lean`), "the catalog" below.
+(`FormalConjectures/Wikipedia/DensityHypothesis.lean`), "the catalog" below, where it is tagged
+`research open` and its proof is `sorry`.
 
-The library `DensityHypothesis` in this directory proves, with no `sorry`:
-
-| Declaration | Statement | Uses RH |
+| Declaration | Statement | Depends on |
 |---|---|---|
-| `DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis` | `RiemannHypothesis →` the catalog statement above | yes |
-| `DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis` | `RiemannHypothesis →` the catalog's statement `guth_maynard_zero_density` (exponent `30/13`). Under RH this is a corollary of the line above because `30/13 ≥ 2`; it is **not** Guth and Maynard's unconditional theorem | yes |
-| `DensityHypothesis.zetaZeroCount_half_le_mul_log` | `N(1/2, T) ≤ C · T · log T` for `T ≥ 2` | **no** |
-| `DensityHypothesisProof.zeroCountOn_strip_le_rpow` | `N(1/2, T) ≤ C_ε · T ^ (1 + ε)` for `T ≥ 2` | **no** |
-| `DensityHypothesisProof.norm_riemannZeta₁_le` | `‖(s − 1) ζ(s)‖ ≤ 1 + ‖s‖ ‖1 − s‖ K` on `Re s ≥ 1/5` | **no** |
+| `DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis` | `RiemannHypothesis →` the catalog statement | Mathlib |
+| `DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis` | `RiemannHypothesis →` the catalog's `guth_maynard_zero_density` (exponent `30/13`). Under RH this is a corollary of the line above, because `30/13 ≥ 2`; it is **not** Guth and Maynard's unconditional theorem | Mathlib |
+| `DensityHypothesis.zetaZeroCount_half_le_mul_log` | `N(1/2, T) ≤ C · T · log T` for `T ≥ 2`, with no hypothesis | Mathlib |
+| `DensityHypothesis.density_hypothesis_zeta_zeros` (`DensityHypothesis/Unconditional.lean`) | the catalog statement, with no hypothesis | Mathlib and the Lean proof of RH |
+| `DensityHypothesis.guth_maynard_zero_density` (same file) | the catalog's `guth_maynard_zero_density`, with no hypothesis | Mathlib and the Lean proof of RH |
 
-`RiemannHypothesis` is Mathlib's definition, the statement of the theorem `riemannHypothesis` in
+"The Lean proof of RH" is the theorem `riemannHypothesis : RiemannHypothesis` of
 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
-(`src/Main.lean`). That repository's proof was not rebuilt or examined for this project, which
-takes no position on it.
+(module `Main`), pinned here at commit `fcb6eac7534875d32d68030967e2deae6d686151`.
+`RiemannHypothesis` is Mathlib's definition.
 
 ## What this is, and what it is not
 
-* **No new mathematics.** The implication "RH ⇒ Density Hypothesis" is classical and easy; the
-  catalog's own docstring says so. Mathematicians regard the Density Hypothesis as settled the
-  moment RH is.
-* **The unconditional ingredient was already formalized elsewhere.** The case `σ = 1/2` needs
-  `N(1/2, T) ≪ T log T`. Mathlib has no such bound, but
-  [anthropics/zeta-23-lean](https://github.com/anthropics/zeta-23-lean) does: its
-  `zeta_local_zero_count` (`zeta23/Zeta23/RvM/LocalCount.lean`) bounds the zeros in each window
-  `t < Im ρ ≤ t + 1`, with the same multiplicity convention, by `A₀ log (|t| + 3)`, and it proves a
-  full Riemann–von Mangoldt formula. The proof here does not use that development; it re-derives
-  the bound from Mathlib alone, in the catalog's vocabulary.
-* **What is new**, as far as could be determined (see the evidence section): a machine-checked
-  proof of the catalog's Density Hypothesis statement from `RiemannHypothesis`, checked against the
-  catalog's own declaration.
-* **RH remains a hypothesis of the theorem.** Removing it is the one-line composition
+* **No new mathematics.** "RH implies the Density Hypothesis" is classical and short, and the
+  catalog's own docstring says so. Once RH is a theorem, so is the Density Hypothesis.
+* **Not the first formalization.** [dickie81/number-theory](https://github.com/dickie81/number-theory) has `RHClaim.densityHypothesis (h : RiemannHypothesis) : CrossCriteria.DensityHypothesis`, proved through the Lindelöf hypothesis, and `RHJoin.densityHypothesis`, the same statement with no hypothesis, joined to the Lean proof of RH. Both are in its commit `1f11af9` of 2026-11-24 13:10 UTC, about seven hours before this project's first push (2026-11-24 20:25 UTC). The statement there is in that library's own normalisation, not the catalog's. See [Has anyone else claimed it?](#has-anyone-else-claimed-it).
+* **What is specific to this project:** the theorem is the catalog's own statement, checked against
+  the catalog's declaration in both toolchains; the implication was judged by Comparator and
+  four kernels; and the composition with the proof of RH was re-checked on a small machine, as far
+  as that is possible there (next section).
+* **The unconditional theorem is exactly as good as the Lean proof of RH.** This project adds four
+  small modules on top of about 60,000.
+* **Who wrote it.** The Lean code, the tools and this document were written by an AI model (Claude,
+  in Claude Code sessions) at the repository owner's request. No human has read the proof line by
+  line. Separately prompted model instances audited the method and the claims in this document;
+  what they found is in `verification/results/audit.md`.
 
-  ```lean
-  theorem density_hypothesis_zeta_zeros (ε : ℝ) (hε : 0 < ε) : … :=
-    DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis riemannHypothesis ε hε
-  ```
+## How far it was verified
 
-  inside a build of `leanprover-community/riemann-hypothesis`. **That composition was not
-  compiled against their proof here**: the RH proof is about 60 000 files on Lean `v4.37.0-rc1`
-  and could not be rebuilt in the container this was written in. It was compiled against their
-  statements-only file on their toolchain (Verification, part 4). Whether the Density Hypothesis
-  is a theorem therefore rests on that repository's proof of RH, exactly as the catalog's other
-  "solved because RH is proved" entries do.
-* **Who wrote it.** The Lean code and this document were written by an AI model (Claude, in a
-  Claude Code session) at the repository owner's request. No human has read the proof line by
-  line. A second, separately prompted model instance audited the claims in this document; its
-  corrections are incorporated.
+[`verification/README.md`](verification/README.md) is the full record. In short:
 
-## Proof outline
+| Part | Checked with | Outcome |
+|---|---|---|
+| RH ⇒ Density Hypothesis, and `N(1/2, T) ≪ T log T` (61,639 declarations including what they use from Mathlib) | `lake build` (Lean 4.33.1); in situ against the unmodified catalog module; on Lean 4.37.0-rc1 `lake comparator` (Lean's kernel, its paranoid kernel, nanoda), `con-leche`, `con-ron`, `leanchecker` | accepted by all; axioms `propext`, `Classical.choice`, `Quot.sound` |
+| The statement is the catalog's | structural comparison of the compiled terms on Lean 4.33.1 and 4.37.0-rc1; `type_of%` against the catalog's own file, also inside the RH proof's toolchain | identical |
+| Composition with the proof of RH | `Unconditional.lean` and `InSituUnconditional.lean` compiled against the compiled `Main` | compiles; axioms as above |
+| What the unconditional theorem depends on | a scan of every constant of the 71,602 compiled modules involved | 1,411,007 declarations in 64,311 of the 70,917 modules of its import closure; the only axioms among them are `propext`, `Classical.choice`, `Quot.sound`; no axiom is declared in any module of the RH proof |
+| Every declaration it depends on is accepted by Lean's kernel | a module-by-module replay of all compiled modules through the kernel, on this machine | **in progress when this was written**: 20,482 of the 59,723 modules of the RH proof replayed so far, none rejected; this project's modules and the in-situ chain: accepted |
+
+**Not done:** the official check of the unconditional theorem (`lake comparator` on an export of the
+whole RH proof, which needs a machine with hundreds of GB of memory); any kernel other than Lean's
+own on the RH proof; a rebuild of the RH proof from its sources. The replay above is a custom,
+module-by-module procedure with tools written for this project. `verification/README.md`, section 7,
+spells out what follows from it and what does not.
+
+## Proof outline (the Mathlib-only part)
 
 1. **Continuation and growth of `(s − 1) ζ(s)`.** Put
    `cₙ(s) = (1 − s)(n+1)^(−s) − ((n+2)^(1−s) − (n+1)^(1−s))`. Two applications of the mean value
@@ -83,219 +83,50 @@ takes no position on it.
    trivial zero and not `1` because `Im s > 0`. So the count is `0`. For `σ = 1/2` the exponent
    is `1 + ε` and step 5 applies.
 
+The unconditional zero count of step 5 is not new either:
+[anthropics/zeta-23-lean](https://github.com/anthropics/zeta-23-lean) has a local zero count
+(`zeta_local_zero_count`) and a full Riemann–von Mangoldt formula. The proof here does not use that
+development; it re-derives the bound from Mathlib alone, in the catalog's vocabulary.
+
 ## Files
 
-This directory is a self-contained Lake project (Lean `v4.33.1`, Mathlib `v4.33.1`, the versions
-pinned by the catalog at `9097e2f`). It does not touch the repository's root `lakefile.lean`.
+This directory is a self-contained Lake project on Lean `v4.33.1` and Mathlib `v4.33.1`, the
+versions the catalog pins at `9097e2f`. It does not touch the repository's root `lakefile.lean`.
+All Lean files are `module`s, as the catalog's and the RH proof's are; the same sources compile
+unchanged on Lean `v4.37.0-rc1` with Mathlib `31ce06e`, the versions of the RH proof.
 
 | File | Contents |
 |---|---|
-| `DensityHypothesis/Defs.lean` | The catalog's definitions `Complex.zeroCountOn`, `DensityHypothesis.zetaZeroCount` and their lemmas: the same source text as the catalog at `9097e2f`, with its licence notice |
+| `DensityHypothesis/Defs.lean` | The catalog's definitions `Complex.zeroCountOn`, `DensityHypothesis.zetaZeroCount` and their lemmas, copied with their licence notice; the compiled terms are identical to the catalog's |
 | `DensityHypothesis/ZeroCount.lean` | The whole proof (steps 1–6) |
-| `DensityHypothesis/Main.lean` | The three headline theorems, stated with `zetaZeroCount` |
-| `DensityHypothesis/Audit.lean` | `#print axioms` for the headline theorems |
-| `InSitu.lean` | The same proof text behind `import FormalConjectures.Wikipedia.DensityHypothesis`; its final theorems have type `type_of% @density_hypothesis_zeta_zeros` and `type_of% @guth_maynard_zero_density` |
-| `make_insitu.py` | Regenerates `InSitu.lean` from `DensityHypothesis/ZeroCount.lean` |
-| `Challenge.lean`, `Solution.lean`, `comparator.json` | Statements only (Mathlib-only, proofs omitted on purpose), the module that proves them, and an untested comparator configuration |
-| `formal-conjectures-status.patch` | A possible status change for the catalog entry |
-| `RHComposition.lean` | The one-line composition with `riemannHypothesis`; for use inside the RH repository, not part of this Lake project |
+| `DensityHypothesis/Main.lean` | The three theorems that need only Mathlib |
+| `DensityHypothesis/Audit.lean` | `#print axioms` for them |
+| `DensityHypothesis/Unconditional.lean` | The two theorems with no hypothesis. Imports `Main` of the RH proof, so it is **not** a target of this Lake project: it compiles only next to a build of that repository (`verification/tools/build_437.sh`) |
+| `InSitu.lean`, `InSituUnconditional.lean`, `make_insitu.py` | The same proof text behind an import of the catalog's own module, with final theorems of type `type_of% @density_hypothesis_zeta_zeros` and `type_of% @guth_maynard_zero_density`; generated from `ZeroCount.lean` |
+| `Challenge.lean`, `Solution.lean`, `comparator.json`, `export-targets.txt` | Comparator inputs for the Mathlib-only part: statements with `sorry` on purpose, the module that proves them, the configuration that was run |
+| `comparator/` | Comparator inputs for the unconditional theorem (the catalog's two statements). Not run: see above |
+| `verification/` | Tools, controls, results and the record of what was run |
+| `formal-conjectures-status.patch` | A possible change to the catalog entry |
 | `lakefile.toml`, `lake-manifest.json`, `lean-toolchain` | The pins; the manifest's package revisions are the catalog's at `9097e2f` |
 
-A caveat about `Defs.lean`. The catalog's files use Lean's module system and this project does
-not. The copied definitions have the same source text, but outside the module system Lean
-resolves one instance inside `Complex.zeroCountOn` along a different path, so the elaborated
-term is not literally the catalog's. The two are definitionally equal (`rfl` proves it), and
-`InSitu.lean` avoids the question by using the catalog's own declarations.
-
-## Verification
-
-Everything below was run on 2026-11-24. The prebuilt Mathlib cache was not reachable from the
-container this was written in, so Mathlib was compiled from source for each toolchain.
-
-### 1. The project itself (Lean `4.33.1`, Mathlib `v4.33.1`)
-
-```text
-$ lake build
-✔ [3793/3797] Built DensityHypothesis.Defs (2.2s)
-✔ [3794/3797] Built DensityHypothesis.ZeroCount (8.2s)
-✔ [3795/3797] Built DensityHypothesis.Main (2.4s)
-✔ [3796/3797] Built DensityHypothesis (1.0s)
-Build completed successfully (3797 jobs).
-
-$ lake env lean DensityHypothesis/Audit.lean
-'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
-'DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
-'DensityHypothesis.zetaZeroCount_half_le_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
-```
-
-No errors and no warnings. The compiled declarations of the four modules were also replayed
-through the kernel with the `leanchecker` that ships with Lean (`lake env leanchecker
-DensityHypothesis.Defs DensityHypothesis.ZeroCount DensityHypothesis.Main DensityHypothesis`,
-exit code 0).
-
-The intended way to reproduce this is
+To build the Mathlib-only part:
 
 ```bash
 cd proofs/density-hypothesis && lake exe cache get && lake build && lake env lean DensityHypothesis/Audit.lean
 ```
 
-but that exact command was **not** run here, because `lake exe cache get` needs the cache host.
-What was run is `lake build` with the packages directory pointing at the Mathlib compiled from
-source, once in the working tree and once in a fresh clone of the pushed branch.
+## Has anyone else claimed it?
 
-### 2. In situ, against the unmodified catalog file
+**The search is still running; this section will be replaced.** So far:
 
-In a clean checkout of the catalog at `9097e2f`, after
-`lake build FormalConjectures.Wikipedia.DensityHypothesis` (8987 jobs, all of Mathlib included):
+* **A formal proof by someone else, earlier, of a differently normalised statement.** [dickie81/number-theory](https://github.com/dickie81/number-theory), commit `1f11af9` (2026-11-24 13:10 UTC): `RHClaim.densityHypothesis` (from `RiemannHypothesis`, through the Lindelöf hypothesis) and `RHJoin.densityHypothesis` (no hypothesis, joined to the Lean proof of RH). Its `CrossCriteria.DensityHypothesis` is `∀ ε > 0, ∃ B, ShortWeil.DensityXi (2 + ε) B`, that library's own form of the bound. It is not the catalog's theorem and the repository does not mention the catalog.
+* **The catalog entry is unclaimed.** At `google-deepmind/formal-conjectures` `9097e2f` (still the head of `main` on 2026-11-25 04:22 UTC) the entry is tagged `research open` with a `sorry` proof, and none of the 5,509 pull-request heads changes that file.
+* **No registry entry.** Among the 1,357 entries of the Palomar registry as of 2026-11-25 04:47 UTC, none registers the Density Hypothesis.
 
-```text
-$ lake env lean InSitu.lean
-'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
-'DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
-'DensityHypothesisProof.zeroCountOn_strip_le_mul_log' depends on axioms: [propext, Classical.choice, Quot.sound]
-```
+## Proposing it upstream
 
-`InSitu.lean` imports the catalog module and states its two theorems as
-`(hRH : RiemannHypothesis) : type_of% @density_hypothesis_zeta_zeros` and
-`… : type_of% @guth_maynard_zero_density`, so the statements are supplied by Lean from the
-catalog's own declarations, not retyped. For comparison, in the same checkout
-`#print axioms DensityHypothesis.density_hypothesis_zeta_zeros` (the catalog's theorem) lists
-`sorryAx`.
-
-To reproduce:
-
-```bash
-git clone https://github.com/google-deepmind/formal-conjectures
-```
-
-```bash
-cd formal-conjectures && git checkout 9097e2f90e66d2f6244209cb1c07f7120d17ec53
-```
-
-```bash
-lake exe cache get && lake build FormalConjectures.Wikipedia.DensityHypothesis
-```
-
-```bash
-lake env lean /path/to/ProofPlaygrond/proofs/density-hypothesis/InSitu.lean
-```
-
-### 3. Statements-only challenge file
-
-`Challenge.lean` imports only Mathlib and states the three headline theorems with their proofs
-omitted; `Solution.lean` re-exports the proved ones. Both modules build
-(`lake build Challenge Solution`: the three intended `sorry` warnings in `Challenge.lean` and
-nothing else). The types of the three theorems were dumped from each module; their hashes and
-printed forms agree. `comparator.json` is written after the configurations of other projects and
-has **never been run**: the comparator tool (kernel replay, second kernel, sandbox) was not
-available here.
-
-### 4. Compatibility with the RH repository's toolchain
-
-`leanprover-community/riemann-hypothesis` (at `9282d3a`) uses Lean `v4.37.0-rc1` and Mathlib
-`31ce06e`. In a scratch Lake workspace with exactly those pins:
-
-* `lake build DensityHypothesis` succeeds with the library files of this directory unchanged. The
-  only warnings are Lake's reminders that these files import Mathlib without using the module
-  system.
-* `RHComposition.lean` typechecks against that repository's statements-only module:
-
-  ```text
-  $ lake env lean RHComposition.lean
-  'density_hypothesis_zeta_zeros' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
-  'DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis' depends on axioms: [propext,
-   Classical.choice,
-   Quot.sound]
-  ```
-
-  The `sorryAx` is the omitted proof of `riemannHypothesis` in their `src/Challenge.lean` (used
-  here with its `import Mathlib` narrowed to the two Mathlib modules it needs, so that all of
-  Mathlib did not have to be compiled a second time). Importing their `Main` instead of
-  `Challenge` replaces it by their proof. That last step needs their full build and was not run.
-
-### 5. The root project's toolchain (Lean `4.32.0`, Mathlib `v4.32.0`)
-
-In a scratch Lake workspace pinned like this repository's root project (Lean `4.32.0`, Mathlib
-`v4.32.0` = `81a5d25`), the four library files of this directory build unchanged with no
-warnings, and `DensityHypothesis/Audit.lean` prints the same three dependency lists as in part 1.
-So the proof text is the same on Lean `4.32.0`, `4.33.1` and `4.37.0-rc1`. The library is still
-kept out of the root `lakefile.lean`; adding it there as a second `lean_lib` would be a
-two-line change.
-
-### 6. Not done
-
-* **No independent CI run.** The repository's `Manual Lean audit` workflow could not be started
-  from the session that wrote this: the integration token is not allowed to dispatch workflows.
-* **Not composed with the actual proof of RH**, only with its statement (part 4).
-* **The comparator tool was not run** (part 3).
-* **`lake exe cache get` was never executed** (part 1).
-
-## Was this already done? Evidence as of 2026-11-24
-
-Nobody can prove a negative. This is what was checked.
-
-1. **The catalog lists it as open.** At `google-deepmind/formal-conjectures` commit
-   `9097e2f90e66d2f6244209cb1c07f7120d17ec53` (2026-11-24 14:16 UTC, still the head of `main` when
-   re-fetched at 22:09 UTC that day), `density_hypothesis_zeta_zeros` carries
-   `@[category research open, AMS 11 30]`, its proof is `sorry`, and it has no `formal_proof`
-   attribute. The file was added on 2026-11-23 (commit `f9b3868`, PR 8057), three days after the
-   proof of RH was released, and that is its only commit.
-2. **The commit that marked RH as solved did not touch it.** Commit `6bc2f74` (PR 8111,
-   2026-11-24 09:39 UTC), "set the status of the (generalized) Riemann hypothesis to solved",
-   edited eleven files. Among other things it moved Robin's and Lagarias's inequalities, Li's
-   criterion, the idoneal number list, Erdős 985 and the powerful-number error term to
-   `research solved`, and added a solved variant for Mills' constant.
-   `Wikipedia/DensityHypothesis.lean` is not among the files it changed. Whether that was an
-   oversight is a guess: the same commit also left other files that mention RH untouched.
-3. **No pull request touches it.** On 2026-11-24 at 22:10 UTC the head commits of all 5,496
-   pull requests ever opened on the repository (open or closed) were fetched. 61 of them contain
-   `FormalConjectures/Wikipedia/DensityHypothesis.lean`, every one with exactly the version on
-   `main`. For the 143 pull requests numbered 8057 to 8269, the ones opened since the file
-   existed, no other file mentions `density_hypothesis_zeta_zeros`, `zetaZeroCount` or
-   `DensityHypothesis` either.
-4. **It is not among the RH repository's headline theorems.**
-   `leanprover-community/riemann-hypothesis` at `9282d3a` proves five theorems in `src/Main.lean`:
-   `riemannHypothesis`, its restatement `riemannZeta_eq_zero_re`, and three statements about
-   Dirichlet L-functions. Its README says files not needed for those are out of scope. The other
-   roughly 60 000 files of that repository were **not** examined, only their path names, so a
-   zero-density lemma somewhere inside it cannot be ruled out.
-5. **Related formal work found by web search.**
-   * [anthropics/zeta-23-lean](https://github.com/anthropics/zeta-23-lean) (`zeta23/`, at
-     `11b6c7e`): already contains the unconditional zero count that step 5 needs, as described
-     above. No file in that repository mentions a zero-density statement or the Density
-     Hypothesis.
-   * [mrklwk/zeta-zero-density-lean](https://github.com/mrklwk/zeta-zero-density-lean) (October
-     2026): an unconditional bound `N(σ, T) ≪ T^(2(1−σ)+ε)` for each fixed `3/4 < σ < 1`, with a
-     constant depending on `σ`. Not uniform down to `1/2`.
-   * [finndoolan-m/rh-lindelof](https://github.com/finndoolan-m/rh-lindelof) (2026-11-22): RH
-     implies the Lindelöf hypothesis. No zero-density statement.
-
-What this evidence does not exclude: a proof that is unpublished, unindexed, inside the RH
-repository's 60 000 files, or posted after the times above.
-
-## Proposing the status change upstream
-
-Two routes exist in the catalog, and neither has been started.
-
-* **As a conditional formal proof.** The catalog's attribute
-  `@[conditional formal_proof using lean4 at "<link>" assuming <decl>]` is made for a proof that
-  takes an unproved statement as a hypothesis, which is exactly what this library provides.
-* **As a solved statement.** `formal-conjectures-status.patch` changes the entry to
-  `research solved` and adds a docstring. Its sentence "which is proved [Al26]" copies the wording
-  commit `6bc2f74` used for the other RH corollaries; it is the catalog's convention, not a claim
-  this project has checked. The patch adds no `formal_proof` attribute.
-
-Either way the catalog requires the link for a research problem to point at a
-[Palomar](https://palomar-registry.org/) entry. `Challenge.lean`, `Solution.lean` and
-`comparator.json` follow that registry's layout as seen in other projects, untested; a
-`formalization.yaml` with authorship and licence metadata is still to be written by whoever
-submits it. This repository has no `LICENSE` file of its own; the definitions copied from the
-catalog keep their Apache-2.0 notice.
+The catalog asks that a `research solved` entry with a formal proof link to an entry of the
+[Palomar registry](https://palomar-registry.org), which records a Lean formalization at one pinned
+commit. Neither a registry entry nor a pull request to the catalog has been made for this project.
+`formal-conjectures-status.patch` shows the status change the catalog entry would need; the
+registry link would go into a `formal_proof using lean4 at "…"` attribute.

@@ -1,0 +1,6 @@
+con-leche: stats: phases: parse 2.2s (index 0.0s), check 20.5s
+con-leche: stats: check pool: 20.567s wall, 2 workers, 61639 records, busy 41.061s (99.8%); tail 0.026s after the last start, 2 busy then, 0.020s worker-time in it (39.7%)
+con-leche: stats: slowest checks: 0.084s theorem HasFTaylorSeriesUpToOn.comp (#54998); 0.062s theorem Besicovitch.SatelliteConfig.exists_normalized_aux2 (#43930); 0.055s theorem ContinuousMultilinearMap.hasFTaylorSeriesUpTo_iteratedFDeriv (#61049); 0.050s theorem Lean.Grind.Ring.OfSemiring.mul_helper (#24011); 0.048s theorem HasFTaylorSeriesUpToOn.prodMk (#55127)
+con-leche: stats: peak RSS 0.50 GiB
+con-leche: accepted 61639 declarations (--verified)
+exit code 0

@@ -1,0 +1,13 @@
+{
+  "challenge_module": "CatalogChallenge",
+  "solution_module": "DensityHypothesis.Unconditional",
+  "theorem_names": [
+    "DensityHypothesis.density_hypothesis_zeta_zeros",
+    "DensityHypothesis.guth_maynard_zero_density"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "external_kernels": {
+    "Lean paranoid": ["leanchecker-paranoid", "--silent", "--from-export"],
+    "nanoda": ["nanoda_bin"]
+  }
+}

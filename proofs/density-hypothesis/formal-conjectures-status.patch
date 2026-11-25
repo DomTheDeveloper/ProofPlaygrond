@@ -1,5 +1,5 @@
 diff --git a/FormalConjectures/Wikipedia/DensityHypothesis.lean b/FormalConjectures/Wikipedia/DensityHypothesis.lean
-index de3df77..e1909fd 100644
+index de3df77..02fe3d3 100644
 --- a/FormalConjectures/Wikipedia/DensityHypothesis.lean
 +++ b/FormalConjectures/Wikipedia/DensityHypothesis.lean
 @@ -42,6 +42,7 @@ Guth and Maynard's bound for $\sigma \ge \frac{7}{10}$ yields the uniform expone
@@ -10,7 +10,7 @@ index de3df77..e1909fd 100644
  -/
  
  @[expose] public section
-@@ -96,8 +97,14 @@ theorem zetaZeroSet_finite (σ T : ℝ) :
+@@ -96,8 +97,15 @@ theorem zetaZeroSet_finite (σ T : ℝ) :
  
  /-- Density Hypothesis: for every $\varepsilon > 0$, there exists $C > 0$ such that
  $N(\sigma, T) \le C \, T^{2(1 - \sigma) + \varepsilon}$ for all $\frac{1}{2} \le \sigma \le 1$
@@ -20,9 +20,10 @@ index de3df77..e1909fd 100644
 +
 +This follows from the Riemann Hypothesis, which is proved [Al26]. For $\sigma > \frac{1}{2}$ the
 +Riemann Hypothesis leaves no zeros to count, and for $\sigma = \frac{1}{2}$ the bound is the
-+classical unconditional estimate $N(\frac{1}{2}, T) = O(T \log T)$. A Lean proof of the statement
-+from `RiemannHypothesis` is `DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis`
-+in [DomTheDeveloper/ProofPlaygrond](https://github.com/DomTheDeveloper/ProofPlaygrond). -/
++classical unconditional estimate $N(\frac{1}{2}, T) = O(T \log T)$. A Lean proof of this statement
++on top of the Lean proof of the Riemann Hypothesis is `DensityHypothesis.density_hypothesis_zeta_zeros`
++in [DomTheDeveloper/ProofPlaygrond](https://github.com/DomTheDeveloper/ProofPlaygrond)
++(`proofs/density-hypothesis`). -/
 +@[category research solved, AMS 11 30]
  theorem density_hypothesis_zeta_zeros (ε : ℝ) (hε : 0 < ε) :
      ∃ C : ℝ, 0 < C ∧ ∀ σ T : ℝ, 1 / 2 ≤ σ → σ ≤ 1 → 2 ≤ T →

@@ -13,9 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import Mathlib.Algebra.BigOperators.Finprod
-import Mathlib.Analysis.Analytic.Order
-import Mathlib.NumberTheory.LSeries.ZetaZeros
+module
+
+public import Mathlib.Algebra.BigOperators.Finprod
+public import Mathlib.Analysis.Analytic.Order
+public import Mathlib.NumberTheory.LSeries.ZetaZeros
 
 /-!
 # Definitions for the density hypothesis statement
@@ -28,16 +30,18 @@ Everything in this file is copied, with the same names, from
 * `DensityHypothesis.zetaZeroCount`, from `FormalConjectures/Wikipedia/DensityHypothesis.lean`.
 
 Those files carry the copyright and licence notice reproduced at the top of this file. The
-declarations are unchanged; what was removed is the catalog's `module` header, its
-`@[expose] public section` and its own imports, because this project does not use the module
-system. They are reproduced here only so that this project, which does not depend on
-formal-conjectures, can state the theorem with the catalog's own definitions.
+declarations are unchanged, and so is their setting: like the catalog's files this is a `module`
+with the same three `public import`s as `RiemannZetaZeros.lean` and an `@[expose] public section`,
+so that Lean elaborates `Complex.zeroCountOn` here exactly as it does there. They are reproduced
+only so that this project, which does not depend on formal-conjectures, can state the theorem with
+the catalog's own definitions.
 
-The source text is the same, but the elaborated terms are not literally the same: outside the
-module system Lean picks a different (definitionally equal) instance path inside
-`Complex.zeroCountOn`. The file `InSitu.lean` therefore checks the same proof against the
-unmodified catalog module, where no copy is involved.
+`verification/` records the comparison of the compiled constants with the catalog's, and the file
+`InSitu.lean` checks the same proof against the unmodified catalog module, where no copy is
+involved.
 -/
+
+@[expose] public section
 
 namespace Complex
 

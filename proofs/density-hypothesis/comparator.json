@@ -6,11 +6,9 @@
     "DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis",
     "DensityHypothesis.zetaZeroCount_half_le_mul_log"
   ],
-  "definition_names": [],
-  "permitted_axioms": [
-    "propext",
-    "Quot.sound",
-    "Classical.choice"
-  ],
-  "enable_nanoda": true
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "external_kernels": {
+    "Lean paranoid": ["leanchecker-paranoid", "--silent", "--from-export"],
+    "nanoda": ["nanoda_bin"]
+  }
 }

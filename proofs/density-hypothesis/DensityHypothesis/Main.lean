@@ -1,4 +1,6 @@
-import DensityHypothesis.ZeroCount
+module
+
+public import DensityHypothesis.ZeroCount
 
 /-!
 # The Density Hypothesis for the Riemann zeta function follows from the Riemann Hypothesis
@@ -17,6 +19,8 @@ The proof has two ingredients.
   Jensen's inequality (`DensityHypothesisProof.zeroCountOn_strip_le_rpow`, and in the sharper
   form `O(T log T)` as `DensityHypothesisProof.zeroCountOn_strip_le_mul_log`).
 -/
+
+@[expose] public section
 
 namespace DensityHypothesis
 

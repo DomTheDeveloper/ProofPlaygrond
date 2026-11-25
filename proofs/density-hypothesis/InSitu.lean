@@ -1,4 +1,6 @@
-import FormalConjectures.Wikipedia.DensityHypothesis
+module
+
+public import FormalConjectures.Wikipedia.DensityHypothesis
 
 /-!
 GENERATED FILE: do not edit. Produced by `make_insitu.py` from `DensityHypothesis/ZeroCount.lean`.
@@ -21,6 +23,8 @@ This file proves, on top of Mathlib only:
 * `DensityHypothesisProof.density_hypothesis_of_riemannHypothesis`: the Riemann Hypothesis
   implies the Density Hypothesis `N(σ, T) ≪ T ^ (2 (1 - σ) + ε)`, uniformly in `1/2 ≤ σ ≤ 1`.
 -/
+@[expose] public section
+
 open Complex Filter Topology Metric Set MeromorphicOn
 
 noncomputable section

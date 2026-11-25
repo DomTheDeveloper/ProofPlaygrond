@@ -1,1 +1,3 @@
-import DensityHypothesis.Main
+module
+
+public import DensityHypothesis.Main

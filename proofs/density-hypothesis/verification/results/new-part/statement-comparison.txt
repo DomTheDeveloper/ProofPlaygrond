@@ -1,0 +1,36 @@
+## Challenge.lean vs the library (Defs + Main)
+Complex.analyticOrderNatAt_eq_zero_of_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn: def / def; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_empty: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_eq_zero_of_forall_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_sep_eq_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_singleton: theorem / theorem; universe parameters identical; type identical; value identical
+DensityHypothesis.density_hypothesis_zeta_zeros_of_riemannHypothesis: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.guth_maynard_zero_density_of_riemannHypothesis: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.zetaZeroCount: def / def; universe parameters identical; type identical; value identical
+DensityHypothesis.zetaZeroCount_half_le_mul_log: theorem / theorem; universe parameters identical; type identical; value different
+Bornology.IsBounded.finite_riemannZeta_zeros: theorem / theorem; universe parameters identical; type identical; value identical
+
+## comparator/CatalogChallenge.lean vs the catalog's unmodified files compiled in this toolchain
+Complex.analyticOrderNatAt_eq_zero_of_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn: def / def; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_empty: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_eq_zero_of_forall_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_sep_eq_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_singleton: theorem / theorem; universe parameters identical; type identical; value identical
+DensityHypothesis.density_hypothesis_zeta_zeros: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.guth_maynard_zero_density: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.zetaZeroCount: def / def; universe parameters identical; type identical; value identical
+Bornology.IsBounded.finite_riemannZeta_zeros: theorem / theorem; universe parameters identical; type identical; value identical
+
+## the catalog's unmodified files vs the library (Defs + Unconditional)
+Complex.analyticOrderNatAt_eq_zero_of_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn: def / def; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_empty: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_eq_zero_of_forall_ne_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_sep_eq_zero: theorem / theorem; universe parameters identical; type identical; value identical
+Complex.zeroCountOn_singleton: theorem / theorem; universe parameters identical; type identical; value identical
+DensityHypothesis.density_hypothesis_zeta_zeros: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.guth_maynard_zero_density: theorem / theorem; universe parameters identical; type identical; value different
+DensityHypothesis.zetaZeroCount: def / def; universe parameters identical; type identical; value identical
+Bornology.IsBounded.finite_riemannZeta_zeros: theorem / theorem; universe parameters identical; type identical; value identical

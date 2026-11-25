@@ -1,13 +1,16 @@
-import Mathlib.NumberTheory.Harmonic.ZetaAsymp
-import Mathlib.Analysis.Complex.JensenFormula
-import Mathlib.Analysis.PSeries
-import Mathlib.Analysis.Calculus.MeanValue
-import Mathlib.Analysis.Complex.LocallyUniformLimit
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Analysis.Analytic.Uniqueness
-import Mathlib.NumberTheory.ZetaValues
-import Mathlib.Tactic
-import DensityHypothesis.Defs
+module
+
+public import Mathlib.NumberTheory.Harmonic.ZetaAsymp
+public import Mathlib.Analysis.Complex.JensenFormula
+public import Mathlib.Analysis.PSeries
+public import Mathlib.Analysis.PSeriesComplex
+public import Mathlib.Analysis.Calculus.MeanValue
+public import Mathlib.Analysis.Complex.LocallyUniformLimit
+public import Mathlib.Analysis.Real.Pi.Bounds
+public import Mathlib.Analysis.Analytic.Uniqueness
+public import Mathlib.NumberTheory.ZetaValues
+public import Mathlib.Tactic
+public import DensityHypothesis.Defs
 
 /-!
 # Counting the zeros of the Riemann zeta function, and the density hypothesis
@@ -26,6 +29,8 @@ This file proves, on top of Mathlib only:
 * `DensityHypothesisProof.density_hypothesis_of_riemannHypothesis`: the Riemann Hypothesis
   implies the Density Hypothesis `N(σ, T) ≪ T ^ (2 (1 - σ) + ε)`, uniformly in `1/2 ≤ σ ≤ 1`.
 -/
+@[expose] public section
+
 open Complex Filter Topology Metric Set MeromorphicOn
 
 noncomputable section

@@ -1,0 +1,6 @@
+name = "rhreplay"
+defaultTargets = ["rhreplay"]
+
+[[lean_exe]]
+name = "rhreplay"
+root = "Replay"

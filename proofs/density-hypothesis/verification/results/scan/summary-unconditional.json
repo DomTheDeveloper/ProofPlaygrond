@@ -1,0 +1,402 @@
+{
+ "modules": 71602,
+ "modules_by_tag": {
+  "scan": 59763,
+  "scan_ext": 11835,
+  "scan_dh": 4
+ },
+ "modules_not_module_system": [
+  "runLinter",
+  "LeanChecker",
+  "LeanExport",
+  "Leanc"
+ ],
+ "modules_with_parts": {
+  "3": 71598,
+  "1": 4
+ },
+ "constant_occurrences": 2287882,
+ "distinct_names": 2259455,
+ "edges": 134535048,
+ "scan_errors": [],
+ "duplicate_within_one_part": [],
+ "private_part_kinds": {
+  "scan:C": 6670,
+  "scan:D": 231253,
+  "scan:I": 6434,
+  "scan:R": 6434,
+  "scan:T": 1179017,
+  "scan_dh:D": 8,
+  "scan_dh:T": 64,
+  "scan_ext:A": 91,
+  "scan_ext:C": 11431,
+  "scan_ext:D": 258096,
+  "scan_ext:I": 8044,
+  "scan_ext:O": 4227,
+  "scan_ext:Q": 4,
+  "scan_ext:R": 8218,
+  "scan_ext:T": 567891
+ },
+ "unsafe_or_partial": {
+  "scan:1": 37,
+  "scan:2": 466,
+  "scan_ext:1": 1764,
+  "scan_ext:2": 4844
+ },
+ "public_part_constants": {
+  "scan": 1092268,
+  "scan_ext": 700612,
+  "scan_dh": 69
+ },
+ "public_vs_private_kinds": {
+  "scan:A->D:hasValue=0": 1233,
+  "scan:A->T:hasValue=0": 777888,
+  "scan:C->C:hasValue=0": 6670,
+  "scan:D->D:hasValue=1": 213674,
+  "scan:I->I:hasValue=0": 6434,
+  "scan:R->R:hasValue=0": 6434,
+  "scan:T->T:hasValue=1": 79935,
+  "scan_dh:A->T:hasValue=0": 56,
+  "scan_dh:D->D:hasValue=1": 8,
+  "scan_dh:T->T:hasValue=1": 5,
+  "scan_ext:A->A:hasValue=0": 91,
+  "scan_ext:A->D:hasValue=0": 36435,
+  "scan_ext:A->O:hasValue=0": 2395,
+  "scan_ext:A->T:hasValue=0": 437273,
+  "scan_ext:C->C:hasValue=0": 11430,
+  "scan_ext:D->D:hasValue=1": 157529,
+  "scan_ext:I->I:hasValue=0": 8043,
+  "scan_ext:O->O:hasValue=1": 49,
+  "scan_ext:Q->Q:hasValue=0": 4,
+  "scan_ext:R->R:hasValue=0": 8217,
+  "scan_ext:T->T:hasValue=1": 39146
+ },
+ "public_vs_private_codes": {
+  "scan:15": 1092268,
+  "scan_dh:15": 69,
+  "scan_ext:15": 700612
+ },
+ "public_not_view_of_private": [],
+ "names_declared_in_several_modules": 9897,
+ "imports_not_scanned": {
+  "Cli.Basic": 1
+ },
+ "import_all_edges": 363,
+ "import_all_examples": [
+  [
+   "Development.AbelianVarietyTheory.Proofs.FlagMeasures.LintegralProductExpChartAllRealPlacesLe",
+   "Mathlib.MeasureTheory.Constructions.Pi"
+  ],
+  [
+   "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ExistsExtendedColumnDataAllClausesButPlacesStatement",
+   "Mathlib.RingTheory.DedekindDomain.AdicValuation.Valuation"
+  ],
+  [
+   "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.LeviSmoothLocalization.PrincipalSeriesMatching.MatchIndX",
+   "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.LeviSmoothLocalization.PrincipalSeriesMatching.MatchBCX"
+  ],
+  [
+   "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.LeviSmoothLocalization.PrincipalSeriesMatching.MatchIndX",
+   "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.GammaLaurentFactors.LocalEmbeddingNorms.MatchIndOf"
+  ],
+  [
+   "Development.AutomorphicArithmetic.Foundations.Convolution.BlockHeckeSlices.CuspidalNormBounds.RepOps",
+   "Development.AutomorphicArithmetic.Foundations.Convolution.CentreSplitting.TsphVec"
+  ],
+  [
+   "ReciprocityTheory.NeutralLocalFields.LocalFieldComparison.ExistsPrimeAbsNormOfHasDirichletDensity",
+   "Mathlib.NumberTheory.NumberField.DirichletDensity"
+  ],
+  [
+   "ReciprocityTheory.ReductiveGroups.DiscreteSeries.ExceptionalGroupG2.RigidityG2.ClosGenStable",
+   "ReciprocityTheory.ReductiveGroups.DiscreteSeries.RigidityTheorems.ClosGenStable"
+  ],
+  [
+   "ReciprocityTheory.ReductiveGroups.DiscreteSeries.ExceptionalGroupG2.RigidityG2.RorthFunctionalEqZero",
+   "ReciprocityTheory.ReductiveGroups.DiscreteSeries.RigidityTheorems.RorthFunctionalEqZero"
+  ],
+  [
+   "Batteries.Tactic.Lint.Simp",
+   "Lean.Meta.Tactic.Simp.SimpTheorems"
+  ],
+  [
+   "Batteries.Control.LawfulMonadState",
+   "Init.Control.StateRef"
+  ],
+  [
+   "Batteries.Control.OptionT",
+   "Init.Control.Option"
+  ],
+  [
+   "Batteries.Control.AlternativeMonad",
+   "Init.Control.Option"
+  ],
+  [
+   "Batteries.Control.AlternativeMonad",
+   "Init.Control.State"
+  ],
+  [
+   "Batteries.Control.AlternativeMonad",
+   "Init.Control.Reader"
+  ],
+  [
+   "Batteries.Control.AlternativeMonad",
+   "Init.Control.StateRef"
+  ],
+  [
+   "Batteries.Control.Lemmas",
+   "Init.Control.Reader"
+  ],
+  [
+   "Batteries.Control.Lemmas",
+   "Init.Control.State"
+  ],
+  [
+   "Batteries.Data.OrderedAssocList",
+   "Batteries.Data.AssocList"
+  ],
+  [
+   "Batteries.Data.ByteSlice",
+   "Std.Data.ByteSlice"
+  ],
+  [
+   "Batteries.Data.String.Lemmas",
+   "Init.Data.String.Defs"
+  ]
+ ],
+ "import_cycles": [],
+ "topological_order_violations": 0,
+ "axioms_declared_anywhere": 91,
+ "axioms_declared_by_tag": {
+  "scan_ext": 91
+ },
+ "roots": {
+  "riemannHypothesis": {
+   "found": true,
+   "declared_in": [
+    "Main"
+   ],
+   "import_closure_modules": 70913,
+   "import_closure_by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190
+   },
+   "reachable_names": 1396745,
+   "reachable_declarations": 1410928,
+   "reachable_flagged_examples": [],
+   "axiom_chains": {},
+   "reachable_by_kind": {
+    "theorem": 1185834,
+    "definition": 207956,
+    "inductive": 7891,
+    "constructor": 8265,
+    "recursor": 973,
+    "axiom": 3,
+    "quot": 4,
+    "opaque": 2
+   },
+   "reachable_by_tag": {
+    "scan": 1194484,
+    "scan_ext": 216444
+   },
+   "reachable_modules": 64306,
+   "reachable_unsafe_or_partial": {},
+   "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "referenced_but_declared_nowhere": [],
+   "referenced_but_declared_nowhere_count": 0
+  },
+  "DensityHypothesis.density_hypothesis_zeta_zeros": {
+   "found": true,
+   "declared_in": [
+    "DensityHypothesis.Unconditional"
+   ],
+   "import_closure_modules": 70917,
+   "import_closure_by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190,
+    "scan_dh": 4
+   },
+   "reachable_names": 1396824,
+   "reachable_declarations": 1411007,
+   "reachable_flagged_examples": [],
+   "axiom_chains": {},
+   "reachable_by_kind": {
+    "theorem": 1185904,
+    "definition": 207965,
+    "inductive": 7891,
+    "constructor": 8265,
+    "recursor": 973,
+    "axiom": 3,
+    "quot": 4,
+    "opaque": 2
+   },
+   "reachable_by_tag": {
+    "scan": 1194484,
+    "scan_ext": 216464,
+    "scan_dh": 59
+   },
+   "reachable_modules": 64311,
+   "reachable_unsafe_or_partial": {},
+   "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "referenced_but_declared_nowhere": [],
+   "referenced_but_declared_nowhere_count": 0
+  },
+  "DensityHypothesis.guth_maynard_zero_density": {
+   "found": true,
+   "declared_in": [
+    "DensityHypothesis.Unconditional"
+   ],
+   "import_closure_modules": 70917,
+   "import_closure_by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190,
+    "scan_dh": 4
+   },
+   "reachable_names": 1396825,
+   "reachable_declarations": 1411008,
+   "reachable_flagged_examples": [],
+   "axiom_chains": {},
+   "reachable_by_kind": {
+    "theorem": 1185905,
+    "definition": 207965,
+    "inductive": 7891,
+    "constructor": 8265,
+    "recursor": 973,
+    "axiom": 3,
+    "quot": 4,
+    "opaque": 2
+   },
+   "reachable_by_tag": {
+    "scan": 1194484,
+    "scan_ext": 216464,
+    "scan_dh": 60
+   },
+   "reachable_modules": 64311,
+   "reachable_unsafe_or_partial": {},
+   "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "referenced_but_declared_nowhere": [],
+   "referenced_but_declared_nowhere_count": 0
+  },
+  "DensityHypothesis.zetaZeroCount_half_le_mul_log": {
+   "found": true,
+   "declared_in": [
+    "DensityHypothesis.Main"
+   ],
+   "import_closure_modules": 5749,
+   "import_closure_by_tag": {
+    "scan_ext": 5746,
+    "scan_dh": 3
+   },
+   "reachable_names": 62976,
+   "reachable_declarations": 63061,
+   "reachable_flagged_examples": [],
+   "axiom_chains": {},
+   "reachable_by_kind": {
+    "theorem": 49146,
+    "definition": 11521,
+    "constructor": 1138,
+    "inductive": 1035,
+    "recursor": 212,
+    "axiom": 3,
+    "quot": 4,
+    "opaque": 2
+   },
+   "reachable_by_tag": {
+    "scan_ext": 63004,
+    "scan_dh": 57
+   },
+   "reachable_modules": 2036,
+   "reachable_unsafe_or_partial": {},
+   "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "referenced_but_declared_nowhere": [],
+   "referenced_but_declared_nowhere_count": 0
+  }
+ },
+ "references_to_undeclared_names": 42,
+ "references_to_later_modules": 0,
+ "references_to_later_modules_examples": [],
+ "closures": {
+  "riemannHypothesis": {
+   "declared_in": [
+    "Main"
+   ],
+   "modules": 70913,
+   "by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190
+   },
+   "cross_tag_direct_imports": {
+    "scan": 2844
+   }
+  },
+  "DensityHypothesis.density_hypothesis_zeta_zeros": {
+   "declared_in": [
+    "DensityHypothesis.Unconditional"
+   ],
+   "modules": 70917,
+   "by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190,
+    "scan_dh": 4
+   },
+   "cross_tag_direct_imports": {
+    "scan": 2844,
+    "scan_dh": 15
+   }
+  },
+  "DensityHypothesis.guth_maynard_zero_density": {
+   "declared_in": [
+    "DensityHypothesis.Unconditional"
+   ],
+   "modules": 70917,
+   "by_tag": {
+    "scan": 59723,
+    "scan_ext": 11190,
+    "scan_dh": 4
+   },
+   "cross_tag_direct_imports": {
+    "scan": 2844,
+    "scan_dh": 15
+   }
+  },
+  "DensityHypothesis.zetaZeroCount_half_le_mul_log": {
+   "declared_in": [
+    "DensityHypothesis.Main"
+   ],
+   "modules": 5749,
+   "by_tag": {
+    "scan_ext": 5746,
+    "scan_dh": 3
+   },
+   "cross_tag_direct_imports": {
+    "scan_dh": 14
+   }
+  }
+ },
+ "import_all_targets_by_tag_pair": {
+  "scan->scan_ext": 3,
+  "scan->scan": 5,
+  "scan_ext->scan_ext": 355
+ },
+ "import_all_distinct_targets_by_tag": {
+  "scan_ext": 175,
+  "scan": 5
+ },
+ "seconds": 81
+}

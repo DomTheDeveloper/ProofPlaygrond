@@ -1,0 +1,5 @@
+f83d7058690be507cf67f56396acabb18662fbdb9f5fca18d5bead1d4bfc9d9b  challenge.export
+ca71719b86c1c252736d69cd464814e85b337777306ffb280372fc8d6366cfc3  solution.export
+361694404 challenge.export
+461092149 solution.export
+822786553 total
