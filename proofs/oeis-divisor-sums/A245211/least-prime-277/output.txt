@@ -1,0 +1,2 @@
+277 10173 57622 [] 10173 []
+198,244 exponent patterns through least prime 277; sole fixed point 21.
