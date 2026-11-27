@@ -1,0 +1,2 @@
+449 24267 115939 [] 24267 []
+679,658 ordered exponent patterns through least prime 449. The sole fixed point is 21.
