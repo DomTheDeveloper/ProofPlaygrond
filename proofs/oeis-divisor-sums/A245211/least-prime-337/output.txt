@@ -1,0 +1,2 @@
+337 14899 10 [] 14899 []
+310,577 exponent patterns through least prime 337; sole fixed point 21.
