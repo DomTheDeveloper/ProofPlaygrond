@@ -1,0 +1,124 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[letterpaper,left=.88in,right=.88in,top=.83in,bottom=.80in,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,booktabs,tabularx,microtype,xcolor,fancyhdr}
+\usepackage[colorlinks=true,urlcolor=teal!63!black,linkcolor=teal!63!black]{hyperref}
+\definecolor{ink}{HTML}{163643}\definecolor{accent}{HTML}{116B66}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{ink}INTEGER FACTORIZATION}
+\fancyhead[R]{\small\sffamily\color{ink}RESEARCH NOTE\enspace/\enspace NOVEMBER 2026}
+\fancyfoot[L]{\small\sffamily\color{ink}Divisor-sum bits of balanced semiprimes}
+\fancyfoot[R]{\small\sffamily\color{ink}\thepage}
+\renewcommand{\headrulewidth}{.4pt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}\setlength{\emergencystretch}{2em}
+\newcommand{\sect}[1]{{\large\sffamily\bfseries\color{ink}#1}\par}
+\newcommand{\subh}[1]{{\sffamily\bfseries\color{accent}#1}\par}
+\newcommand{\F}{\mathbb F}\newcommand{\Z}{\mathbb Z}
+\newcommand{\bits}{\operatorname{bits}}
+\newcommand{\rs}[1]{\textup{[#1]}}
+\newcommand{\src}[3]{\par\hangindent=1.8em\hangafter=1\noindent\makebox[1.8em][l]{\textsf{#1}}#2\enspace\href{#3}{\scriptsize\sffamily SOURCE}\par}
+\hypersetup{pdftitle={Recovering divisor-sum bits of balanced semiprimes}}
+\begin{document}
+\smallskip
+{\huge\bfseries\color{ink}Recovering divisor-sum bits\\[2pt]of balanced semiprimes\par}
+\vspace{4pt}
+{\large\sffamily\color{accent}Two exact recoveries and the limits of three classical searches\par}
+\vspace{9pt}
+A short block of bits of the divisor sum can identify both primes in a balanced semiprime. The difficult step is to obtain those bits from the integer. We recover two such blocks with no oracle input. A bounded elliptic-curve search succeeds on a 128-bit example. A weighted difference of squares succeeds on a 212-bit example missed by every curve in the same schedule. A separate 211-bit example defeats both searches. The inputs are synthetic and the two successful methods are classical \rs{1--3}.
+
+\subh{Searches run on the integer alone}
+\begin{tabularx}{\linewidth}{@{}l l l X@{}}
+\toprule
+\textbf{Input} & \textbf{Weighted squares} & \textbf{Elliptic curves} & \textbf{Recovered word}\\
+\midrule
+128 bits & Exhausted & Seed 19 & 48 bits, from index 0\\
+212 bits & Multiplier 63 & Exhausted & 88 bits, from index 2\\
+211 bits & Exhausted & Exhausted & No word recovered\\
+\bottomrule
+\end{tabularx}
+
+Let $b=\bits(N)=\lfloor\log_2 N\rfloor+1$, let $\sigma$ sum the positive divisors, and set
+\[
+ B(z)=\left\lfloor 2^{\lfloor\bits(z)/2\rfloor}\frac{\sigma(z)}{z}\right\rfloor\bmod 2,
+ \qquad z_i=2^{5b+2i}N .
+\]
+The earlier decoder chooses an index and a width from $N$, with $b^2$ candidate intervals. We use precisely those choices. Once a search splits $N=pq$, multiplicativity gives $\sigma(z_i)=(2^{5b+2i+1}-1)(p+1)(q+1)$. Reading $B(z_i)$ in increasing index order gives the following hexadecimal words, with four bits per digit.
+\[
+\begin{array}{rl}
+128\text{-bit input}&\texttt{3587e5c0f45b}\\
+212\text{-bit input}&\texttt{955b707abcaa6d41816c10}.
+\end{array}
+\]
+The independent midpoint decoder returns the original factors in each case. The companion Lean development certifies the prime factors of the three inputs and the two word values for the original divisor-sum definition. The asymptotic results on later pages have mathematical proofs in this note.
+
+\subh{What would settle the question}
+A general factoring algorithm must find a proper divisor for every composite input within a fixed polynomial in $b$. The two schedules have polynomial bit cost. Their success depends on the input. Pages 4--5 identify an obstruction for a family of order tests on one fixed elliptic curve. Page 6 gives the exact cost in samples of a four-square collision method.
+\newpage
+
+\sect{1.\quad Two ways to obtain the bits}
+\subh{Elliptic curves}
+The first input is $N_1=199604481618592988980642015258549902581$. Use the Suyama parametrization in Montgomery coordinates \rs{1,2}. For each seed $s=6,\ldots,b+5$, set $u=s^2-5$, $v=4s$, $P=(u^3:v^3)$ and
+\[
+ A_{24}=(v-u)^3(3u+v)/(16u^3v) \pmod{N}.
+\]
+Test the denominator and $A_{24}(A_{24}-1)$ by gcd. Multiply $P$ by the largest power of each prime at most $b^2$, in increasing prime order, checking the projective $Z$ after each multiplication. The accumulated scalar is $\operatorname{lcm}(1,\ldots,b^2)$. For the second stage take $D=2\max(1,\lfloor\sqrt{b^3}/2\rfloor)$. For each prime $b^2<\ell\le b^3$, choose the nearest integer $j$ to $\ell/D$ (round ties up) and $r=|\ell-jD|$. Compare the $x$-coordinates of $[jD]Q$ and $[r]Q$ by cross multiplication, where $Q$ is the first-stage point.
+
+For $N_1$, $s=19$ gives $D=1448$, $j=143$, $r=665$, and $\ell=206399$. The two projective $x$-coordinates agree modulo exactly one factor. The reduced cross product and its gcd give the following certificate.
+\[
+\begin{aligned}
+ c&=175950992768636282823936990212460475462,\\
+ \gcd(c,N_1)&=13326496357100595419,\\
+ N_1/\gcd(c,N_1)&=14978016447079141999 .
+\end{aligned}
+\]
+Multiplying $Q$ directly by $206399$ gives a $Z$-coordinate with the same proper gcd. Multiplication by $207729=jD+r$ gives a unit $Z$. All steps preceding the gcd use $N_1$ alone.
+
+There are $b$ seeds and at most $b^3$ prime trials per seed. Each scalar explicitly passed to the Montgomery ladder has $O(\log b)$ bits, and each ladder step uses a constant number of operations modulo $N$. Sieving, gcds and screening therefore cost a polynomial in $b$ even when the entire schedule is exhausted.
+
+\subh{Weighted differences of squares}
+For $1\le k\le b^2$, start at $L_k=\lceil2\sqrt{kN}\rceil$ and test $A=L_k+j$ for every $0\le j\le\lfloor b^2/k\rfloor$. If $A^2-4kN=y^2$, test $\gcd((A-y)/2,N)$. The two numbers $A$ and $y$ have the same parity. This bounded form of the classical multiplier method uses $O(b^2\log b)$ square roots of $O(b)$-bit integers \rs{3}.
+
+For the 212-bit input the first successful multiplier is $63$. Its first candidate satisfies
+\[
+ A=1022233444024044189366941464816376,\qquad A^2-4\cdot63N_2=698^2 .
+\]
+Gcd and division recover
+\[
+\begin{aligned}
+ p_2&=56790746890224677187052303600871,\\
+ q_2&=73016674573146013526210104629791 .
+\end{aligned}
+\]
+Here $7q_2-9p_2=698$. The search received neither 63 nor the ratio. The test input used primes near $0.7\cdot 2^{106}$ and $0.9\cdot 2^{106}$, which explains its favorable ratio.
+\newpage
+
+\sect{2.\quad When a small multiplier or a point count suffices}
+\subh{Range of the multiplier method}
+Suppose $N=pq$ and $k=uv$. The relevant difference is
+\[
+ (up+vq)-2\sqrt{kN}=\frac{(up-vq)^2}{up+vq+2\sqrt{kN}} .
+\]
+If $1\le k\le b^2$ and $0\le up+vq-L_k\le\lfloor b^2/k\rfloor$, the search tests $A=up+vq$. If $p,q>k$, the half-difference $(A-|up-vq|)/2$ yields a proper gcd.
+
+Conversely, consider primes $p,q\in[X,2X]$, let $L=\lceil\log_2(2X)\rceil$, and allow any multipliers and offsets bounded by $L^C$ for fixed $C>0$. Every success produces two positive integers $(A-y)/2,(A+y)/2$ with product $kN$. For sufficiently large $X$, $p,q>k$. A proper gcd forces the two integers to be $up,vq$ in some order with $uv=k$. Since $A\le2\sqrt{kN}+1+L^C$,
+\[
+ |up-vq|^2=A^2-4kN=O_C(XL^{2C+2}).
+\]
+For each $p$ and $u,v\le L^C$ this leaves $O_C(\sqrt X\,L^{C+1})$ integer values of $q$. Summing over $u,v$ and dividing by the $\asymp X/L$ primes in the interval gives a success fraction $O_C(X^{-1/2}L^{3C+2})$. This bound concerns precisely square tests within those ranges. Lehman's full algorithm uses larger multipliers.
+
+\subh{An input missed by both searches}
+For the independently generated 211-bit semiprime
+\[
+ N_3=2326981664014727582718789409779272096176399345327619480698638841
+\]
+every one of the 527,954 square tests and all 211 curve seeds completed without a proper gcd. Its prime factors are $42678434690689936321894022265043$ and $54523594430756986474678777350787$. Their primality and product certify that $N_3$ meets the input promise. The computation refutes completeness for the stated combination of schedules.
+
+\subh{A fixed curve whose order is the desired divisor sum}
+Suppose now that $p,q$ are distinct primes congruent to $3\bmod4$ and $E$ is $y^2=x^3-x$. For $\ell\in\{p,q\}$ write $\chi$ for the quadratic character modulo $\ell$, with $\chi(0)=0$. The summands for $x$ and $-x$ in $\sum_x\chi(x^3-x)$ cancel because $\chi(-1)=-1$. Thus $E$ has exactly $\ell$ affine points and $\ell+1$ projective points. The Chinese remainder theorem gives
+\[
+ \#E_{\rm aff}(\Z/N\Z)=N,\qquad
+ \#E(\Z/N\Z)=(p+1)(q+1)=\sigma(N).
+\]
+The projective point set is $E(\F_p)\times E(\F_q)$. Outside the affine chart are the common point at infinity and $p+q$ points infinite in just one component. For any such mixed point, a primitive projective representative $(X:Y:Z)$ satisfies $1<\gcd(Z,N)<N$. An exact projective count $C$ also gives $s=C-N-1=p+q$ and hence the factors $(s\pm\sqrt{s^2-4N})/2$. The trace-zero affine count is recorded explicitly in the point-count literature \rs{4}. The mixed points account for all the information missing from that count.
+\newpage
+\input{OrdersAndSamples}
+\input{Evidence}

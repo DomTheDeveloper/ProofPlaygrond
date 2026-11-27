@@ -1,0 +1,17 @@
+Lean 4.33.1 kernel audit
+
+'OrderWitness.second_transcript' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OrderWitness.third_factorization' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OrderWitness.actual_transcript' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OrderWitness.gcd_witness' does not depend on any axioms
+'OrderWitness.second_factorization' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+Search replay on the three supplied integers
+
+128 multipliers exhausted
+128 curves split
+212 multipliers split
+212 curves exhausted
+211 multipliers exhausted
+211 curves exhausted
+Verified gcds, both divisor-sum words, both decodings, and finite point counts.

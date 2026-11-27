@@ -1,0 +1,65 @@
+\sect{3.\quad A restriction on order tests for the fixed curve}
+Keep $E:y^2=x^3-x$. For any $x\in\F_\ell$ and $\ell\equiv3\bmod4$ prime, take a point $P_\ell$ with that $x$-coordinate on $E$ over an algebraic closure. The two choices of sign have the same order. This order divides $\ell+1$. Indeed, either the point is rational or it corresponds to a rational point of the nonsquare quadratic twist. The twist has the same trace zero by the character sum on page 3. This argument allows arbitrary starting $x$-coordinates.
+
+\subh{Theorem}
+Fix $k>0$. At each scale $X$, fix two lists of integer polynomials $h$ and $f$, each of length at most $L^k$, where $L=\lceil\log_2(2X)\rceil$. Each polynomial has degree at most $L^k$ and coefficients of bit length at most $L^k$. The lists may depend on $X$. Write $T=\lfloor\sqrt{pq}\rfloor$. Choose a start $x=h(T)$ and any positive exponent $e$ whose prime divisors are at most $L^k$ or divide some nonzero value $f(pq)$ or $f(T)$ from the list. The choices of $h$ and $e$ may depend on the input.
+
+For every fixed $s>0$, apart from an $O_{k,s}(L^{-s})$ fraction of ordered pairs of distinct primes $p,q\in[X,2X]$, both $3\bmod4$, the following equivalence holds simultaneously for every permitted $h,e$:
+\[
+        [e]P_p=O \quad\Longleftrightarrow\quad [e]P_q=O .
+\]
+A test that splits by killing exactly one component has negligible coverage in this model. The exponent may be arbitrarily large. Taking $f(t)=t-1$ or $t+1$ permits all prime factors of $N\pm1$. Input-dependent curves with varying $j$-invariant, unrestricted starting-point circuits, and other ways of extracting gcds fall outside the statement.
+
+The theorem also controls two-stage comparisons on this fixed curve. If $a>b>0$, equality of the projective $x$-coordinates of $[aM]P$ and $[bM]P$ means that $[M(a-b)]P=O$ or $[M(a+b)]P=O$. When $M$ has allowed prime support and $a+b$ is bounded by a fixed power of $L$, both tests fit the theorem after increasing $k$ if necessary. The run in section 1 varies the curve itself. Its 211-bit counterexample was obtained by direct computation.
+
+\subh{Proof, part I. Prime factors allowed in the exponent}
+Put $K=2k+s+8$, $B=L^K$ and $Y=X^{1/10}$. The $B$-smooth part of an integer is the product of all its prime powers with base at most $B$. For almost all eligible $p$, the $B$-smooth part of $p+1$ is less than $Y$. Indeed, if it reaches $Y$, multiply the individual prime factors, with multiplicity, up to the first crossing. The resulting divisor $w$ lies in $[Y,BY]$. For each $w$, at most $X/w+1\le2X/w$ integers in the interval are $-1\bmod w$, for large enough $X$. For $\delta=1/(2(K+1))$,
+\[
+ \sum_{\substack{w\ge Y\\w\ B\text{-smooth}}}\frac1w
+ \le Y^{-\delta}\prod_{\substack{\ell\le B\\\ell\ {\rm prime}}}(1-\ell^{-1+\delta})^{-1}
+ \le Y^{-\delta}\exp(O_\delta(B^\delta)).
+\]
+The last estimate follows by summing $O_\delta(m^{-1+\delta})$ up to $B$. Since $B^\delta=o(\log X)$, the exceptional integer count is $X^{1-\delta/10+o(1)}$. The prime number theorem in the progression $3\bmod4$ gives $\asymp X/L$ eligible primes. This error is smaller than every fixed inverse power of $L$ as a fraction of those primes. Smooth parts of shifted primes are also studied in \rs{5}.
+\newpage
+\sect{4.\quad Finishing the order-test proof}
+\subh{Large primes from polynomial values}
+Discard identically zero $f$ and omit zero evaluations. The contents of all remaining $f$ have $O(L^{2k})$ distinct prime divisors in total, by their bit lengths. For each such prime $\ell>B$, discard $p\equiv-1\bmod\ell$. This costs at most $O(L^{2k}(X/B+1))$ integers $p$. For each remaining $p$, there are $O(L)$ distinct prime divisors of $p+1$. At any such $\ell>B$, every listed $f$ reduces to a nonzero polynomial. Since $p$ is a unit modulo $\ell$, the condition $\ell\mid f(pq)$ restricts $q$ to at most $\deg f$ residues. For $\ell\mid f(T)$ use the same count for $T\in[X,2X]$. For fixed $p,T$, the inequalities $T^2\le pq<(T+1)^2$ allow at most five integer $q$ for large $X$. At most $O(L^{2k+1}(X/B+1))$ values of $q$ are lost per $p$. Remove the symmetric exceptional pairs. Dividing by the prime counts gives an exceptional fraction $O_{k,s}(L^{-s})$.
+
+On the surviving pairs, an order dividing $e$ and $p+1$ is $B$-smooth and less than $Y$. It remains to transfer any such short order from $p$ to $q$.
+
+\subh{Short orders transfer between the primes}
+For $1\le r<Y$ let $D_r(U)\in\Z[U]$ vanish exactly on the finite $x$-coordinates of $r$-torsion in odd characteristic $\ell>r$. To construct it, write the standard division polynomial $\psi_r$ \rs{6} as $F_r$ for odd $r$ and $2yF_r$ for even $r$. Take $D_r=F_r$ for odd $r$ and $D_r=(U^3-U)F_r$ for even $r$, including the two-torsion. Both degree and $\log(1+\|D_r\|_1)$ are $O(r^4)$, where the norm sums absolute coefficients. In fact the recurrences at index $r$ use differences of products of at most four $F_i$ with $i\le\lfloor r/2\rfloor+2$. For odd indices one product may have the extra factor $16(U^3-U)^2$. For even indices the normalized recurrence is
+\[
+ F_{2m}=F_m(F_{m+2}F_{m-1}^2-F_{m-2}F_{m+1}^2).
+\]
+Each size measure up to $r$ is therefore at most four times the maximum at $\lfloor r/2\rfloor+2$, plus a constant. For $r\ge16$ this index is at most $5r/8$. Since $4(5/8)^4<1$, induction gives the stated bound.
+
+For each $h,r$ such that $D_r(h(t))$ is nonzero as an integer polynomial, select one nonzero coefficient. Across these polynomials the sum of degrees and of selected coefficient bit lengths is $O(Y^5 L^{O_k(1)})=X^{1/2+o(1)}$ by composition and the coefficient norm bound. Exclude primes dividing any selected coefficient. For remaining $p$, each polynomial has at most its degree many roots modulo $p$. Each root accounts for at most three possible $T$ in the interval and at most five $q$ per $T$. Discard these pairs in both orders. Their relative proportion is $X^{-1/2+o(1)}$.
+
+If $[e]P_p=O$, its order $r$ divides $e$ and is less than $Y$. Now $D_r(h(T))=0\bmod p$ forces $D_r(h(t))$ to vanish identically by the exclusions. It vanishes modulo $q$ at $T$, giving $[r]P_q=O$ and hence $[e]P_q=O$. Interchanging $p,q$ proves the equivalence. \hfill$\square$
+\newpage
+\sect{5.\quad Four squares and independent samples}
+For distinct odd primes $p,q$, Jacobi's identity gives exactly $8(p+1)(q+1)$ signed, ordered four-square representations of $N=pq$ \rs{7}. Algorithms for producing one representation are classical \rs{8}. Suppose a perfect independent uniform sampler is available. Interpret each representation as an integral Hamilton quaternion. Compare two samples $\alpha,\beta$ by taking the gcd of $N$ and the four coordinates of $\beta\bar\alpha$.
+
+\subh{Exact success probability}
+For two independent samples,
+\[
+ \Pr(\text{proper gcd})=\frac{p+q}{(p+1)(q+1)} .
+\]
+The Hamilton algebra modulo an odd prime $\ell$ identifies with $M_2(\F_\ell)$, with norm equal to determinant and conjugation equal to adjugation. Explicitly take
+$i=\left(\begin{smallmatrix}0&1\\-1&0\end{smallmatrix}\right)$ and
+$j=\left(\begin{smallmatrix}u&v\\v&-u\end{smallmatrix}\right)$,
+where $u^2+v^2=-1$. Such $u,v$ exist because the squares and minus one minus the squares each occupy $(\ell+1)/2$ residues. The four matrices $1,i,j,ij$ form a basis and satisfy the quaternion relations. Related projective-line descriptions appear in \rs{9}.
+
+Each representation reduces to rank one at $p$ and $q$ since divisibility of all coordinates by $\ell$ would give $\ell^2\mid N$. At either prime, $\beta\bar\alpha=0$ precisely when the one-dimensional right kernels of $\alpha$ and $\beta$ coincide. If both kernels coincide, $\beta\bar\alpha/N$ is integral with norm one. Left multiplication by it takes $\alpha$ to $\beta$. Conversely left multiplication by any of the eight integral units preserves both kernels and acts freely. Thus unit orbits inject into $\mathbb P^1(\F_p)\times\mathbb P^1(\F_q)$. Jacobi's count gives exactly $(p+1)(q+1)$ orbits, so the injection is a bijection. A proper gcd means agreeing in exactly one coordinate. Counting the two possibilities gives the formula.
+
+\subh{Number of samples required}
+For $m$ independent samples and all pairwise tests, the union bound gives success probability at most $\binom m2(p+q)/((p+1)(q+1))$. A first-coordinate collision occurs with probability at least $1-\exp(-m(m-1)/(2(p+1)))$ for $m\le p+1$. Subtract at most $\binom m2/((p+1)(q+1))$ for any pair agreeing in both coordinates. These bounds give $\Theta(N^{1/4})$ samples for constant success probability on balanced inputs.
+
+An exact no-success probability is
+\[
+ \frac{\displaystyle\sum_{t=0}^{\min(m,p+1,q+1)}
+ {m\brace t}(p+1)_t(q+1)_t}{((p+1)(q+1))^m}.
+\]
+Here \({m\brace t}\) counts set partitions and $(a)_t$ is a falling factorial. With no proper gcd, the partitions induced by equal first and equal second coordinates must coincide. A partition with $t$ blocks has $(p+1)_t(q+1)_t$ coordinate assignments. The argument leaves open what a construction of correlated representations could achieve.
+\newpage
