@@ -1,0 +1,2 @@
+383 17735 2230707 [] 17735 []
+441,991 exponent patterns through least prime 383; sole fixed point 21.
