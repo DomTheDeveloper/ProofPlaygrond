@@ -2,7 +2,7 @@
 
 Dominic A. Dabish independently derived the split at the critical line. We located Steven Enamakel's earlier complete Lean proof afterward. This project develops a separate endpoint argument using a divisor-weighted summability theorem. Codex assisted with the formalization.
 
-For p = 1 + ε, let Sₚ be the sum of m(z) ‖z‖⁻ᵖ over the zeros of ξ, with multiplicity m(z). The project of Salvatore Mercuri and Bhavik Mehta proves that this sum converges. In the counting rectangle a zero has 0 < ‖z‖ ≤ 2T and its multiplicities for ζ and ξ agree. Consequently m(z) ≤ (2T)ᵖ m(z) ‖z‖⁻ᵖ. Sum over the finite rectangle and use positivity to bound the finite subsum by Sₚ. The constant 1 + 2ᵖ Sₚ works for every T ≥ 2. RH gives count zero when σ > 1/2.
+For p = 1 + ε, let Sₚ be the sum of m(z) ‖z‖⁻ᵖ over the zeros of ξ, with multiplicity m(z). Salvatore Mercuri’s summability theorem proves that this sum converges for every p > 1. In the counting rectangle a zero has 0 < ‖z‖ ≤ 2T and its multiplicities for ζ and ξ agree. Consequently m(z) ≤ (2T)ᵖ m(z) ‖z‖⁻ᵖ. Sum over the finite rectangle and use positivity to bound the finite subsum by Sₚ. The constant 1 + 2ᵖ Sₚ works for every T ≥ 2. RH gives count zero when σ > 1/2.
 
 The advantage is in the application. It uses one weighted sum at the requested exponent and a finite-subsum inequality. Enamakel builds a stronger counting library and applies its O(T log T) strip bound. The imported summability theorem itself uses a disk-count estimate. The underlying mathematical consequence and Enamakel's earlier formalization are established work.
 
