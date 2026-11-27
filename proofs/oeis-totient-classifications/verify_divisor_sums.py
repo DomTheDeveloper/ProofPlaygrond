@@ -17,16 +17,19 @@ def first_primes(count: int) -> list[int]:
 
 def cutoff(power: int) -> tuple[int, int]:
     # Necessity: n < (n/phi(n))**(power + 2). The proof is in README.md.
+    if power < 1:
+        raise ValueError('The power must be a positive integer')
     exponent = power + 2
+    excluded_rank = 2 * exponent - 1
     primorial = 1
     ratio = Fraction(1)
-    for rank, p in enumerate(first_primes(12), start=1):
+    for rank, p in enumerate(first_primes(excluded_rank), start=1):
         previous_ratio = ratio
         primorial *= p
         factor = Fraction(p, p - 1)
         ratio *= factor
-        if primorial >= ratio**exponent and p >= factor**exponent:
-            # Once reached, the same comparison holds at every greater rank.
+        if rank == excluded_rank or (primorial >= ratio**exponent and p >= factor**exponent):
+            # The factorial bound guarantees the last rank. The prime test can stop earlier.
             limit = previous_ratio**exponent
             return rank, (limit.numerator - 1) // limit.denominator
     raise ArithmeticError('No cutoff established')

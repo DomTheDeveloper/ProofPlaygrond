@@ -21,6 +21,14 @@ If $x$ were even, then $\varphi(x)\le x/2$ and $\varphi(x-1)\le 2(x-1)/3$, since
 
 Now $\varphi(x)\le x-1$, with equality exactly when $x$ is prime. Euler’s product gives $\varphi(x-1)\le (x-1)(1-1/2)(1-1/3)=(x-1)/3$. Equality here holds exactly when $x-1$ has no prime factor besides 2 and 3. The required sum is the sum of these two upper bounds, so both are equalities. Conversely, a prime of the stated form attains both bounds. This proves the equivalence.
 
+The file [Pierpont.lean](Pierpont.lean) proves this equivalence with Mathlib’s `Nat.totient` and `Nat.Prime`. Lean 4.33.1 accepted `Pierpont.characterization`. Its axiom report contains only `propext`, `Classical.choice`, and `Quot.sound`. The local Lake project pins the corresponding Mathlib revision. To reproduce the check, run the following from this directory.
+
+```sh
+lake update
+lake exe cache get
+lake env lean Pierpont.lean
+```
+
 ## Four divisor-sum classifications
 
 **Theorem.** For $r=1,2,3,4$, respectively, there are exactly $7,15,38,111$ positive integers satisfying $\sigma_r(n)>\varphi(n)^{r+1}$. The largest solutions are $30,60,420,2310$, respectively. In every case the solution set agrees term for term with the corresponding published list.
@@ -47,6 +55,16 @@ Let $p_i$ be the $i$-th prime, $P_k=\prod_{i=1}^k p_i$, and $Q_k=\prod_{i=1}^k p
 Put $e=r+2$. At the first excluded index $j$ in the table, $P_j\ge Q_j^e$ and $p_j\ge (p_j/(p_j-1))^e$. For every prime $p>p_j$, the second comparison also holds, because its left side increases and its right side decreases. Multiplying by these factors shows $P_k\ge Q_k^e$ for all $k\ge j$. A solution must therefore have $k<j$ and $n<Q_{j-1}^e$.
 
 All numerical comparisons use rational arithmetic. The successive values of $Q_k$ for $k=1$ through 6 are $2,3,15/4,35/8,77/16,1001/192$. For example, at $r=4$ the product of the first six primes is $30{,}030>(1001/192)^6$. No solution can have six or more distinct prime factors. Every possible solution satisfies $n<(77/16)^6$, hence $n\le12{,}422$.
+
+### A cutoff valid for every exponent
+
+The same method gives an explicit bound for every integer $r\ge1$. Put $e=r+2$ and $m=k+1$. Since $p_i\ge i+1$, we have $P_k\ge m!$ and $Q_k\le\prod_{i=1}^k(i+1)/i=m$. If $m\ge2e$, pair $j$ with $m+1-j$ for $1\le j\le e$. The pairs are disjoint, and each product is at least $m$ because $j(m+1-j)-m=(j-1)(m-j)\ge0$. Hence $P_k\ge m!\ge m^e\ge Q_k^e$, which excludes that $k$. For every solution, $k+1\le2e-1$ and therefore
+
+$$
+n<(2r+3)^{r+2}.
+$$
+
+This gives a finite search for any positive exponent using only integer arithmetic. The individual cutoffs above are much smaller.
 
 ### Why the three largest fourth-power solutions are 2310, 1680, and 1470
 
