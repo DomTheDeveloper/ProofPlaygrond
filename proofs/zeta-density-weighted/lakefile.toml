@@ -1,0 +1,17 @@
+name = "closedStripDensity"
+version = "1.0.0"
+defaultTargets = ["DensityHypothesis"]
+
+[[require]]
+name = "GRH"
+git = "https://github.com/lsernau/grh-lean"
+rev = "72fead102f663d5c7a407964a13dc0cf9d977207"
+subDir = "grh-compact"
+
+[[require]]
+name = "Zeta"
+git = "https://github.com/smmercuri/zeta"
+rev = "4704234df2d97563936adcaf0b89e2f8955389f9"
+
+[[lean_lib]]
+name = "DensityHypothesis"
