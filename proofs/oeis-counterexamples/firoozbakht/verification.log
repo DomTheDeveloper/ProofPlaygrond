@@ -1,0 +1,21 @@
+Run on 2026-11-24.
+DeepMind commit 9097e2f90e66d2f6244209cb1c07f7120d17ec53
+Built the 282 project modules in the target dependency graph from the pinned source.
+
+Pinned DeepMind problem file passed the byte-for-byte comparison.
+6d83877171fc32c8250da639615d6ae91deaf3bb25505c73530edcb3db7b5199  FormalConjectures/OEIS/86766.lean
+be7accd682caac54e79008e809487bdd2a3d939376ef1fe9f44c75f6a7cb7117  FiroozbakhtCounterexample.lean
+b7c47462f4b939eeb8190b74286be0330878b3236d290a47bf6cd031dddb21dd  CheckDeepMind.lean
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+Checking FiroozbakhtCounterexample.lean
+'A086766Certificate.refutes_conjecture2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A086766Certificate.refutes_revised_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
+FiroozbakhtCounterexample.lean exit 0
+Checking CheckDeepMind.lean
+'A086766Audit.same_sequence' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A086766Audit.upstream_value' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A086766Audit.negates_declared_type' depends on axioms: [propext, Classical.choice, Quot.sound]
+CheckDeepMind.lean exit 0
+replaying CheckDeepMind
+replaying FiroozbakhtCounterexample
+Lean kernel replay exit 0
