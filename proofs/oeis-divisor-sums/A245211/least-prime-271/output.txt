@@ -1,0 +1,2 @@
+271 9945 45 [] 9945 []
+188,071 exponent patterns through least prime 271; sole fixed point 21.
