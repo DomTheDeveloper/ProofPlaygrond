@@ -1,0 +1,2 @@
+311 12541 726547 [] 12541 []
+255,837 exponent patterns through least prime 311; sole fixed point 21.
