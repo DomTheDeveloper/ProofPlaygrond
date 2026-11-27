@@ -40,10 +40,8 @@ jobs:
       - name: Compile the unconditional four-prime theorem
         run: |
           set -euo pipefail
-          ulimit -s unlimited
           export LEAN_NUM_THREADS=3
-          lake build --fail-fast
-          lake env lean Hilliard.lean | tee "$RUNNER_TEMP/hilliard-axioms.txt"
+          bash check-cached.sh | tee "$RUNNER_TEMP/hilliard-axioms.txt"
           python - "$RUNNER_TEMP/hilliard-axioms.txt" <<'PY'
           from pathlib import Path
           import re, sys

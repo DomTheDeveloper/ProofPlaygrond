@@ -14,10 +14,18 @@ Chamberland and Straub’s theorem on primes between consecutive real powers als
 
 ## Build
 
-On Linux with Git and elan installed, run these commands from this directory.
+On Linux with Git, Python 3 and elan installed, run these commands from this directory.
 
 ```sh
 bash setup.sh
+bash check-cached.sh
+```
+
+The second command checks that the published RH modules correspond to the pinned RH source tree and toolchain. The upstream cache verifier checks the downloaded hashes. Lean then compiles Schoenfeld’s library, the cube-prime proof and the theorem that connects them. The final line prints the theorem’s axioms.
+
+To rebuild the compact RH proof from source after `bash setup.sh`, run the following commands in the same directory.
+
+```sh
 ulimit -s unlimited
 lake build
 lake env lean Hilliard.lean
