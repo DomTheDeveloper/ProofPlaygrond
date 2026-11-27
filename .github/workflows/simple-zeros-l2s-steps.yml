@@ -1,0 +1,85 @@
+name: Check simple-zero reduction steps
+on:
+  push:
+    branches: [verify-simple-zeros-l2s-steps]
+    paths: ['.github/workflows/simple-zeros-l2s-steps.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - name: Check out the upstream checker
+        uses: actions/checkout@v4
+        with:
+          repository: GuillaumeBAUD-coder/open-math-agents
+          ref: b9ceef03138564e41762133bc47d9577a8d17610
+          path: checker
+          persist-credentials: false
+
+      - name: Check out the catalog's Formal Conjectures revision
+        uses: actions/checkout@v4
+        with:
+          repository: google-deepmind/formal-conjectures
+          ref: 9097e2f90e66d2f6244209cb1c07f7120d17ec53
+          path: fc
+          persist-credentials: false
+
+      - name: Stage the exact parent and submission files
+        working-directory: checker
+        run: |
+          set -euo pipefail
+          test "$(jq -r '.meta.upstreamCommit' data/catalog.json)" = "$(git -C ../fc rev-parse HEAD)"
+          while read -r rev file blob; do
+            mkdir -p "$(dirname "$file")"
+            curl --fail --location --silent --show-error --retry 3 \
+              "https://raw.githubusercontent.com/DomTheDeveloper/open-math-agents/$rev/$file" -o "$file"
+            test "$(git hash-object "$file")" = "$blob"
+            echo "$rev  $file  $blob"
+          done <<'PINS'
+          9f0bfd5c607e67abf9bdf0f13c83b75ba725347d reductions/riemannZeta.simple_prop_lt.R1.lean ace1a6ec6a04e28f1c6810c8860746cf74d926c7
+          29e6fb55c50814d879111e140a0bce81256dfb05 proofs/riemannZeta.simple_prop_lt.R1.H2.lean e4b4157dc778db81be886e228e8df44246c1293e
+          a97128a3e7bd1c5063743ff5f1f5cbd629b8598c reductions/riemannZeta.simple_prop_lt.R1.H1.R1.lean ea4b158fa2303afe93e966422282dd929aa31e02
+          PINS
+
+      - name: Install pinned Lean and fetch Mathlib's cache
+        id: setup
+        working-directory: fc
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o "$RUNNER_TEMP/elan-init.sh"
+          sh "$RUNNER_TEMP/elan-init.sh" -y --default-toolchain none --no-modify-path
+          export PATH="$HOME/.elan/bin:$PATH"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          lake exe cache get || lake exe cache get
+
+      - name: Check the H2 proof
+        working-directory: checker
+        run: |
+          set -euo pipefail
+          rc=0
+          OMA_FC="$GITHUB_WORKSPACE/fc" tools/check.sh proofs/riemannZeta.simple_prop_lt.R1.H2.lean h2-verdict.json || rc=$?
+          jq -r '.verdict, .reason, .log' h2-verdict.json
+          test "$rc" = 0 && jq -e '.verdict == "accepted"' h2-verdict.json
+
+      - name: Check the H1 reduction
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: checker
+        run: |
+          set -euo pipefail
+          rc=0
+          OMA_FC="$GITHUB_WORKSPACE/fc" tools/check.sh reductions/riemannZeta.simple_prop_lt.R1.H1.R1.lean h1-verdict.json || rc=$?
+          jq -r '.verdict, .reason, .log' h1-verdict.json
+          test "$rc" = 0 && jq -e '.verdict == "accepted"' h1-verdict.json
+
+      - name: Save both checker reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple-zero-step-verdicts
+          path: checker/*-verdict.json
+          if-no-files-found: warn
