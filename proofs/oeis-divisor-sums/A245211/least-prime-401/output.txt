@@ -1,0 +1,2 @@
+401 20065 244 [] 20065 []
+500,622 exponent patterns through least prime 401; sole fixed point 21.
