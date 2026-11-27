@@ -1,0 +1,50 @@
+name: Verify Yanev divisor identities
+
+on:
+  pull_request:
+    paths:
+      - 'proofs/yanev-divisor-identities/**'
+      - '.github/workflows/yanev-divisor-identities.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'proofs/yanev-divisor-identities/**'
+      - '.github/workflows/yanev-divisor-identities.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: leanprover-community/mathlib4
+          ref: 0df444a360eaa60ab8c11dca51a86af692955474
+          path: mathlib
+      - name: Install elan
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Prepare the imported Mathlib modules
+        working-directory: mathlib
+        run: |
+          lake exe cache get Mathlib.Data.Nat.Factorization.Basic Mathlib.Algebra.BigOperators.Group.Finset.Basic Mathlib.Data.Nat.Factorization.Root Mathlib.NumberTheory.ArithmeticFunction.Misc Mathlib.Data.Nat.Totient Mathlib.Tactic.Ring Mathlib.Tactic.Linarith
+      - name: Check both proofs and audit their axioms
+        working-directory: mathlib
+        shell: bash
+        run: |
+          set -uo pipefail
+          failed=0
+          for proof in UnitaryPrimes SquareDivisors; do
+            lake env lean "$GITHUB_WORKSPACE/proofs/yanev-divisor-identities/$proof.lean" 2>&1 | tee "$RUNNER_TEMP/$proof.log" || failed=1
+            if grep -Eq 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler|declaration uses .sorry.' "$RUNNER_TEMP/$proof.log"; then
+              failed=1
+            fi
+          done
+          exit "$failed"
+      - name: Check both identities numerically
+        run: python3 proofs/yanev-divisor-identities/verify.py
