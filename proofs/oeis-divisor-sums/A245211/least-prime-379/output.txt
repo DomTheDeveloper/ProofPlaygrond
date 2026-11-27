@@ -1,0 +1,2 @@
+379 17637 15859 [] 17637 []
+424,256 exponent patterns through least prime 379; sole fixed point 21.
