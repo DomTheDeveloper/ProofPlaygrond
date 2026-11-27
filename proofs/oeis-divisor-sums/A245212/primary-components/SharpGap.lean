@@ -36,7 +36,38 @@ theorem attained :
     primeThrough256 251 = true ∧
       6400 * (3 * 5 * 17 * 251 : Nat) = 12801 * (2 * 4 * 16 * 250) := by decide
 
+/-- The local weighted divisor sum at a prime power of exponent e. -/
+def weighted (p : Nat) : Nat → Nat
+  | 0 => 1
+  | e + 1 => weighted p e + (e + 2) * p ^ (e + 1)
+
+/-- The local weighted sum at any odd fourth power is odd. -/
+theorem fourth_power_odd (p : Nat) (hp : p % 2 = 1) (k : Nat) :
+    weighted p (4 * k) % 2 = 1 := by
+  have powmod (j : Nat) : p ^ j % 2 = 1 := by
+    induction j with
+    | zero => rfl
+    | succ j ih => rw [Nat.pow_succ, Nat.mul_mod, ih, hp]
+  have step (e : Nat) :
+      weighted p (e + 1) % 2 = (weighted p e + (e + 2)) % 2 := by
+    rw [weighted, Nat.add_mod, Nat.mul_mod, powmod, Nat.mul_one, Nat.mod_mod,
+      ← Nat.add_mod]
+  have split (e : Nat) : weighted p (e + 1) % 2 =
+      (weighted p e % 2 + (e + 2) % 2) % 2 :=
+    (step e).trans (Nat.add_mod _ _ _)
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    have h₁ : weighted p (4 * k + 1) % 2 = 1 := by
+      rw [split, ih, show (4 * k + 2) % 2 = 0 by omega]
+    have h₂ : weighted p (4 * k + 2) % 2 = 0 := by
+      rw [split (4 * k + 1), h₁, show (4 * k + 1 + 2) % 2 = 1 by omega]
+    have h₃ : weighted p (4 * k + 3) % 2 = 0 := by
+      rw [split (4 * k + 2), h₂, show (4 * k + 2 + 2) % 2 = 0 by omega]
+    rw [Nat.mul_succ, split (4 * k + 3), h₃, show (4 * k + 3 + 2) % 2 = 1 by omega]
+
 end A245212SharpGap
 
 #print axioms A245212SharpGap.finite_table
 #print axioms A245212SharpGap.attained
+#print axioms A245212SharpGap.fourth_power_odd

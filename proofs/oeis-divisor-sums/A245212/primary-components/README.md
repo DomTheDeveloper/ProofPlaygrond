@@ -45,6 +45,24 @@ At \(m=1\) the target 2 is absent because every product of odd primes has odd nu
 
 For the finite-list version, continue along every bounded component whenever 2 is absent. When \(k=0\), test \(m\) for equality and put successes on the first list. When \(k>0\) and 2 occurs, put \(m\) and its witness \(S\) on the second. Each extension uses a new prime and the depth is at most \(r\). Since \(S\) is coprime to \(m\), the displayed identity implies \(m\mid T(m)\). This proves the stated alternative without assuming the lists are empty.
 
+## Effective finiteness for odd fourth powers
+
+**Corollary.** Fix \(r\ge2\). There are effectively finitely many odd equality inputs with \(r\) distinct prime factors and no exponent congruent to 2 modulo 4. In particular the odd fourth-power equality inputs with \(r\) distinct prime factors form an effectively computable finite set, allowing all bases and exponents to vary. Outside a computable finite set, every odd equality at this rank has a bounded primary component \(p^e\) with \(e\equiv2\pmod4\).
+
+For the fourth-power case alone there is a short proof. Every product \(m\) of whole primary components of a fourth power is itself a fourth power. For odd \(p\), the sum \(T(p^{4j})=\sum_{i=0}^{4j}(i+1)p^i\) has \(2j+1\) odd terms, so it is odd. Consequently \(T(m)\prod_{s\in S}s\) is odd and cannot equal the even right side of the identity. Only the first finite list is possible. The Lean file also proves the local parity identity for every odd base and every exponent \(4j\).
+
+For the full corollary, the exact local valuation at odd \(p\) is
+\[
+ v_2(T(p^e))=v_2(e+1)+v_2(e+2)-1 .
+\]
+Here is one derivation. Expand \(p^j=(1+(p-1))^j\) in the defining sum. The coefficient of \((p-1)^t\) is \((t+1)\binom{e+2}{t+2}\) by the hockey-stick identity. After dividing by \(\binom{e+2}{2}\), the constant term is 1 and the term for each \(t\ge1\) is \(2\binom et(p-1)^t/(t+2)\). Its 2-adic valuation is positive since \(v_2(t+2)\le t\) for \(t\ge1\). The normalized sum is a 2-adic unit, which proves the formula. [Earlier local valuation proof](https://github.com/umaia1234/agentic-conjectures/blob/main/problems/oeis-a245211/DETAILS.md)
+
+For any \(m\) and \(S\) on the second list the identity now gives
+\[
+ \sum_{p^e\parallel m}\big(v_2(e+2)-1\big)=1+\sum_{s\in S}v_2(s-1)\ge1.
+\]
+At least one \(e\) on the left therefore satisfies \(4\mid e+2\). Since \(m\) is a unitary divisor, this is its full exponent in \(n\). The finitely many second-list cores supply a computable bound for this component across all their extensions. If \(n\) has no such exponent it must appear on the first list, where equality is tested exactly. A finite algorithm for the set does not determine its cardinality until the computation is performed.
+
 ## A sharp four-prime constant
 
 For a set of at most four distinct odd primes, the smallest value of \(F=\prod p/(p-1)\) strictly above 2 is \(12801/6400\), attained at \(\{3,5,17,251\}\).
@@ -68,6 +86,6 @@ python3 -I odd_support.py
 lean SharpGap.lean
 ~~~
 
-Lean's kernel checks the finite arithmetic table and attainment with no axioms. The coverage of the table, the formula for \(C(r)\), and the application to A245212 have written proofs above.
+Lean's kernel checks the finite arithmetic table and attainment with no axioms. The local fourth-power parity theorem uses only propositional extensionality and quotient soundness. The coverage of the table, the formula for \(C(r)\), and the finiteness corollary have written proofs above.
 
 Dominic Aziz Dabish (DomTheDeveloper). The use of compactness in finiteness questions for multiplicative arithmetic functions has classical precedents. Paul Pollack gives a compactness proof of Dickson's finiteness theorem for odd perfect numbers. The equality treated here uses a different divisor sum. [Pollack, *Finiteness theorems for perfect numbers and their kin*](https://www.pollack-math.net/dickson-fixed.pdf)
