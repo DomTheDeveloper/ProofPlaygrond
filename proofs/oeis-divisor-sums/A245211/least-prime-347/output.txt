@@ -1,0 +1,2 @@
+347 15175 1382533 [] 15175 []
+325,752 exponent patterns through least prime 347; sole fixed point 21.
