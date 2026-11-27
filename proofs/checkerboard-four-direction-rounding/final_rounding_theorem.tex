@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}[theorem]{Remark}
+\title{Asymptotic Integral Rounding for Checkerboard Packings\\in Finitely Many Directions}
+\author{Working proof draft -- authorship to be assigned}
+\date{15 July 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $I_4(n,\varepsilon)$ be the maximum size of a subset of one checkerboard parity class having at most two points on every row, column, and diagonal of slopes $\pm1$, and let $L_4(n,\varepsilon)$ be the corresponding fractional optimum. Combining an exact continuum primal certificate of value $\alpha=1.576823396873808\ldots$ with a bounded-rank hypergraph edge-colouring argument, we prove
+\[
+I_4(n,\varepsilon)=L_4(n,\varepsilon)-o(n)=\alpha n+o(n)
+\]
+in the odd-fat, odd-thin, and even symmetry types. More generally, any diffuse linear-size fractional packing involving a fixed finite set of line directions can be rounded with $o(n)$ loss. We also isolate why this does not solve the genuine no-three-in-line problem: the number of relevant directions grows with $n$, and independent rounding creates $\Theta(n\log n)$ collinear triples.
+\end{abstract}
+
+\section{Statement}
+Let
+\[
+C_\varepsilon=\{(x,y)\in\{0,\dots,n-1\}^2:x+y\equiv\varepsilon\pmod2\}.
+\]
+Let $I_4(n,\varepsilon)$ be the largest subset of $C_\varepsilon$ containing at most two points on every row, column, slope-$+1$ diagonal, and slope-$-1$ diagonal. Let $L_4(n,\varepsilon)$ be the corresponding fractional packing optimum. Put
+\[
+\alpha=1.576823396873808\ldots,
+\qquad
+401\alpha^3-1744\alpha^2+2240\alpha-768=0,
+\]
+where $\alpha$ is the middle real root.
+
+The companion exact continuum certificate and sampling argument establish
+\[
+L_4(n,\varepsilon)=\alpha n+o(n)
+\tag{1.1}
+\]
+in each of the three symmetry types. Our goal is to remove the fractional-to-integral gap.
+
+\begin{theorem}[Integral four-direction limit]
+In each of the odd-fat, odd-thin, and even symmetry types,
+\[
+I_4(n,\varepsilon)=L_4(n,\varepsilon)-o(n)=\alpha n+o(n).
+\]
+\end{theorem}
+
+\section{A diffuse capacitated matching theorem}
+We use the following bounded-rank form of Kahn's asymptotic hypergraph edge-colouring theorem \cite{Kahn1996}; a convenient modern statement says that for every fixed $k$ and $\epsilon>0$, there is $\delta>0$ such that every $k$-bounded hypergraph of maximum degree at most $D$ and maximum codegree at most $\delta D$ has chromatic index at most $(1+\epsilon)D$, once $D$ is sufficiently large.
+
+\begin{theorem}[Diffuse capacitated rounding]\label{thm:round}
+Fix integers $r,b,C$. Let $H_n=(V_n,E_n)$ be finite hypergraphs such that every edge has size at most $r$, every vertex $v$ has an integral capacity $1\le b_v\le b$, and every pair of distinct vertices belongs together to at most $C$ edges. Let $x=(x_e)_{e\in E_n}$ satisfy
+\[
+x_e\ge0,
+\qquad
+\sum_{e\ni v}x_e\le b_v.
+\]
+Suppose
+\[
+\eta_n:=\max_e x_e\to0,
+\qquad
+W_n:=\sum_e x_e=\Theta(s_n)
+\]
+for some $s_n\to\infty$. Then there is a set $M_n\subseteq E_n$ of distinct edges such that
+\[
+|M_n|\ge W_n-o(s_n),
+\qquad
+|\{e\in M_n:v\in e\}|\le b_v
+\]
+for every $v$.
+\end{theorem}
+
+\begin{proof}
+Choose $t_n\to\infty$ slowly enough that Kahn's theorem with rank $r+2$ and error $1/t_n$ applies whenever the codegree ratio is at most $C\eta_n+o(1)$. This follows by diagonalising the constants in Kahn's theorem, since $\eta_n\to0$.
+
+Choose an integer $N=N(n)\to\infty$ so large that $|E_n|/N=o(s_n)$ and the degree threshold in Kahn's theorem is met. Put $m_e=\lfloor Nx_e\rfloor$. Then
+\[
+\sum_e m_e\ge NW_n-|E_n|=NW_n-o(Ns_n).
+\tag{2.1}
+\]
+For every original vertex $v$, create $b_v$ clones. There are
+\[
+M_v:=\sum_{e\ni v}m_e\le Nb_v
+\]
+copy-incidences at $v$. Distribute them among the clones as evenly as possible. Every clone then has degree at most
+\[
+\left\lceil M_v/b_v\right\rceil\le N.
+\tag{2.2}
+\]
+For every original edge $e$, create an identity vertex $z_e$. For every copy $j\in\{1,\dots,m_e\}$, create a private dummy vertex $d_{e,j}$. The blown-up edge for $(e,j)$ consists of the assigned clone of each vertex of $e$, together with $z_e$ and $d_{e,j}$. This gives a simple hypergraph $\widetilde H_n$ of rank at most $r+2$.
+
+Constraint clones have degree at most $N$ by (2.2), identity vertices have degree $m_e\le N\eta_n$, and dummies have degree one. Hence $\Delta(\widetilde H_n)\le N$ eventually. Two constraint clones can occur together only in copies of original edges containing their underlying pair, so their codegree is at most $C\max_e m_e$. The same estimate holds for a constraint clone paired with an identity vertex, and all remaining nonzero pair-codegrees are at most one. Thus
+\[
+\Delta_2(\widetilde H_n)\le CN\eta_n+C+1=o(N).
+\tag{2.3}
+\]
+Kahn's theorem gives
+\[
+\chi'(\widetilde H_n)\le(1+o(1))N.
+\]
+Therefore one colour class, which is a matching, contains at least
+\[
+\frac{NW_n-o(Ns_n)}{(1+o(1))N}=W_n-o(s_n)
+\]
+blown-up edges. Project this matching to the original edges. Identity vertices make the projection injective, and the clone matching condition gives the capacities $b_v$.\qedhere
+\end{proof}
+
+\section{Diffuse checkerboard solutions}
+The exact continuum primal certificate admits the following smooth-interior approximation: for every $j$ there is a bounded $C^\infty$ density $\rho_j$, compactly supported in the interior of the continuum triangle, whose mass is at least $\alpha-1/j$ and whose two paired projection densities are bounded by four.
+
+For each fixed $j$, sampling $\rho_j$ on the odd-fat or odd-thin mesh, followed by a factor $1-o_j(1)$, gives a feasible reduced primal solution of value
+\[
+(\alpha-1/j)n-o_j(n).
+\]
+Every reduced point-orbit variable is $O_j(1/n)$. Unfold a point-orbit variable by dividing it equally among the points of its orbit. By symmetry all lines in a line orbit have equal load, and the reduced primal constraint is exactly the sum of the capacity-two constraints over that orbit. Hence the unfolded point-level solution is feasible. Because the support stays away from the boundary, all used point orbits have uniformly positive size, so the largest unfolded point mass is still $O_j(1/n)$.
+
+Taking $j=j(n)\to\infty$ sufficiently slowly gives point-level fractional solutions satisfying
+\[
+\sum_p x_p=\alpha n-o(n),
+\qquad
+\max_p x_p=o(1).
+\tag{3.1}
+\]
+For the even case, embed the odd-fat parity class of the $(2m-1)\times(2m-1)$ grid into a parity class of the $2m\times2m$ grid.
+
+\section{Proof of the main theorem}
+Construct the point-line incidence hypergraph whose vertices are rows, columns, and the two principal diagonal families, and whose edge for a point consists of its four incident lines. It has rank four. Two distinct line constraints lie together in at most one point-edge. Apply Theorem~\ref{thm:round} with $r=4$, $b=2$, $C=1$, $s_n=n$, and the diffuse fractional solution (3.1). This gives an integral four-direction packing of size $\alpha n-o(n)$. Together with (1.1),
+\[
+\alpha n-o(n)\le I_4(n,\varepsilon)\le L_4(n,\varepsilon)=\alpha n+o(n),
+\]
+which proves the theorem.
+
+\section{Fixed finite direction systems}
+\begin{corollary}
+Fix finitely many pairwise distinct line directions and fixed integral capacities. Every diffuse fractional packing of mass $W_n=\Theta(n)$ can be rounded to a distinct integral point set of size $W_n-o(n)$ preserving all prescribed line capacities.
+\end{corollary}
+\begin{proof}
+The point-line incidence hypergraph has fixed rank equal to the number of directions, and any two line constraints meet in at most one point. Apply Theorem~\ref{thm:round}.\qedhere
+\end{proof}
+
+\section{Why independent all-slope rounding fails}
+\begin{lemma}[Logarithmic triple exposure]
+Suppose point-selection probabilities are between $c/n$ and $C/n$ on the lattice points of a fixed open rectangle and at most $C/n$ everywhere. Independent rounding produces $\Theta(n\log n)$ collinear triples in expectation.
+\end{lemma}
+\begin{proof}
+Group primitive directions into dyadic shells $T\le\max(|a|,|b|)<2T$. Each shell contains $\Theta(T^2)$ primitive directions. For each such direction, $\Theta(nT)$ lines cross a fixed interior subrectangle in $\Theta(n/T)$ same-parity points. Hence each shell contains $\Theta(n^4)$ eligible collinear triples. Their selection probabilities are $\Theta(n^{-3})$, giving $\Theta(n)$ expected selected triples per shell. There are $\Theta(\log n)$ shells. The matching upper bound follows from the same direction-and-line count.\qedhere
+\end{proof}
+
+Thus the full no-three-in-line conjecture is not completed by independent rounding or by a naive deletion argument. The remaining problem is a genuinely growing-direction, multiscale conflict-avoidance theorem.
+
+\begin{thebibliography}{9}
+\bibitem{Kahn1996}
+J. Kahn,
+\emph{Asymptotically Good List-Colorings},
+J. Combin. Theory Ser. A 73 (1996), 1--59.
+
+\bibitem{PS1989}
+N. Pippenger and J. Spencer,
+\emph{Asymptotic Behavior of the Chromatic Index for Hypergraphs},
+J. Combin. Theory Ser. A 51 (1989), 24--42.
+
+\bibitem{Prellberg2026}
+T. Prellberg,
+\emph{No-three-in-line sets on the checkerboard grid},
+arXiv:2605.09215, 2026.
+\end{thebibliography}
+\end{document}
