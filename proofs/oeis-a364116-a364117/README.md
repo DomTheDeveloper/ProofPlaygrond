@@ -25,7 +25,7 @@ We will prove the following row statements for every integer $R\ge1$.
 1. If $p\ge5$ is prime and $m\ge1$, then $T(R,pm)\equiv T(R,m)\pmod{p^{3+v_p(R)}}$.
 2. For any odd prime $p$ and $k\ge1$, put $N=p^k$. If $p\ge5$ or $p\mid R$, then $T(R,N-1)\equiv1\pmod{p^{3+v_p(R)}}$. If $p=3$ and $3\nmid R$, then $T(R,N-1)\equiv19\pmod{27}$.
 
-The first statement supplies a uniform modulus at every dilation for a fixed row. The stronger $p^{3r}$ prediction for all fixed-row dilations in A364113 remains a separate question.
+The first statement supplies a uniform modulus at every dilation for a fixed row. A companion proof establishes the full $p^{3r}$ congruences for both fixed-row dilations in A364113. [Proof of both row congruences](Towers.md)
 
 ## 1. Two coefficient formulas
 
