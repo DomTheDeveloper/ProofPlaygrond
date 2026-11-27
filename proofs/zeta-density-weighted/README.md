@@ -1,6 +1,6 @@
 # Density of zeta zeros from a weighted sum
 
-@domthedeveloper independently wrote a Lean proof before discovering Steven Enamakel’s formalization. This version bounds the endpoint using a sum over zeros weighted by multiplicity. Codex assisted with cleanup and verification.
+@domthedeveloper independently proved the zeta density hypothesis and formalized the proof in Lean. Only afterward did @domthedeveloper discover Steven Enamakel’s earlier Lean proof. This version bounds the endpoint using a sum over zeros weighted by multiplicity. Codex assisted with cleanup and verification.
 
 For p = 1 + ε, let Sₚ be the sum of m(z) ‖z‖⁻ᵖ over the zeros of ξ, with multiplicity m(z). Salvatore Mercuri’s summability theorem proves that this sum converges for every p > 1. In the counting rectangle a zero has 0 < ‖z‖ ≤ 2T and its multiplicities for ζ and ξ agree. Consequently m(z) ≤ (2T)ᵖ m(z) ‖z‖⁻ᵖ. Sum over the finite rectangle and use positivity to bound the finite subsum by Sₚ. The constant 1 + 2ᵖ Sₚ works for every T ≥ 2. RH gives count zero when σ > 1/2.
 
