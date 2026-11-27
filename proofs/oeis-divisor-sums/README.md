@@ -19,6 +19,8 @@ The corresponding output files are [integer-certified.txt](A245211/integer-certi
 
 ## A245212
 
+For odd integers whose four distinct prime divisors include 3 exactly once, the normalized gap (a(n) − σ(n))/(nτ(n)) is at least 37/288. The constant is optimal. Every odd four-prime counterexample must therefore be divisible by 9. [Sharp four-prime theorem, Lean proof and exact checks](A245212/four-primes/README.md).
+
 A uniform lower bound on φ(n)(a(n) − σ(n)) proves the entire odd-input branch n ≤ 2φ(n) for numbers with at least two different prime factors. See the [theorem, short proof, Lean source and independent check](A245212/totient-gap.md).
 
 Let E(X) count the integers between 1 and X with a(n) = σ(n). Its natural density is zero. For every pair of cutoffs X and y with y positive, E(X) ≤ Ψ(X,y) + ⌊X/y⌋, where Ψ counts positive y-smooth integers. [Kernel-checked Lean source](https://github.com/DomTheDeveloper/open-math-agents/blob/077fa5a8106ea2fe4cbb16236ca655e9edb353b7/reductions/OeisA245212.conjecture.R1.H2.R1.lean) · [Left to Solve submission](https://github.com/GuillaumeBAUD-coder/open-math-agents/pull/1376).

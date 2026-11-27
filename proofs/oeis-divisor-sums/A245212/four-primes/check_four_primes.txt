@@ -1,0 +1,3 @@
+146432 exact prime/exponent tuples; 695 checked separately by divisor sieve.
+Minimum normalized gap on the finite grid: 7792971236671135573403/33513830228357866406250.
+The sharpness sequence at exponent 512 is within 1/500 of 37/288.
