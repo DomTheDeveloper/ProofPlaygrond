@@ -1,0 +1,26 @@
+name: Verify A079727 conjecture 4
+on:
+  pull_request:
+    paths:
+      - 'proofs/oeis-a079727/**'
+      - '.github/workflows/oeis-a079727.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install elan
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Verify the exact DeepMind statement
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash proofs/oeis-a079727/verify.sh | tee "$RUNNER_TEMP/bala-79727.log"
+          grep -F "'Bala79727.conjecture4' depends on axioms: [propext, Classical.choice, Quot.sound]" "$RUNNER_TEMP/bala-79727.log"

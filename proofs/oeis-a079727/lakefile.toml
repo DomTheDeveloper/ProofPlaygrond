@@ -1,0 +1,17 @@
+name = "bala79727"
+version = "0.1.0"
+defaultTargets = ["Complete"]
+
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/google-deepmind/formal-conjectures"
+rev = "f606af160664c5a10952e9a957b100a1cd45bbeb"
+
+[[lean_lib]]
+name = "Block"
+
+[[lean_lib]]
+name = "PriorProof"
+
+[[lean_lib]]
+name = "Complete"
