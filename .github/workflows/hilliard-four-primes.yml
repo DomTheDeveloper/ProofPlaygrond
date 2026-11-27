@@ -1,0 +1,55 @@
+name: Verify Hilliard's four-prime theorem
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'proofs/hilliard-four-primes/**'
+      - '.github/workflows/hilliard-four-primes.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'proofs/hilliard-four-primes/**'
+      - '.github/workflows/hilliard-four-primes.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    defaults:
+      run:
+        shell: bash
+        working-directory: proofs/hilliard-four-primes
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Make room for the pinned Lean libraries
+        run: |
+          df -h .
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h .
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh --output "$RUNNER_TEMP/install-elan.sh"
+          bash "$RUNNER_TEMP/install-elan.sh" -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch the pinned upstream projects and Mathlib cache
+        run: bash setup.sh
+      - name: Compile the unconditional four-prime theorem
+        run: |
+          set -euo pipefail
+          export LEAN_NUM_THREADS=3
+          bash check-cached.sh | tee "$RUNNER_TEMP/hilliard-axioms.txt"
+          python - "$RUNNER_TEMP/hilliard-axioms.txt" <<'PY'
+          from pathlib import Path
+          import re, sys
+          output = Path(sys.argv[1]).read_text()
+          match = re.search(r"'CubePrimes\.hilliard_four_primes_between_cubes' depends on axioms:\s*\[([^\]]*)\]", output)
+          if not match:
+              raise SystemExit("Missing axiom report for the unconditional theorem")
+          axioms = {item.strip() for item in match.group(1).split(',')}
+          if axioms != {"propext", "Classical.choice", "Quot.sound"}:
+              raise SystemExit("Unexpected axiom report: " + repr(axioms))
+          PY
