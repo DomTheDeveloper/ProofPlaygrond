@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,margin=0.88in,top=0.78in,bottom=0.78in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,xcolor,hyperref,fancyhdr}
+\definecolor{ink}{HTML}{163D49}\definecolor{accent}{HTML}{16675C}
+\hypersetup{colorlinks=true,urlcolor=accent,linkcolor=accent,pdftitle={Older math problems: proofs and exact checks}}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small\textsf{DOMINIC DABISH \ \ / \ \ MATHEMATICS RESEARCH NOTES}}\fancyhead[R]{\small\textsf{26 NOV 2026}}\fancyfoot[L]{\small\textcolor{ink}{\textsf{Older math problems \ \ / \ \ proofs and exact checks}}}\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}\setlength{\headheight}{14pt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt plus 1pt}
+\newcommand{\topic}[2]{\vspace*{2mm}{\color{accent}\small\sffamily\bfseries #1\par}\vspace{1mm}{\color{ink}\LARGE\bfseries #2\par}\vspace{1.3mm}}
+\newcommand{\sub}[1]{\par\medskip\noindent{\color{ink}\large\bfseries #1}\par\nobreak}
+\begin{document}
+\topic{PRIME COUNTING}{Two prime-counting inequalities}
+Write $\pi(x)$ for the number of primes at most $x$. These were distinct targets in the July work. The numbering below is from version 12 of Zhi-Wei Sun's \emph{Problems on combinatorial properties of primes} [1].
+\sub{An estimate shared by both proofs}
+For $x\ge17$, Rosser and Schoenfeld [2, Corollary 1, (3.5)] proved $\pi(x)>x/\log x$. Set $a=\pi(x)$. The function $(\log t)/t$ has maximum $1/e<2/5$ on $t>0$. Consequently
+\[
+ \log a > \log x-\log\log x \ge (1-1/e)\log x > \tfrac35\log x,
+ \qquad a\log a > \tfrac35 x .
+\]
+For $m\ge1$, $d\ge0$, the inequality $md<a\log a$ implies
+\[
+ m\log(1+d/a)\le md/a <\log a
+ \quad\Longrightarrow\quad (a+d)^m<a^{m+1}.
+\]
+\sub{Sun 2.7(i). Blocks of length $n$}
+For every integer $n\ge5$ and \emph{every} integer $k\ge1$,
+\[
+ \boxed{\ \pi(kn)^{k+1}>\pi((k+1)n)^k\ } .
+\]
+Put $x=kn$. All primes in $(x,x+n]$ are odd. Thus the increment $d$ is at most $\lceil n/2\rceil\le3n/5$, including the smallest odd case $n=5$. For $x\ge17$, this gives $kd\le3x/5<a\log a$. For $x\le16$, the only pairs have $5\le n\le16$ and $1\le k\le\lfloor16/n\rfloor$. Integer powering verifies all 17. The least gap is $4$, at $(n,k)=(6,1)$. Sun's stated range ends at $k=n$. The July repository labeled this inequality 2.6.
+\sub{Sun 2.14(ii). Squares}
+The sequence $\pi(n^2)^{1/n}$ is strictly decreasing for all integers $n\ge3$. Put $x=n^2$ and let $d=\pi((n+1)^2)-\pi(n^2)$. Every prime in the interval is coprime to 30. Any 30 consecutive integers contain eight such residues. A remaining block shorter than 30 contains at most eight. Hence
+\[
+ d\le8\left\lfloor\frac{2n+1}{30}\right\rfloor+8
+ \le\frac{8n+124}{15}\le\tfrac35 n \qquad(n\ge124).
+\]
+It follows that $nd<a\log a$. The remaining $3\le n\le123$ give 121 integer comparisons of $\pi(n^2)^{n+1}$ with $\pi((n+1)^2)^n$. The least gap is $40$, at $n=3$ ($4^4-6^3$). These comparisons and the 17 above are reproduced in \texttt{check.py}. Both infinite tails follow from the estimates on this page.
+\newpage
+\topic{EUCLIDEAN GEOMETRY}{Counting concurrent rays in a triangle}
+Draw $2n-1$ interior rays at each vertex of an equilateral triangle, splitting its angle into $2n$ equal pieces. Let $a(n)$ count the interior points incident to a ray from each vertex. For every $n\ge1$, Constantinos Kourouzides' proposed formula [3] holds:
+\[
+ \boxed{\ a(n)=6n-5+12\,\mathbf{1}_{5\mid n}\ } .
+\]
+\sub{From a drawing to a vanishing sum}
+Set $\theta=\pi/(6n)$ and use the same cyclic convention at all three labeled vertices. A triple of ray indices $1\le i,j,k\le2n-1$ is concurrent exactly when trigonometric Ceva gives
+\[
+ \sin(i\theta)\sin(j\theta)\sin(k\theta)
+ =\sin((2n-i)\theta)\sin((2n-j)\theta)\sin((2n-k)\theta).
+\]
+The segments lie inside a convex triangle, so each concurrent triple determines an interior point, which in turn determines its unique ray at each vertex. Define
+\[
+ A=i+j-k-n,\quad B=i+k-j-n,\quad C=j+k-i-n,\qquad
+ (u,v,w)=\theta(A,B,C).
+\]
+In $4\sin x\sin y\sin z=\sin(x+y-z)+\sin(x+z-y)+\sin(y+z-x)-\sin(x+y+z)$, the last term is equal for the two Ceva products because the total angles are supplementary. For each other term use $\sin s-\sin(\pi/3-s)=\sqrt{3}\sin(s-\pi/6)$. The condition is precisely $\sin u+\sin v+\sin w=0$. Each angle belongs to $(-\pi/2,\pi/2)$, and each pair has sum in $(-\pi/3,\pi/3)$, since $A+B=2i-2n$ and likewise for $j,k$.
+
+The six roots of unity
+\[
+ e^{iu},\ e^{iv},\ e^{iw},\quad -e^{-iu},\ -e^{-iv},\ -e^{-iw}
+\]
+now sum to zero. The first three lie in the open right half-plane, the last three in the open left half-plane.
+\sub{Every reducible relation gives an ordinary point}
+If a pair sums to zero, its terms have opposite half-planes, so two of the angles are negatives of one another, or the same angle is zero. From the sine equation and the injectivity of sine on the stated interval, the angles are a permutation of $(0,t,-t)$.
+
+If there is a proper vanishing subsum but no such pair, the six terms split into two triples. One triple contains two right-half-plane terms, say $e^{iu},e^{iv}$, and one left term $-e^{-iw'}$. Thus $e^{iu}+e^{iv}=e^{-iw'}$. Taking the norm and argument gives $|u-v|=2\pi/3$ and $w'=-(u+v)/2$. If $w'$ is the remaining angle, then $|u+w'|=\pi/3$, contradicting the strict pair bound. If $w'=u$ (or $v$), then $v=-3u$ (or $u=-3v$), forcing one angle to have magnitude $\pi/2$. These exhaust the possibilities, including repeated angles.
+\newpage
+\topic{EUCLIDEAN GEOMETRY}{Why the exceptions occur at multiples of five}
+\sub{All irreducible configurations lie on one finite grid}
+For a minimal vanishing rational relation of length six among roots of unity, Mann's theorem [4] gives order dividing $2\cdot3\cdot5=30$ for every quotient of two terms. Applied to $e^{iu}/(-e^{-iu})=-e^{2iu}$, it gives $e^{60iu}=1$. As $u=A\pi/(6n)$, this means $n\mid 5A$. The same argument applies to $B,C$. Thus $a=5A/n$, $b=5B/n$, $c=5C/n$ are integers in $[-14,14]$, with all three pair sums of absolute value less than 10.
+
+Take $\zeta=e^{i\pi/30}$, a primitive 60th root. The finite test is
+\[
+ \zeta^a-\zeta^{-a}+\zeta^b-\zeta^{-b}+\zeta^c-\zeta^{-c}=0 .
+\]
+Reduce exponents modulo 60, then reduce the resulting polynomial modulo $\Phi_{60}(X)=X^{16}+X^{14}-X^{10}-X^8-X^6+X^2+1$. The remainder vanishes exactly when the test holds. Start with $R_0=1$, iterate $R_{j+1}=XR_j\bmod\Phi_{60}$ through $R_{59}$, and look up each of the six powers in this table. The supplied program uses integer coefficient vectors.
+
+\begin{center}\begin{tabular}{@{}lr@{}}\toprule
+Grid step & Ordered triples \\\midrule
+All triples in $[-14,14]^3$ & 24,389\\
+All three strict pair bounds & 3,429\\
+Zero remainder of ordinary type $(0,t,-t)$ & 55\\
+Zero remainder of other types & 12\\\bottomrule\end{tabular}\end{center}
+The 12 consist exactly of the permutations of $(-5,-3,9)$ and $(-9,3,5)$. The finite test covers every minimal relation. Ordinary solutions need no divisibility condition, since the original sine equation holds for every $(0,t,-t)$.
+\sub{Returning to the drawing}
+Use $i=n+(A+B)/2$, $j=n+(A+C)/2$, $k=n+(B+C)/2$. The ordinary solutions are the center $(n,n,n)$ and the permutations of $(r,n,2n-r)$ for $1\le r<n$. There are $1+6(n-1)=6n-5$. The exceptional triples require $5\mid n$ because the scaled coordinates include an entry coprime to 5. When $n=5q$, they give the permutations of $(q,7q,8q)$ and $(2q,3q,9q)$. They lie in the allowed range, are disjoint from the ordinary triples, and give six points each. This proves the formula.
+
+\textbf{Even numbers of rays.} If an angle is divided into an odd number $h$ of pieces, refine to $2h$ pieces. Each original ray now has even index. Every ordinary concurrent triple in the refinement has the odd index $h$; each exceptional triple also has an odd index, since $h/5$ is odd whenever it is an integer. Thus the original drawing has zero interior triple points. As a separate check, direct polynomial evaluation of both original Ceva products agrees for every division count $2$ through $30$.
+\newpage
+\topic{GRAPH THEORY}{An infinite case of Written on the Wall II 133}
+For a connected simple graph $G$ on at least two vertices let $p$ be the largest number of vertices on an induced path, $r$ its radius, and $\lambda(v)$ the independence number of the graph induced by the neighbors of $v$. Write $\bar\lambda$ for the average of $\lambda(v)$. The source and catalogue describe the $C_4$ switch differently [5]. The following bounds imply both versions on every \emph{cactus}, a connected graph in which every block is an edge or a cycle:
+\[
+  p\ge r+1 \text{ for every cactus},\qquad
+  p\ge r+\bar\lambda \text{ for every }C_4\text{-free cactus}.
+\]
+These bounds deal with the real average as well as its floor.
+\sub{Control the local average}
+The first inequality holds for any connected graph. A diameter geodesic is an induced path with at least $r+1$ vertices. Suppose now that $G$ is a $C_4$-free cactus. Let $N$ be its number of vertices, $m$ its number of edges, $t$ its number of triangles, and $k$ its number of cycles of length at least five. Gluing the blocks successively along cut vertices yields
+\[
+ m=N-1+t+k,\qquad 4k\le N-1 .
+\]
+Edges in the neighborhood of a vertex form a matching, one edge for each incident triangle, because distinct cycles of a cactus cannot share an edge. Consequently
+\[
+ \sum_v\lambda(v)=2m-3t=2N-2+2k-t .
+\]
+This gives $\bar\lambda\le2$ when $k\le1$, and $\bar\lambda<5/2$ for every such cactus.
+\sub{Two long cycles force a longer induced path}
+If $c$ is a cut vertex, choose $z$ farthest from $c$. Append to a $z$--$c$ geodesic a neighbor in a different component of $G-c$. This gives an induced path on at least $r+2$ vertices. It proves the result when $k\le1$ and there is a cut vertex. Without a cut vertex the graph is a single edge or a single cycle. An edge and a triangle give equality. A cycle of length $h\ge5$ has $p=h-1$, $r=\lfloor h/2\rfloor$, and $\bar\lambda=2$, so the inequality follows.
+
+If $k\ge2$, take two long cycle blocks. Choose their common cut vertex if they meet, or otherwise the cut vertex where the connecting block path exits the first cycle. On each side there is an induced path of at least three edges starting at $c$. On the first cycle take three consecutive edges. On the other side take a shortest connecting path to the second cycle and continue around that cycle if necessary. The block structure and the cycle length at least five prevent chords. The two paths have their interiors in different components of $G-c$. Whichever component contains a farthest $z$, use a path on another side after the geodesic from $z$ to $c$. This gives $p\ge r+4>r+\bar\lambda$. This proves the claim for all cacti. The remaining general case allows noncyclic two-connected blocks.
+\newpage
+\topic{COMPUTATIONAL RESULT}{A finite check for the coefficient 1680}
+\sub{The coefficient 1680}
+Sun asks whether every nonnegative integer is $x^2+y^2+z^2+w^2$ with $x,y,z,w\ge0$ and $x^4+1680y^3z$ a square [7]. Taking
+\[
+       z=x^2t+420y^3t^2
+\]
+gives $x^4+1680y^3z=(x^2+840y^3t)^2$ for all nonnegative integers $x,y,t$. Odd $x,y,t$ and $w\equiv2\bmod4$ give an infinite family in the difficult residue class $7\bmod8$.
+
+The verifier constructs and rechecks a positive witness for every $8b+7\le100{,}000$, all 12,500 of them. It enumerates three coordinates, checks the extra condition by integer square root and fills in the fourth coordinate. The only square-residue pattern summing to 7 modulo 8 is $1+1+1+4$. The three-square theorem handles inputs outside $4^a(8b+7)$ by setting $z=0$. Scaling all four coordinates by $2^a$ preserves the square condition. Thus all inputs through 100,000 follow. A proof for every $8b+7$ remains outstanding.
+\sub{Sources and verification}
+\small
+[1] Z.-W. Sun, \href{https://arxiv.org/pdf/1402.6641v12}{\emph{Problems on combinatorial properties of primes}}, Conjectures 2.7(i) and 2.14(ii), 2016 revision.\par
+[2] J. B. Rosser and L. Schoenfeld, \href{https://denisevellachemla.eu/Rosser-Schoenfeld-1962.pdf}{\emph{Approximate formulas for some functions of prime numbers}}, Illinois J. Math. 6 (1962), 64--94, p. 69.\par
+[3] C. Kourouzides, \href{https://oeis.org/A387471}{OEIS A387471}, equal-angle cevians of an equilateral triangle.\par
+[4] H. B. Mann, \href{https://doi.org/10.1112/S0025579300005210}{\emph{On linear relations between roots of unity}}, Mathematika 12 (1965), 107--117.\par
+[5] E. DeLaVina, \href{https://www.uhd.edu/academics/sciences/mathematics-statistics/wowii/files/wowiiaii.pdf}{\emph{Written on the Wall II}}, No. 133. \href{https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/WrittenOnTheWallII/GraphConjecture133.lean}{Formal Conjectures statement}.\par
+[7] Z.-W. Sun, \href{https://oeis.org/A280831}{OEIS A280831}, square-constrained four-square representations.
+
+The parametric identity above was also recorded in July. The all-index arguments are written proofs. Run \texttt{python3 check.py} to replay the finite calculations. A full Lean build of these arguments and independent priority review are outstanding.
+\end{document}
