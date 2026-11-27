@@ -1,0 +1,2 @@
+331 14123 1236946 [] 14123 []
+295,678 exponent patterns through least prime 331; sole fixed point 21.
