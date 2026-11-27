@@ -78,9 +78,11 @@ private theorem primePower (p e : ℕ) (hp : p.Prime) :
   apply Nat.eq_of_mul_eq_mul_right (Nat.succ_pos p)
   calc
     _ = ((∑ i ∈ range (e+1), ((p^i)^2).totient)*(p+1)) *
-        (∑ j ∈ range (e*2+1), p^j) := by ring
+        (∑ j ∈ range (e*2+1), p^j) := by
+      simp only [Nat.succ_eq_add_one]
+      ring
     _ = (p^(e*2+1)+1)*(∑ j ∈ range (e*2+1), p^j) := by
-      rw [localTotient p e hp, pow_succ, pow_mul]
+      rw [localTotient p e hp, pow_succ p (e*2), pow_mul p e 2]
       ring
     _ = _ := (geomRatio p (e*2+1)).symm
 
@@ -105,6 +107,17 @@ theorem yanev (n : ℕ) :
       σ 1 ((Nat.floorRoot 2 n)^2) = σ 2 ((Nat.floorRoot 2 n)^2) := by
   rw [← divisorSum_apply, squareIdentity]
 
+/-- The quotient as it appears in Yanev's conjecture, with ordinary rational division. -/
+theorem yanev_ratio (n : ℕ) (hn : 0 < n) :
+    ((∑ d ∈ (Nat.floorRoot 2 n).divisors, (d^2).totient : ℕ) : ℚ) =
+      (σ 2 ((Nat.floorRoot 2 n)^2) : ℚ) / (σ 1 ((Nat.floorRoot 2 n)^2) : ℚ) := by
+  have hroot : Nat.floorRoot 2 n ≠ 0 := Nat.floorRoot_ne_zero.mpr ⟨by decide, hn.ne'⟩
+  have hden : 0 < σ 1 ((Nat.floorRoot 2 n)^2) :=
+    ArithmeticFunction.sigma_pos_iff.mpr (pow_pos (Nat.pos_of_ne_zero hroot) 2)
+  apply (eq_div_iff (Nat.cast_ne_zero.mpr hden.ne' : (σ 1 ((Nat.floorRoot 2 n)^2) : ℚ) ≠ 0)).2
+  exact_mod_cast yanev n
+
+#print axioms yanev_ratio
 #print axioms square_indices
 #print axioms yanev
 
