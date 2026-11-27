@@ -148,7 +148,7 @@ H(s_1,\ldots,s_d)=\sum_{1\le k_1<\cdots<k_d<p}
 
 then multiplying two such sums and separating equal indices gives the stuffle reduction. Replacing every `k_i` by `p-k_(d+1-i)` gives the reversal reduction, one power of `p` at a time. Applying those two identities to the expanded products gives the following audit table.
 
-| moment | endpoint term | strict interior terms after shuffle and reversal | total |
+| moment | endpoint term | strict interior terms after stuffle and reversal | total |
 | --- | ---: | ---: | ---: |
 | `M_(p,1)` | `2+4pH` | `pH` | `2+5pH` |
 | `M_(p,2)` | `0` | `4pH` | `4pH` |
