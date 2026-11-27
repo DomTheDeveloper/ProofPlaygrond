@@ -1,0 +1,2 @@
+support | largest first index | largest second cap | ordered prefixes | equalities
+(5, 7, 11) | 52 | 2721 | 19606 | []
