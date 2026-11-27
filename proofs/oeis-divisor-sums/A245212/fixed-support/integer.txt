@@ -1,0 +1,5 @@
+Support: (3, 5, 7, 11)
+Solutions returned as individual exponent tuples: []
+Unrestricted prime-power rays: []
+Visited nodes, ordered by number of remaining exponents: [53054, 858, 168, 24]
+Direct tests after valuation bound: 26
