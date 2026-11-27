@@ -1,0 +1,2 @@
+439 23313 131 [] 23313 []
+631,738 ordered exponent patterns through least prime 439. The sole fixed point is 21.
