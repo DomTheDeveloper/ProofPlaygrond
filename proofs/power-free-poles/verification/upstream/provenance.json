@@ -1,0 +1,17 @@
+{
+  "repository": "leanprover-community/riemann-hypothesis",
+  "ci_commit": "1053c8dddfb0a168e8a60ac437d06f665fd012df",
+  "project": "grh",
+  "source_tree": "55fe9c6cb2e5be421c5871e772b6d736ecb5d164",
+  "pinned_release_readable_source_tree": "55fe9c6cb2e5be421c5871e772b6d736ecb5d164",
+  "manifest_sha256": "5882e439e53c460488591236a792cab4c203ab726ef8a0360e6b72ffdbaf680c",
+  "module": "Main",
+  "source_build_hash": "c01db6f9d6c0f1eb",
+  "artifact_url": "https://rh-cache.taucetiproject.org/artifacts/leanprover-community/riemann-hypothesis-grh-lean/grh/6191cc49ae7cdb47.art",
+  "artifact_sha256": "a4807d85c261268a7ad07719e649c0932ab863544a10ba40cc0ae9b34213c324",
+  "olean_sha256": "0fa731cf77514371b6bed2b575e126fd95bb3e2229e10bfbc77756e7460ccf89",
+  "compact_source_commit": "72fead102f663d5c7a407964a13dc0cf9d977207",
+  "theorem": "riemannHypothesis : RiemannHypothesis",
+  "proof": "New.zeta_zeros_on_line New.grh",
+  "local_comparison": "Exact byte equality with Main.olean extracted from the authenticated CI archive."
+}

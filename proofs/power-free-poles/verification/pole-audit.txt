@@ -1,0 +1,34 @@
+'PowerFree.quotient_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.main_pole' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.poles_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.multiplicity_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.first_pole_on_chain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.RH_iff_poleLine' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.squarefree_pole_line_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.kFree_two_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.kFreeSeries_eq_quotient' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.mellin_kFreeCount' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.residue_at_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.analytic_order_at_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.leading_coefficient_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.residue_at_scaled_zero_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.perron_residue_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.negative_zero_deriv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.left_order_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.global_poles_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.trivial_on_grid_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.negative_grid_order_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.simple_ratio_residue' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.negative_residue_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.cancelled_trivial_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PowerFree.pole_locations_of_RH' depends on axioms: [propext, Classical.choice, Quot.sound]
+PASS  PowerFree.poles_of_RH riemannHypothesis  :  PowerFree.Target.poles
+PASS  PowerFree.multiplicity_of_RH riemannHypothesis  :  PowerFree.Target.scaled_zero_multiplicity
+PASS  PowerFree.squarefree_pole_line_of_RH riemannHypothesis  :  PowerFree.Target.squarefree_pole_line
+PASS  PowerFree.analytic_order_at_zero riemannHypothesis  :  PowerFree.Target.analytic_order_at_zero
+PASS  PowerFree.leading_coefficient_of_RH riemannHypothesis  :  PowerFree.Target.leading_coefficient
+PASS  PowerFree.residue_at_scaled_zero_of_RH riemannHypothesis  :  PowerFree.Target.simple_residue
+PASS  PowerFree.perron_residue_of_RH riemannHypothesis  :  PowerFree.Target.perron_residue
+PASS  PowerFree.pole_locations_of_RH riemannHypothesis  :  PowerFree.Target.all_pole_locations
+PASS  PowerFree.negative_grid_order_of_RH riemannHypothesis  :  PowerFree.Target.negative_grid_order
+PASS  PowerFree.negative_residue_of_RH riemannHypothesis  :  PowerFree.Target.negative_residue
