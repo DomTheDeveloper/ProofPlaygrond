@@ -1,0 +1,375 @@
+"""Independent, exact cross-check using a rational inequality for each next prime."""
+from fractions import Fraction
+from functools import cache
+from itertools import product
+from math import gcd, isqrt, prod
+import sys
+
+def is_prime(n):
+    return n > 1 and all(n % d for d in range(2, isqrt(n)+1))
+
+def weight(p, e):
+    return sum(Fraction(j+1, p**(e-j)) for j in range(e+1))
+
+def vectors(budget):
+    yield ()
+    for f in range(2,budget+1):
+        for rest in vectors(budget//f):
+            yield (f-1,)+rest
+
+@cache
+def residues(es,m):
+    if not es:
+        return {1}
+    e=es[0]
+    values=set()
+    for a in range(1,m):
+        if gcd(a,m)==1:
+            z=pow(a,-1,m)
+            values.add(sum((e+1-j)*pow(z,j,m) for j in range(e+1))%m)
+    return {v*w%m for v,w in product(values,residues(es[1:],m))}
+
+def descendants(prev,es,c,goal,limits=()):
+    # The still-missing factors must multiply to goal/c.
+    req=Fraction(goal,c)
+    bottom=prod(e+1 for e in es)
+    if req<=bottom:
+        return
+    mods=[m for m in (3,5,7,11,13,17,19,23,29,31,37,41,43,47) if m<=prev]+[4,8]
+    for m in mods:
+        if not any((req.denominator*z-req.numerator)%m==0 for z in residues(es,m)):
+            return
+    t=len(es)
+    # (1-1/x)^t >= 1-t/x. Thus x <= t * req/(req-bottom).
+    cap=int(t*req/(req-bottom))
+    lo=prev+1
+    if limits:
+        low,high=limits[0]
+        lo=max(lo,low)
+        if high is not None:
+            cap=min(cap,high)
+    if lo>cap:
+        return
+    if t==1:
+        # Test the only possible root by monotonicity, without factoring c.
+        hi=cap+1
+        while lo<hi:
+            m=(lo+hi)//2
+            if weight(m,es[0])<=req:
+                hi=m
+            else:
+                lo=m+1
+        if lo<=cap and weight(lo,es[0])==req and is_prime(lo):
+            yield (lo,)
+        return
+    for x in range(lo,cap+1):
+        if is_prime(x):
+            for tail in descendants(x,es[1:],c*weight(x,es[0]),goal,limits[1:]):
+                yield (x,)+tail
+
+@cache
+def split_small_moment(t):
+    # Decompose exactly only in this range. Other inputs use the original search.
+    if t>10**12:
+        return ()
+    factors=[]
+    d=2
+    while d*d<=t:
+        if t%d==0:
+            factors.append(d)
+            while t%d==0:
+                t//=d
+        d=3 if d==2 else d+2
+    if t>1:
+        factors.append(t)
+    return tuple(factors)
+
+@cache
+def small_primes(p):
+    return tuple(q for q in range(2,p) if is_prime(q))
+
+@cache
+def forbidden_small_part(p,a):
+    # Prime divisors strictly below the least prime cannot divide n.
+    # Their full powers in T_a(p) must therefore divide tau(n)+1.
+    value=sum((j+1)*p**j for j in range(a+1))
+    rest=value
+    for q in range(2,p):
+        while rest%q==0:
+            rest//=q
+    return value//rest
+
+@cache
+def pocklington_factor():
+    # For each prime divisor l of q, both specified primes divide l-1.
+    # Their product exceeds sqrt(q), ruling out a composite q.
+    q = sum((j+1)*227**j for j in range(14))
+    f, g = 4576002647, 234787945631
+    assert is_prime(f) and is_prime(g) and f != g
+    assert (q-1) % (f*g) == 0 and (f*g)**2 > q
+    for r in (f, g):
+        assert pow(2, q-1, q) == 1
+        assert gcd(pow(2, (q-1)//r, q)-1, q) == 1
+    return q
+
+@cache
+def certified_263_primes():
+    # Complete Lucas certificates for the two prime factors of T_13(263).
+    certificates = (
+        (214805549993, (2, 2, 2, 11, 293, 8330963), 3),
+        (3094619080181, (2, 2, 5, 23, 79, 139, 612643), 7),
+        (3812570706782993, (2, 2, 2, 2, 7, 11, 3094619080181), 5),
+        (1883836937069958237217,
+         (2, 2, 2, 2, 2, 3, 5147, 3812570706782993), 15),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1 for r in set(factors))
+        proved.add(q)
+    return certificates[0][0], certificates[-1][0]
+
+@cache
+def certified_269_prime():
+    # Complete Lucas certificates for T_13(269) and its large q-1 factor.
+    certificates = (
+        (14635092528104565487, (2, 3, 138561641, 17603588341), 3),
+        (542512058959614745217387126772353,
+         (2, 2, 2, 2, 2, 2, 2, 29, 257, 269, 144451,
+          14635092528104565487), 3),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1 for r in set(factors))
+        proved.add(q)
+    return certificates[-1][0]
+
+@cache
+def certified_269_successor_primes():
+    certificates = (
+        (13974006881147, (2, 13, 71, 22571, 335381), 2),
+        (1596161396191, (2, 3, 5, 47, 89, 127, 100153), 12),
+        (1647238560869113, (2, 2, 2, 3, 43, 1596161396191), 5),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1 for r in set(factors))
+        proved.add(q)
+    small = 47137
+    assert is_prime(small)
+    q1, _, q2 = (q for q, _, _ in certificates)
+    assert small * q1 * q2 == 2 * certified_269_prime() + 1
+    return small, q1, q2
+
+@cache
+def certified_283_primes():
+    certificates = (
+        (33311847537949, (2, 2, 3, 7, 193147, 2053201), 2),
+        (3498950330708810221,
+         (2, 2, 3, 3, 5, 23, 97, 173, 50363928533), 6),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1 for r in set(factors))
+        proved.add(q)
+    moment = sum((j + 1) * 283**j for j in range(14))
+    assert 9 * certificates[0][0] * certificates[1][0] == moment
+    return certificates[0][0], certificates[1][0]
+
+@cache
+def certified_307_primes():
+    factors = (57427, 96823, 424967, 102818321)
+    assert all(is_prime(q) for q in factors)
+    moment = sum((j + 1) * 307**j for j in range(10))
+    assert prod(factors) == moment
+    return factors
+
+@cache
+def certified_313_prime():
+    # Complete Lucas certificates for the large factor of T_13(313).
+    certificates = (
+        (51284105359262441,
+         (2, 2, 2, 5, 7, 23, 1032841, 7710161), 3),
+        (1295309273607968370700398258494227,
+         (2, 3, 685093, 6144547567, 51284105359262441), 2),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1 for r in set(factors))
+        proved.add(q)
+    moment = sum((j + 1) * 313**j for j in range(14))
+    assert 3 * certificates[-1][0] == moment
+    return certificates[-1][0]
+
+@cache
+def certified_401_primes():
+    """Complete factorization of T_25(401), with Lucas certificates."""
+    small = (2777, 2498137)
+    assert all(is_prime(q) for q in small)
+    certificates = (
+        (44854364709863143,
+         (2, 3, 7, 19, 21379, 34549, 76099), 3),
+        (30486691755424187,
+         (2, 19, 67, 593, 15073, 1339669), 2),
+        (5525347040369568803507,
+         (2, 90619, 30486691755424187), 2),
+        (10037566653262838460593813688652541806393,
+         (2, 2, 2, 3, 61, 113, 1439, 7631124997,
+          5525347040369568803507), 5),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1
+                   for r in set(factors))
+        proved.add(q)
+    moment = sum((j + 1) * 401**j for j in range(26))
+    answer = small + (certificates[0][0], certificates[-1][0])
+    assert prod(answer) == moment
+    return answer
+
+@cache
+def certified_409_prime():
+    """Complete Lucas certificate for T_12(409)."""
+    certificates = (
+        (319593384716803, (2, 3, 7, 188017, 40471693), 7),
+        (3826786260314991211367,
+         (2, 5986961, 319593384716803), 5),
+        (285498811742277931917137438827867,
+         (2, 3, 409, 30401537, 3826786260314991211367), 2),
+    )
+    proved = set()
+    for q, factors, witness in certificates:
+        assert prod(factors) == q - 1
+        assert all(r in proved or is_prime(r) for r in set(factors))
+        assert pow(witness, q - 1, q) == 1
+        assert all(pow(witness, (q - 1)//r, q) != 1
+                   for r in set(factors))
+        proved.add(q)
+    moment = sum((j + 1) * 409**j for j in range(13))
+    assert certificates[-1][0] == moment
+    return certificates[-1][0]
+
+@cache
+def known_prime_divisors(t):
+    # Only return divisors proved prime. A large unfactored remainder
+    # weakens this shortcut and still goes through the exhaustive bounds.
+    if t<=10**12:
+        return split_small_moment(t)
+    large = pocklington_factor()
+    factors = [large] if t % large == 0 else []
+    factors.extend(q for q in certified_263_primes() if t % q == 0)
+    large_269 = certified_269_prime()
+    if t % large_269 == 0:
+        factors.append(large_269)
+    factors.extend(q for q in certified_269_successor_primes() if t % q == 0)
+    factors.extend(q for q in certified_283_primes() if t % q == 0)
+    factors.extend(q for q in certified_307_primes() if t % q == 0)
+    large_313 = certified_313_prime()
+    if t % large_313 == 0:
+        factors.append(large_313)
+    factors.extend(q for q in certified_401_primes() if t % q == 0)
+    q409 = certified_409_prime()
+    if t % q409 == 0:
+        factors.append(q409)
+    for q in small_primes(100_001):
+        if t%q:
+            continue
+        factors.append(q)
+        while t%q==0:
+            t//=q
+    return tuple(factors)+split_small_moment(t)
+
+def place_forced(p,a,tail,d):
+    # The assigned indices record the positions in the increasing tail.
+    # Reduced numerator factors in excess of the target must be canceled
+    # by a still-missing denominator, hence by exactly one future prime.
+    goal=d+1
+    def visit(value,placed,seeds):
+        empty=[i for i in range(len(tail)) if i not in placed]
+        if not empty:
+            if value==goal:
+                yield p**a*prod(placed[i]**tail[i] for i in placed)
+            return
+        if value*prod(tail[i]+1 for i in empty)>=goal:
+            return
+        need=value.numerator//gcd(value.numerator,goal)
+        unavailable=(p,)+tuple(placed.values())+small_primes(p)
+        if any(need%q==0 for q in unavailable):
+            return
+        required=[q for q in seeds if need%q==0]
+        if len(required)>len(empty):
+            return
+        def limits(i):
+            lower=max([p]+[q for j,q in placed.items() if j<i])+1
+            upper=min([q-1 for j,q in placed.items() if j>i],default=None)
+            return lower,upper
+        if required:
+            r=min(required)
+            for i in empty:
+                low,high=limits(i)
+                if r<low or (high is not None and high<r):
+                    continue
+                w=weight(r,tail[i])
+                fresh=set(known_prime_divisors(w.numerator))
+                yield from visit(value*w,dict(placed)|{i:r},seeds|fresh)
+            return
+        es=tuple(tail[i] for i in empty)
+        caps=tuple(limits(i) for i in empty)
+        fixed=p**a*prod(q**tail[i] for i,q in placed.items())
+        for qs in descendants(p,es,value,goal,caps):
+            yield fixed*prod(q**e for q,e in zip(qs,es))
+    initial=weight(p,a)
+    yield from visit(initial,{},set(known_prime_divisors(initial.numerator)))
+
+def verify(p, a_min=1, a_max=None, tail_min=0, tail_max=None):
+    answers=[]
+    patterns=0
+    stop = p if a_max is None else a_max
+    for a in range(a_min, stop):
+        tail_index = -1
+        for tail in vectors((p-1)//a):
+            if not tail:
+                continue
+            tail_index += 1
+            if tail_index < tail_min or (tail_max is not None and tail_index >= tail_max):
+                continue
+            patterns+=1
+            es=(a,)+tail
+            d=prod(e+1 for e in es)
+            # For odd nonsquares the target is odd. Every normalized
+            # local triangular number must be odd.
+            if p>2 and d%2==0 and any(e%4 in (2,3) for e in es):
+                continue
+            if (d+1)%forbidden_small_part(p,a):
+                continue
+            # If p exactly divides n, 2p+1 is prime and divides n.
+            # The two normalized factors imply 3*d <= 4*p.
+            if a==1 and (not is_prime(2*p+1) or 3*d>4*p):
+                continue
+            answers.extend(place_forced(p,a,tail,d))
+    return patterns,sorted(answers)
+
+if __name__=='__main__':
+    limit=int(sys.argv[1]) if len(sys.argv)>1 else 37
+    for p in range(2,limit+1):
+        if is_prime(p):
+            print(p,*verify(p),flush=True)
+
+
