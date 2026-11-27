@@ -1,0 +1,2 @@
+293 11689 215498 [] 11689 []
+230,873 exponent patterns through least prime 293; sole fixed point 21.
