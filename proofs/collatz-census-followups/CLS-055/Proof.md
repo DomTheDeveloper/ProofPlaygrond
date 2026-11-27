@@ -1,0 +1,27 @@
+# CLS-055. Residue classes cannot certify non-return
+
+The census asks whether 8 returns under Q = σT, where σ interchanges 18j+9 and 18j+10 and fixes other integers. Here T(3j)=2j, T(3j+1)=4j+1, T(3j+2)=4j+3. This note leaves the fate of 8 open.
+
+**Theorem.** For each modulus M and each pair of residues a,b, for every sufficiently large N there are arbitrarily large positive x with x=a mod M and Q^N(x)=b mod M.
+
+**Proof.** Work with R=Tσ, conjugate via σ. Enlarge M to a multiple of 18 (choose any lifts of a,b); write M=2^h 3^j u with h≥1, j≥2 and gcd(u,6)=1. Each branch of R is affine with slope s/3, s either 2 or 4, determined by the input modulo 18.
+
+Use states r modulo 18. The target t of a one-step edge is allowed exactly when t=R(r) mod 6. Indeed R(r+18k)=R(r)+6sk and s is invertible modulo 3. In order r=0,...,17 the values R(r) mod 6 are
+0,1,3,2,5,1,4,3,5,1,0,3,2,5,1,4,3,5.
+The graph is strongly connected. To verify, form the six rows of successors by grouping positions congruent modulo 6. From 0 one reaches 2 and 4, from 2 one reaches 1,3,5; in reverse, 4 reaches 0, 3 reaches 4, and 1,2,5 reach 3. An edge can end at any of the three lifts of its target modulo 6.
+
+Start with the progression a+Mt on a positive tail. The first j−2 branches are fixed, since before each such branch the progression step is divisible by 18. Their image has step 2^H·9u with H≥h, so lies in one state. From any such progression, one more iteration gives step 2^H·3su. Selecting one of every three terms allows any of the indicated next states and restores step 2^H·9su. Thus every prescribed finite graph path from this point lifts to actual positive trajectories and the final image contains a whole arithmetic progression.
+
+On the coordinate modulo u, each branch is an affine permutation. At state 1 the loops (1,1,1,1) and (1,13,5,1) induce permutations F and G having equal slope (4/3)^3. Their first two branches agree, and their last branches, (4x−1)/3 and (4x+1)/3, differ by 2/3. Thus G composed with the inverse of F translates by 2/3. Because F is a finite permutation its inverse can be performed by repeating the first loop. The translation generates the whole additive group modulo u. Hence loops at state 1 can set this coordinate arbitrarily. At coordinate 1 the single edge (1,1) fixes the coordinate, permitting any amount of padding.
+
+Choose a positive representative of target b. Since R is a permutation, its last h incoming steps exist. Record the h+1 states of this suffix. Route from the initial state to 1, use loops to set the coordinate to 1, pad there, and use loops again to set the unique coordinate needed for a fixed path to the suffix followed by the suffix itself to end at b mod u. Strong connectivity supplies both connecting paths. The last h steps erase all input dependence modulo 2^h: two integers following those branches have final difference equal to their initial difference times a product of h even numerators divided by 3^h. Thus the output agrees with b modulo 2^h. The final state also agrees modulo 9. The image progression has step 2^H'·9u, with H'≥h. Varying its index supplies every lift of that residue modulo 3^j, keeping the other coordinates fixed. All choices leave arbitrarily large representatives. Padding achieves every sufficiently large length. Finally σ acts on residues for every modulus divisible by 18, so conjugacy gives the same conclusion for Q. ∎
+
+**Consequence.** A forward-closed union of residue classes is empty or full. More generally any forward-closed eventually periodic set is finite or cofinite: if its tail both included and excluded a residue, the theorem joins arbitrarily large points of the first to large points of the second, a contradiction. For a permutation a finite or cofinite forward-closed set is invariant in both directions (apply cardinality to the finite set or its complement). Consequently no such set contains Q(8) while excluding 8.
+
+## Computation
+
+orbit.cpp uses the conjugate R, which fixes the question of return because σ(8)=8. Build on a 64-bit Linux machine with GMP using g++ -O3 orbit.cpp -lgmpxx -lgmp -o orbit and run ./orbit. Each block starts at n = q·6·3^25 + r. For i up to 25 the actual iterate equals the iterate of r plus q·6·3^(25−i)·2^e, where e is the sum of the exponents of 2 in the branch numerators so far. Before each step the two inputs agree modulo 18. If q>0 the omitted summand at any positive step is at least 12, and if q=0 the code checks r against 8 directly. The small remainder arithmetic fits in 64 bits: initially r<6·3^25, and the branch bound R(r)≤4r/3+2 gives R^25(r)<(6·3^25+6)(4/3)^25<2^54. orbit.log contains the exact checkpoints for R; the residues are for R, not Q.
+
+dfa.cpp tests deterministic binary automata on canonical digits read most significant first, for the conjugate R. For a forward-closed separator, all strictly forward orbit labels must be accepted, while 8 and all its backward labels must be rejected. The program enumerates every reachable rooted transition table up to renaming, by assigning new states in discovery order. A table fails if opposite labels reach the same state. Run g++ -O3 dfa.cpp -o dfa and then ./dfa k for each k from 1 through 7. Exactly 256,182,290 seven-state tables were tested; none met the orbit labels. This bound refers to R; conjugating a binary automaton for Q may change its state count.
+
+Census source: https://github.com/rain-1/collatz-like-systems/blob/36553ef30e806eb5e065fd0387983375794267c6/census/round2/downfrom5/swT9_s8.md
