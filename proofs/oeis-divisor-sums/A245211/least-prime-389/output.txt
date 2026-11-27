@@ -1,2 +1,0 @@
-389 18947 371995 [] 18947 []
-460,938 exponent patterns through least prime 389; sole fixed point 21.

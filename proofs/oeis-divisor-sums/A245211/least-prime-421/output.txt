@@ -1,2 +1,0 @@
-421 21511 14739 [] 21511 []
-563,527 exponent patterns through least prime 421; sole fixed point 21.

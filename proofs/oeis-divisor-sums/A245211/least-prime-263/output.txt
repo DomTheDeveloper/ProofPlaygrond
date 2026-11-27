@@ -1,2 +1,0 @@
-263 9367 93727 [] 9367 []
-168,445 exponent patterns through least prime 263; sole fixed point 21.

@@ -1,2 +1,0 @@
-367 17037 381339 [] 17037 []
-389,354 exponent patterns through least prime 367; sole fixed point 21.

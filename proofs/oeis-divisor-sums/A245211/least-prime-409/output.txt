@@ -1,2 +1,0 @@
-409 20499 121 [] 20499 []
-521,121 exponent patterns through least prime 409; sole fixed point 21.

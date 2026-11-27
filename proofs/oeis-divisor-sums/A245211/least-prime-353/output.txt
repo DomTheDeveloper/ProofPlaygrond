@@ -1,2 +1,0 @@
-353 15613 634399 [] 15613 []
-356,628 exponent patterns through least prime 353; sole fixed point 21.
