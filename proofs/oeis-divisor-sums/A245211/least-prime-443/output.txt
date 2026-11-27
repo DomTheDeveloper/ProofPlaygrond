@@ -1,0 +1,2 @@
+443 23653 32453 [] 23653 []
+655,391 ordered exponent patterns through least prime 443. The sole fixed point is 21.
