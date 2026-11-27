@@ -1,0 +1,2 @@
+359 15689 2909805 [] 15689 []
+372,317 exponent patterns through least prime 359; sole fixed point 21.
