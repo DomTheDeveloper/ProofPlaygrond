@@ -1,0 +1,2 @@
+433 23217 2959613 [] 23217 []
+608,425 exponent patterns through least prime 433; sole fixed point 21.
