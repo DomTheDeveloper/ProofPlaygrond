@@ -1,0 +1,23 @@
+\sect{6.\quad Evidence, scope and references}
+\subh{Reproduction}
+The companion includes the two integer-only searches, the earlier decoder, the Lean project, and exact per-input results. \texttt{python verify.py} checks the numerical certificates and small exhaustive four-square tests. \texttt{python verify.py --replay} reruns both schedules on all three inputs. The searches accept only $N$. The known factors serve to construct or verify fixtures. The third fixture uses SHA-256 labels and the next primes congruent to $3\bmod4$. For each input, both factors are prime and the larger is less than twice the smaller.
+
+\subh{Relation to recent preprints}
+Shunia \rs{10} reduces general factoring to a polynomial number of abundance decisions. The cost of answering those decisions remains part of an unconditional algorithm. Gao and Feng \rs{11} use a second lattice vector to improve the logarithmic factors in a balanced-semiprime bound that still contains $N^{1/5}$. A November 2026 Cogentic manuscript \rs{12} reports deterministic general splitting in $O(\exp(3(\ln N)^{3/4}))$ bit operations. In binary input length this reported bound grows faster than every polynomial. Our examples give finite coverage results and mathematical limitations for the specified methods. The general worst-case polynomial bound remains open.
+
+\subh{References}
+{\small\setlength{\parskip}{3pt}
+\src{1}{H. W. Lenstra, Jr. \emph{Factoring integers with elliptic curves}. Annals of Mathematics, 1987.}{https://annals.math.princeton.edu/1987/126-3/p09}
+\src{2}{R. P. Brent. \emph{Factorization of the tenth Fermat number}. Mathematics of Computation, 1999, sections 2--3.}{https://maths-people.anu.edu.au/brent/pd/rpb161.pdf}
+\src{3}{R. S. Lehman. \emph{Factoring large integers}. Mathematics of Computation, 1974.}{https://doi.org/10.1090/S0025-5718-1974-0340163-2}
+\src{4}{L. V. Dieulefait and J. Urroz. \emph{Factorization and malleability of RSA moduli, and counting points on elliptic curves modulo N}. Mathematics, 2020, Remark 2.}{https://doi.org/10.3390/math8122126}
+\src{5}{C. Pomerance and I. E. Shparlinski. \emph{Smooth orders and cryptographic applications}. ANTS V, 2002.}{https://math.dartmouth.edu/~carlp/PDF/paper128.pdf}
+\src{6}{A. V. Sutherland. \emph{Elliptic curves}. MIT 18.783, division polynomials and multiplication by $n$.}{https://ocw.mit.edu/courses/18-783-elliptic-curves-spring-2021/59e0623c0d3454b39d8e07b493a0e9b0_MIT18_783S21_Slides5.pdf}
+\src{7}{E. Assing. \emph{Advanced Algebra I: Modular Forms}, Theorem 4.0.3, Jacobi's four-square identity.}{https://www.math.uni-bonn.de/people/assing/lectures/modular_forms.pdf}
+\src{8}{P. Pollack and E. Trevi\~no. \emph{Finding the four squares in Lagrange's theorem}. Integers, 2018.}{https://pollack.uga.edu/finding4squares.pdf}
+\src{9}{A. Forsyth, J. Gurev and S. Shrima. \emph{Metacommutation as a group action on the projective line over $\F_p$}. Preprint, 2015.}{https://arxiv.org/abs/1503.06259}
+\src{10}{J. M. Shunia. \emph{Deterministic integer factorization from abundance decisions}. Preprint, 2026.}{https://arxiv.org/abs/2611.34242}
+\src{11}{Y. Gao and Y. Feng. \emph{On factoring and power divisor problems via rank-3 lattices and the second vector}. Preprint, 2025.}{https://arxiv.org/abs/2512.19076}
+\src{12}{Cogentic. \emph{Unconditional deterministic subexponential integer factoring and quadratic nonresidue construction}. Research manuscript, 2026.}{https://github.com/google-research/google-research/tree/master/cogentic_research_papers/deterministic_factoring_l34}
+}
+\end{document}
