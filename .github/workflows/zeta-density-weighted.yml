@@ -1,0 +1,82 @@
+name: Verify the weighted zeta density proof
+
+on:
+  push:
+    branches: [density-weighted-summability]
+    paths:
+      - 'proofs/zeta-density-weighted/**'
+      - '.github/workflows/zeta-density-weighted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zeta-density-weighted-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      LEAN_NUM_THREADS: '2'
+    defaults:
+      run:
+        shell: bash
+        working-directory: proofs/zeta-density-weighted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install the pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install "$(cat lean-toolchain)"
+      - name: Compare the upstream statement
+        run: |
+          set -euo pipefail
+          git init -q "$RUNNER_TEMP/formal-conjectures"
+          git -C "$RUNNER_TEMP/formal-conjectures" fetch -q --depth=1 https://github.com/google-deepmind/formal-conjectures.git f606af160664c5a10952e9a957b100a1cd45bbeb
+          python3 check_statement.py "$RUNNER_TEMP/formal-conjectures"
+      - name: Build the endpoint from the pinned sources
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe mathlib/cache get
+          lake build +DensityHypothesis.Endpoint
+      - name: Restore the matching published RH proof
+        run: |
+          set -euo pipefail
+          helper="$RUNNER_TEMP/rh-helper"
+          git init -q "$helper"
+          git -C "$helper" fetch -q --depth=1 https://github.com/leanprover-community/riemann-hypothesis.git 5ba920829cb7286b51f4d233b493f5b1287bf51b
+          git -C "$helper" checkout -q --detach FETCH_HEAD
+          rh="$PWD/.lake/packages/GRH/grh-compact"
+          test "$(git -C "$rh" rev-parse HEAD:grh-compact/src)" = "$(git -C "$helper" rev-parse HEAD:grh-compact/src)"
+          helper_proj="$helper/grh-compact"
+          mkdir -p "$helper_proj/.lake" "$rh/.lake/build"
+          ln -s "$PWD/.lake/packages" "$helper_proj/.lake/packages"
+          (cd "$helper_proj" && python3 scripts/ci-cache-get.py --jobs 4 --cache-dir "$RUNNER_TEMP/compact-rh-cache")
+          cp -a "$helper_proj/.lake/build/." "$rh/.lake/build/"
+          echo "d760206c26b86d657b8012d5aa742a829217c19861933338db27d8ff23761b2e  $rh/.lake/build/lib/lean/Main.olean" | sha256sum --check
+      - name: Compile the final theorem and check its axioms
+        run: |
+          set -euo pipefail
+          lake env lean -j1 --tstack=100000 -o "$RUNNER_TEMP/DensityHypothesis.olean" DensityHypothesis.lean | tee "$RUNNER_TEMP/density-axioms.txt"
+          python3 - "$RUNNER_TEMP/density-axioms.txt" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          output = pathlib.Path(sys.argv[1]).read_text()
+          name = "DensityHypothesis.density_hypothesis_zeta_zeros"
+          report = re.search(r"'" + re.escape(name) + r"' depends on axioms:\s*\[([^\]]+)\]", output)
+          if not report:
+              raise SystemExit(f"Missing axiom report for {name}")
+          axioms = {item.strip() for item in report[1].split(",")}
+          if axioms != {"propext", "Classical.choice", "Quot.sound"}:
+              raise SystemExit(f"Unexpected axioms for {name}: {axioms}")
+          PY
