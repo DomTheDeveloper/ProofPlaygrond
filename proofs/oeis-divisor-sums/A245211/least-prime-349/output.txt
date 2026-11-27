@@ -1,0 +1,2 @@
+349 15263 103831 [] 15263 []
+341,015 exponent patterns through least prime 349; sole fixed point 21.
