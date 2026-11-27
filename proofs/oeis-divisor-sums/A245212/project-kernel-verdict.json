@@ -1,0 +1,20 @@
+{
+  "file": "reductions/OeisA245212.conjecture.R1.H2.R1.lean",
+  "type": "reduction",
+  "problem": "OeisA245212.conjecture.R1.H2.R1",
+  "hypotheses": [
+    "\u2200 k m : \u2115, 1 \u2264 k \u2192 Odd m \u2192 1 < m \u2192\n    m.primeFactors.card \u2264 (\u2211 p \u2208 m.primeFactors, padicValNat 2 (m.factorization p+2)) \u2192\n    (\u00ac \u2203 p b : \u2115, p.Prime \u2227 Odd p \u2227 p.Coprime b \u2227 2^k*m = p*b) \u2192\n    OeisA245212.a (2^k*m) \u2260 (\u03c3 1 (2^k*m) : \u2124)",
+    "\u2200 b : \u2115, 0 < b \u2192 Even b \u2192\n    let T := \u2211 d \u2208 b.divisors, d*d.divisors.card\n    let N := T+\u03c3 1 b\n    let D := 4*b*b.divisors.card - (2*T+\u03c3 1 b)\n    let p := N/D\n    \u00ac (0 < D \u2227 D \u2223 N \u2227 p.Prime \u2227 Odd p \u2227 p.Coprime b)"
+  ],
+  "module": "OMAReductions.R_OeisA245212_conjecture_R1_H2_R1",
+  "ok": true,
+  "kind": "open",
+  "polarity": "proof",
+  "theorem": "OMA.R_OeisA245212_conjecture_R1_H2_R1.main",
+  "imports": "OMAReductions.R_OeisA245212_conjecture_R1",
+  "errors": [],
+  "needsReduction": "OeisA245212.conjecture.R1",
+  "verdict": "accepted",
+  "reason": "kernel accepted; axioms within propext, Classical.choice, Quot.sound",
+  "log": "'OMA.R_OeisA245212_conjecture_R1_H2_R1.main' depends on axioms: [propext, Classical.choice, Quot.sound]"
+}

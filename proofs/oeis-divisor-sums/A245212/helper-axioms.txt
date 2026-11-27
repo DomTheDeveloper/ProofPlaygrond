@@ -1,0 +1,7 @@
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.unique_prime_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.large_prime_count' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.counting_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.equality_density_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.odd_moment_order' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.exponent_obstruction' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OMA.R_OeisA245212_conjecture_R1_H2_R1.main' depends on axioms: [propext, Classical.choice, Quot.sound]

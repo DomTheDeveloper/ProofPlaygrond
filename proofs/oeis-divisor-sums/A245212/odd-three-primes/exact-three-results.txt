@@ -1,0 +1,4 @@
+support | largest first index | largest second cap | ordered prefixes | equalities
+(3, 5, 7) | 10 | 200 | 1342 | []
+(3, 5, 11) | 28 | 381 | 3934 | []
+(3, 5, 13) | 54 | 1408 | 16782 | []

@@ -1,0 +1,4 @@
+cutoff, prime count, blocks: 125000000 7110142 269
+log upper numerator, denominator: 34273719310 1000000000
+Euler product bounded by 2^50
+fraction below 1 / 120000000 for every X >= 10^100

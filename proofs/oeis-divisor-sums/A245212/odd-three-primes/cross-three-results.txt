@@ -1,0 +1,4 @@
+support | first tail excluded from | maximum second tail cutoff | ordered prefixes | final direct tests | equalities
+(3, 5, 7) | 16 | 256 | 1946 | 5 | []
+(3, 5, 11) | 32 | 512 | 6190 | 0 | []
+(3, 5, 13) | 64 | 2048 | 27084 | 4 | []

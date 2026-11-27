@@ -1,0 +1,9 @@
+prime cutoff: 125000000
+number of primes: 7110142
+log Euler-product upper numerator, denominator: 144185511931 4294967296
+Euler product bounded by 2^51
+smooth fraction at 10^100 is at most 2251799813685248 / 10^25
+large-prime fraction is at most 1 / 125000000
+fraction below 1 / 100000000 True
+fraction below 1 / 110000000 True
+fraction below 1 / 120000000 True
