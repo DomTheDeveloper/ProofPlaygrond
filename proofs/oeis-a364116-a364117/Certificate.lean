@@ -43,10 +43,15 @@ theorem a364116_diagonal_examples :
 theorem shifted_three_unit_examples :
     rowMod 1 8 27 = 19 ∧ rowMod 2 8 27 = 19 := by decide
 
+theorem a364113_cubic_towers_row_three :
+    rowMod 3 25 15625 = rowMod 3 5 15625 ∧
+    rowMod 3 24 15625 = rowMod 3 4 15625 := by decide
+
 #print axioms a364116_counterexample
 #print axioms a364117_prime_examples
 #print axioms a364117_shifted_examples
 #print axioms a364116_diagonal_examples
 #print axioms shifted_three_unit_examples
+#print axioms a364113_cubic_towers_row_three
 
 end BalaLegendre
