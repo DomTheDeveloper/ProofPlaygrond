@@ -37,7 +37,7 @@ jobs:
           ulimit -s unlimited
           export LEAN_NUM_THREADS=3
           proof_dir=$PWD
-          cache_ref=1053c8dddfb0a168e8a60ac437d06f665fd012df
+          cache_ref=5ba920829cb7286b51f4d233b493f5b1287bf51b
           cache_checkout=$(mktemp -d)
           git -C "$cache_checkout" init -q
           git -C "$cache_checkout" fetch --depth=1 -q https://github.com/leanprover-community/riemann-hypothesis.git "$cache_ref"
