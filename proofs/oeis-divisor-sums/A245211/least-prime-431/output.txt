@@ -1,0 +1,2 @@
+431 21681 158685 [] 21681 []
+585,208 exponent patterns through least prime 431; sole fixed point 21.
