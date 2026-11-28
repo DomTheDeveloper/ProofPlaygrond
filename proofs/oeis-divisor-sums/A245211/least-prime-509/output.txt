@@ -1,0 +1,2 @@
+509 30081 1762123 [] 30081 []
+950,206 ordered exponent patterns through least prime 509. The sole fixed point is 21.
