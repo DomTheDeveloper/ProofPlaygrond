@@ -1,0 +1,2 @@
+491 28321 1051788 [] 28321 []
+862,661 ordered exponent patterns through least prime 491. The sole fixed point is 21.
