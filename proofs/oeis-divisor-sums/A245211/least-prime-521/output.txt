@@ -1,0 +1,2 @@
+521 31181 27063 [] 31181 []
+981,387 ordered exponent patterns through least prime 521. The sole fixed point is 21.
