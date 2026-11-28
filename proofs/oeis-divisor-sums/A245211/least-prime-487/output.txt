@@ -1,0 +1,2 @@
+487 28189 45637 [] 28189 []
+834,340 ordered exponent patterns through least prime 487. The sole fixed point is 21.
