@@ -1,0 +1,2 @@
+457 24937 247007 [] 24937 []
+704,595 ordered exponent patterns through least prime 457. The sole fixed point is 21.
