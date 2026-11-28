@@ -1,0 +1,2 @@
+503 28813 27241 [] 28813 []
+920,125 ordered exponent patterns through least prime 503. The sole fixed point is 21.
