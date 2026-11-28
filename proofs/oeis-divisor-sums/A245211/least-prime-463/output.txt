@@ -1,0 +1,2 @@
+463 25219 2366 [] 25219 []
+754,883 ordered exponent patterns through least prime 463. The sole fixed point is 21.
