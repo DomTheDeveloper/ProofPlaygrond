@@ -1,0 +1,2 @@
+523 31269 64 [] 31269 []
+1,012,656 ordered exponent patterns through least prime 523. The sole fixed point is 21.
