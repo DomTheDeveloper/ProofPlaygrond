@@ -1,0 +1,2 @@
+557 34377 242194 [] 34377 []
+1,114,527 ordered exponent patterns through least prime 557. The sole fixed point is 21.
