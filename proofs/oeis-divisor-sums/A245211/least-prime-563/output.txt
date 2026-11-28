@@ -1,0 +1,2 @@
+563 35235 2031 [] 35235 []
+1,149,762 ordered exponent patterns through least prime 563. The sole fixed point is 21.
