@@ -1,0 +1,2 @@
+479 25923 3836 [] 25923 []
+806,151 ordered exponent patterns through least prime 479. The sole fixed point is 21.
