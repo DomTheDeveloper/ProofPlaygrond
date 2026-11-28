@@ -1,0 +1,2 @@
+467 25345 67262 [] 25345 []
+780,228 ordered exponent patterns through least prime 467. The sole fixed point is 21.
