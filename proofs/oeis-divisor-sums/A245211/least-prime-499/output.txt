@@ -1,0 +1,2 @@
+499 28651 399572 [] 28651 []
+891,312 ordered exponent patterns through least prime 499. The sole fixed point is 21.
