@@ -1,0 +1,2 @@
+461 25069 3180 [] 25069 []
+729,664 ordered exponent patterns through least prime 461. The sole fixed point is 21.
