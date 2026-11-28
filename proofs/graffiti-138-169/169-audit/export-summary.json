@@ -1,0 +1,64 @@
+{
+  "export": "proof.ndjson",
+  "sha256": "7b5e46d77ce0d728d714614b5f79724a05dbdd46fccee365382c552a5972ac41",
+  "bytes": 40483946,
+  "metadata": {
+    "exporter": {
+      "name": "lean4export",
+      "version": "3.1.0"
+    },
+    "format": {
+      "version": "3.1.0"
+    },
+    "lean": {
+      "githash": "819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
+      "version": "4.33.1"
+    }
+  },
+  "theorems_checked": {
+    "Graffiti169.graffiti169": {
+      "declaration_kind": "theorem",
+      "type_expression": 672029,
+      "proof_expression": 672442
+    },
+    "Graffiti169.graffiti169_exact": {
+      "declaration_kind": "theorem",
+      "type_expression": 678068,
+      "proof_expression": 678192
+    },
+    "Graffiti169.exists_spanning_tree": {
+      "declaration_kind": "theorem",
+      "type_expression": 697712,
+      "proof_expression": 697989
+    },
+    "Graffiti169Audit.spanning_tree_for_all_roots": {
+      "declaration_kind": "theorem",
+      "type_expression": 703051,
+      "proof_expression": 703532
+    },
+    "Graffiti169Audit.singleton_fails": {
+      "declaration_kind": "theorem",
+      "type_expression": 703748,
+      "proof_expression": 703928
+    }
+  },
+  "explicit_axiom_records": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "quotient_primitive_records": [
+    "Quot",
+    "Quot.mk",
+    "Quot.lift",
+    "Quot.ind"
+  ],
+  "record_kinds": {
+    "inductive": 314,
+    "quot": 4,
+    "def": 2743,
+    "thm": 5623,
+    "axiom": 3,
+    "opaque": 2
+  }
+}
